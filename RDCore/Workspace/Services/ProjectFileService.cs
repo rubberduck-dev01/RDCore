@@ -1,0 +1,87 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
+
+namespace RDCore.Workspace.Services;
+
+internal interface IProjectFileService
+{
+    ProjectFile Project { get; }
+
+    Task SaveAsync();
+    Task LoadAsync(string workspaceUri);
+
+    void AddReference(RDCoreReference reference);
+    void RemoveReference(RDCoreReference reference);
+
+    void AddSourceFile(WorkspaceDocument document, DocClassType? classType = default);
+    void AddSourceFile(RDCoreModule module);
+    void RemoveSourceFile(RDCoreModule module);
+
+    void AddDocument(WorkspaceDocument document);
+    void AddDocument(RDCoreFile document);
+    void RemoveDocument(RDCoreFile document);
+
+    void AddFolder(string folder);
+    void RemoveFolder(string folder);
+}
+
+internal class ProjectFileService : IProjectFileService
+{
+    private ProjectFile _projectFile = default!;
+    public ProjectFile Project => _projectFile;
+
+    public async Task LoadAsync(string workspaceUri)
+    {
+        var path = Path.Combine(workspaceUri, ProjectFile.FileName);
+        using var stream = File.Open(path, FileMode.Open);
+        if (await JsonSerializer.DeserializeAsync<ProjectFile>(stream) is ProjectFile project)
+        {
+            _projectFile = project.WithWorkspaceUri(workspaceUri);
+        }
+        
+        throw new InvalidOperationException("Project file could not be deserialized from specified workspace root.");
+    }
+
+    public async Task SaveAsync()
+    {
+        var path = Path.Combine(Project.WorkspaceUri, ProjectFile.FileName);
+        if (_projectFile.IsDirty || !File.Exists(path))
+        {
+            using var stream = File.Open(path, FileMode.Create);
+            await JsonSerializer.SerializeAsync(stream, Project);
+        }
+    }
+
+    public void AddSourceFile(WorkspaceDocument document, DocClassType? classType = default)
+    {
+        var module = new RDCoreModule
+        {
+            Name = document.Name,
+            RelativeUri = Path.GetRelativePath(Project.WorkspaceUri, document.Id.Uri.GetFileSystemPath()),
+            Super = classType
+        };
+
+        AddSourceFile(module);
+    }
+
+    public void AddDocument(WorkspaceDocument document)
+    {
+        var file = new RDCoreFile
+        {
+            RelativeUri = Path.GetRelativePath(Project.WorkspaceUri, document.Id.Uri.GetFileSystemPath())
+        };
+        AddDocument(file);
+    }
+
+    public void AddReference(RDCoreReference reference) => _projectFile = Project.WithReference(reference);
+    public void AddSourceFile(RDCoreModule module) => _projectFile = Project.WithModule(module);
+    public void AddDocument(RDCoreFile document) => _projectFile = Project.WithDocument(document);
+    public void AddFolder(string folder) => _projectFile = Project.WithFolder(folder);
+
+    public void RemoveReference(RDCoreReference reference) => _projectFile = Project.WithoutReference(reference);
+    public void RemoveSourceFile(RDCoreModule module) => _projectFile = Project.WithoutModule(module);
+    public void RemoveDocument(RDCoreFile document) => _projectFile = Project.WithoutDocument(document);
+    public void RemoveFolder(string folder) => _projectFile = Project.WithoutFolder(folder);
+}
