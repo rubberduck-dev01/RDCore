@@ -1,5 +1,7 @@
 ﻿using RDCore.Configuration;
 using RDCore.Server;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("RDCore.Tests")]
 
 namespace RDCore;
 

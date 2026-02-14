@@ -1,23 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using RDCore.Server;
 using System.Text.Json.Serialization;
 
 namespace RDCore.Workspace;
 
-internal record class ProjectFile
+internal sealed record class ProjectFile : IEquatable<ProjectFile>
 {
+    /// <summary>
+    /// The <c>ProjectFile</c> filename is the same for all instances.
+    /// </summary>
     public static readonly string FileName = ".rdproj";
 
+    public ProjectFile() { }
+    public ProjectFile(string workspaceUri) : this(workspaceUri, new()) { }
+    public ProjectFile(string workspaceUri, RDCoreProject project)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(workspaceUri, nameof(workspaceUri));
+        ArgumentNullException.ThrowIfNull(project, nameof(project));
+
+        WorkspaceUri = workspaceUri;
+        ProjectInfo = project;
+        Version = ServerApp.Info.Version!.ToString(3);
+        IsDirty = false;
+    }
+    public ProjectFile(ProjectFile source)
+    {
+        ArgumentNullException.ThrowIfNull(source, nameof(source));
+
+        WorkspaceUri = source.WorkspaceUri;
+        ProjectInfo = source.ProjectInfo;
+        Version = ServerApp.Info.Version!.ToString(3);
+        IsDirty = false;
+    }
+
+    /// <summary>
+    /// <c>true</c> if the project file has unsaved changes.
+    /// </summary>
     [JsonIgnore]
     public bool IsDirty { get; init; }
 
+    /// <summary>
+    /// The location of the project file on disk.
+    /// </summary>
+    /// <remarks>
+    /// This property is assigned on load rather than de/serialized, and serves as the workspace root everything else is relative to.
+    /// </remarks>
     [JsonIgnore]
     public string WorkspaceUri { get; init; } = string.Empty;
-    public string Version { get; init; } = string.Empty;
-
-    public RDCoreProject ProjectInfo { get; init; } = default!;
+    /// <summary>
+    /// The <c>RDCore.ServerApp</c> version that this project was created with.
+    /// </summary>
+    public string Version { get; init; } = ServerApp.Info.Version!.ToString(3);
+    /// <summary>
+    /// Describes the workspace structure (files, folders, project references, etc.)
+    /// </summary>
+    public RDCoreProject ProjectInfo { get; init; } = new RDCoreProject();
 
     public ProjectFile WithWorkspaceUri(string uri) => this with { WorkspaceUri = uri };
 
@@ -32,6 +68,7 @@ internal record class ProjectFile
     public ProjectFile WithoutFolder(string folder) => this with { ProjectInfo = ProjectInfo.WithoutFolder(folder), IsDirty = true };
 
     public override int GetHashCode() => WorkspaceUri.GetHashCode();
+    public bool Equals(ProjectFile? other) => other?.WorkspaceUri is string uri && WorkspaceUri.Equals(uri);
 }
 
 internal record class RDCoreProject
@@ -42,14 +79,14 @@ internal record class RDCoreProject
     public RDCoreFile[] OtherFiles { get; init; } = [];
     public string[] Folders { get; set; } = [];
 
-    public HashSet<string> GetWorkspaceFolders(string srcRoot) => 
+    public HashSet<string> GetWorkspaceFolders(string srcRoot) =>
         [
             .. Modules.Select(module => Path.Combine(srcRoot, module.RelativeUri)),
             .. OtherFiles.Select(file => Path.Combine(srcRoot, file.RelativeUri)),
             .. Folders.Select(folder => Path.Combine(srcRoot, folder)),
         ];
 
-    public IEnumerable<RDCoreFile> GetFolderFiles(string folder) => 
+    public IEnumerable<RDCoreFile> GetFolderFiles(string folder) =>
         [
             .. Modules.Where(m => Path.GetDirectoryName(m.RelativeUri)!.Replace('\\', '/').StartsWith(folder)),
             .. OtherFiles.Where(f => Path.GetDirectoryName(f.RelativeUri)!.Replace('\\', '/').StartsWith(folder)),
@@ -67,7 +104,7 @@ internal record class RDCoreProject
     public RDCoreProject WithoutFolder(string folder) => this with { Folders = [.. Folders.Where(f => f != folder)] };
 }
 
-internal record class RDCoreReference
+internal sealed record class RDCoreReference : IEquatable<RDCoreReference>
 {
     public static RDCoreReference VBStandardLibrary { get; } = new RDCoreReference
     {
@@ -89,6 +126,8 @@ internal record class RDCoreReference
     public bool IsUnremovable { get; init; } = false;
 
     public override int GetHashCode() => HashCode.Combine(Name, Guid, Major, Minor);
+
+    public bool Equals(RDCoreReference? other) => other?.Name is string name && Name.Equals(name);
 }
 
 internal record class RDCoreFile : IEquatable<RDCoreFile>
@@ -102,13 +141,8 @@ internal record class RDCoreFile : IEquatable<RDCoreFile>
     public string DefaultName => Path.GetFileNameWithoutExtension(RelativeUri.Replace('\\', '/').Split('/').Last());
 
     public override int GetHashCode() => RelativeUri.GetHashCode();
-    
-    bool IEquatable<RDCoreFile>.Equals(RDCoreFile? other)
-    {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return RelativeUri == other.RelativeUri;
-    }
+
+    public virtual bool Equals(RDCoreFile? other) => other?.RelativeUri is string uri && RelativeUri.Equals(uri);
 }
 
 internal enum DocClassType

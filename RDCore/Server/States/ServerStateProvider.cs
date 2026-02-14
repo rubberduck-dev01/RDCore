@@ -26,9 +26,13 @@ internal interface IServerStateProvider
     /// </summary>
     /// <exception cref="InvalidServerStateException"></exception>
     void OnExit();
+
+    void OnTraceOff();
+    void OnTraceMessages();
+    void OnTraceVerbose();
 }
 
-internal class ServerStateProvider : IServerStateProvider
+internal class ServerStateProvider() : IServerStateProvider
 {
     private ServerState _state = ServerState.Starting;
     public ServerState State => _state;
@@ -37,4 +41,13 @@ internal class ServerStateProvider : IServerStateProvider
     public void OnInitialized() => _state = State is InitializingServerState ? ServerState.Running : throw new InvalidServerStateException(State.Value);
     public void OnShutdown() => _state = State is StartingServerState or RunningServerState ? ServerState.ShuttingDown : throw new InvalidServerStateException(State.Value);
     public void OnExit() => _state = State is StartingServerState or ShuttingDownServerState ? ServerState.Exiting : throw new InvalidServerStateException(State.Value);
+
+    public void OnTraceOff()
+    {
+        _state = State is RunningServerState ? ServerState.RunningTraceless : throw new InvalidServerStateException(State.Value);
+
+    }
+
+    public void OnTraceMessages() => _state = State is RunningServerState ? ServerState.Running : throw new InvalidServerStateException(State.Value);
+    public void OnTraceVerbose() => _state = State is RunningServerState ? ServerState.RunningVerbose : throw new InvalidServerStateException(State.Value);
 }

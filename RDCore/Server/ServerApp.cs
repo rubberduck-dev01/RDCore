@@ -68,6 +68,8 @@ internal class ServerApp(ServerOptions options) : IDisposable
             options.TimestampFormat = "[HH:mm:ss.fff] ";
         });
 
+#if DEBUG
         builder.AddDebug();
+#endif
     }
 }

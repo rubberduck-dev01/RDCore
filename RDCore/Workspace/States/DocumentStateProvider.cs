@@ -57,12 +57,12 @@ internal class DocumentStateProvider : IDocumentStateProvider
     private readonly Dictionary<TextDocumentIdentifier, DocumentState> _state = [];
 
     public DocumentState GetCurrentState(TextDocumentIdentifier id) => _state[id];
-    public void OnDocumentUnloaded(TextDocumentIdentifier id) => _state[id] = DocumentState.Unloaded;
-    public void OnDocumentLoaded(TextDocumentIdentifier id) => _state[id] = !_state.TryGetValue(id, out DocumentState? value) || value is UnloadedDocumentState or OpenedDocumentState ? DocumentState.Loaded : throw new InvalidDocumentStateException(DocumentStateValue.Loaded);
-    public void OnDocumentMissing(TextDocumentIdentifier id) => _state[id] = !_state.TryGetValue(id, out DocumentState? value) || value is UnloadedDocumentState ? DocumentState.Missing : throw new InvalidDocumentStateException(DocumentStateValue.Missing);
-    public void OnDocumentLoadError(TextDocumentIdentifier id) => _state[id] = !_state.TryGetValue(id, out DocumentState? value) || value is UnloadedDocumentState ? DocumentState.LoadError : throw new InvalidDocumentStateException(DocumentStateValue.LoadError);
-    public void OnDocumentOpened(TextDocumentIdentifier id) => _state[id] = _state[id] is LoadedDocumentState ? DocumentState.Opened : throw new InvalidDocumentStateException(DocumentStateValue.Opened);
-    public void OnDocumentClosed(TextDocumentIdentifier id) => _state[id] = _state[id] is OpenedDocumentState ? DocumentState.Loaded : throw new InvalidDocumentStateException(DocumentStateValue.Loaded);
+    public void OnDocumentUnloaded(TextDocumentIdentifier id) => _state[id] = _state.TryGetValue(id, out DocumentState? value) && value is LoadedDocumentState ? DocumentState.Unloaded : throw new InvalidDocumentStateException(DocumentStateValue.Unloaded);
+    public void OnDocumentLoaded(TextDocumentIdentifier id) => _state[id] = _state.TryGetValue(id, out DocumentState? value) && value is UnloadedDocumentState ? DocumentState.Loaded : throw new InvalidDocumentStateException(DocumentStateValue.Loaded);
+    public void OnDocumentMissing(TextDocumentIdentifier id) => _state[id] = _state.TryGetValue(id, out DocumentState? value) && value is UnloadedDocumentState ? DocumentState.Missing : throw new InvalidDocumentStateException(DocumentStateValue.Missing);
+    public void OnDocumentLoadError(TextDocumentIdentifier id) => _state[id] = _state.TryGetValue(id, out DocumentState? value) && value is UnloadedDocumentState ? DocumentState.LoadError : throw new InvalidDocumentStateException(DocumentStateValue.LoadError);
+    public void OnDocumentOpened(TextDocumentIdentifier id) => _state[id] = _state.TryGetValue(id, out DocumentState? value) && value is LoadedDocumentState ? DocumentState.Opened : throw new InvalidDocumentStateException(DocumentStateValue.Opened);
+    public void OnDocumentClosed(TextDocumentIdentifier id) => _state[id] = _state.TryGetValue(id, out DocumentState? value) && value is OpenedDocumentState ? DocumentState.Loaded : throw new InvalidDocumentStateException(DocumentStateValue.Loaded);
 
     public void Initialize(IEnumerable<TextDocumentIdentifier> workspaceDocumentIds)
     {

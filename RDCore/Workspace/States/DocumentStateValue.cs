@@ -1,6 +1,6 @@
 ﻿namespace RDCore.Workspace.States;
 
-internal enum DocumentStateValue
+public enum DocumentStateValue
 {
     /// <summary>
     /// File belongs to an open workspace but was not loaded, or was manually unloaded.

@@ -14,8 +14,19 @@ internal class SetTraceHandler(ILogger<IJsonRpcHandler> logger, IServerStateProv
         cancellationToken.ThrowIfCancellationRequested();
         logger.LogTrace("Received SetTrace request.");
 
-        // TODO
-        
+        if (request.Value == InitializeTrace.Off && server.State is RunningServerState and not RunningTracelessServerState)
+        {
+            server.OnTraceOff();
+        }
+        else if (request.Value == InitializeTrace.Messages && server.State is RunningServerState)
+        {
+            server.OnTraceMessages();
+        }
+        else if (request.Value == InitializeTrace.Verbose && server.State is RunningServerState and not RunningVerboseServerState)
+        {
+            server.OnTraceVerbose();
+        }
+
         return await Task.FromResult(Unit.Value);
     }
 }
