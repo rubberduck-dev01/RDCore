@@ -10,6 +10,8 @@ using RDCore.Workspace.States;
 using System.IO.Abstractions;
 using System.Reflection;
 
+using IFile = System.IO.Abstractions.IFile;
+
 namespace RDCore.Server;
 
 internal class ServerApp(ServerOptions options) : IDisposable
@@ -37,12 +39,15 @@ internal class ServerApp(ServerOptions options) : IDisposable
     private void ConfigureServices(IServiceCollection services)
     {
         services
-            .AddSingleton<System.IO.Abstractions.IPath, PathWrapper>()
-            .AddSingleton<System.IO.Abstractions.IFile, FileWrapper>()
-            .AddSingleton<System.IO.Abstractions.IDirectory, DirectoryWrapper>()
+            .AddSingleton<IFileSystem, FileSystem>()
+            .AddSingleton<IPath, PathWrapper>()
+            .AddSingleton<IFile, FileWrapper>()
+            .AddSingleton<IDirectory, DirectoryWrapper>()
+
             .AddSingleton(provider => CancellationTokenSource)
             .AddSingleton(provider => Options)
             .AddSingleton(provider => Info.Version!)
+
             .AddSingleton<ILanguageServerApp, LanguageServerApp>()
             .AddSingleton<IServerStateProvider, ServerStateProvider>()
             .AddSingleton<IDocumentStateProvider, DocumentStateProvider>()
@@ -51,17 +56,11 @@ internal class ServerApp(ServerOptions options) : IDisposable
             .AddSingleton<IProjectFileService, ProjectFileService>()
             .AddSingleton<IWorkspaceDocumentService, WorkspaceDocumentService>()
 
-            .AddSingleton<AddReferenceCommand>()
-            .AddSingleton<RemoveReferenceCommand>()
-
-            .AddSingleton<IEnumerable<ServerCommand>>(provider =>
-            [
-                provider.GetRequiredService<AddReferenceCommand>(),
-                provider.GetRequiredService<RemoveReferenceCommand>(),
-            ])
-
             .AddSingleton<IEnumerable<SupportedLanguage>>(provider => [SupportedLanguage.VBA])
             .AddSingleton<TextDocumentSelector>(provider => SupportedLanguage.VBA.ToTextDocumentSelector())
+
+            .AddSingleton<ServerCommand, AddReferenceCommand>()
+            .AddSingleton<ServerCommand, RemoveReferenceCommand>()
 
             .AddLogging(ConfigureLogging);
     }

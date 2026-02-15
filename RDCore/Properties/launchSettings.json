@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RDCore": {
+      "commandName": "Project",
+      "commandLineArgs": "-v"
+    }
+  }
+}
