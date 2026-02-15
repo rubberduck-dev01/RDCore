@@ -40,7 +40,11 @@ internal class ServerStateProvider() : IServerStateProvider
     public void OnInitialize() => _state = State is StartingServerState ? ServerState.Initializing : throw new InvalidServerStateException(State.Value);
     public void OnInitialized() => _state = State is InitializingServerState ? ServerState.Running : throw new InvalidServerStateException(State.Value);
     public void OnShutdown() => _state = State is RunningServerState ? ServerState.ShuttingDown : throw new InvalidServerStateException(State.Value);
-    public void OnExit() => _state = State is StartingServerState or ShuttingDownServerState ? ServerState.Exiting : throw new InvalidServerStateException(State.Value);
+    public void OnExit()
+    {
+        var state = State.Value;
+        _state = ServerState.Exiting(state);
+    }
 
     public void OnTraceOff()
     {

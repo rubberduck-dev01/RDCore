@@ -14,7 +14,7 @@ using IFile = System.IO.Abstractions.IFile;
 
 namespace RDCore.Server;
 
-internal class ServerApp(ServerOptions options) : IDisposable
+internal class ServerApp(IServerStateProvider serverStateProvider, ServerOptions options) : IDisposable
 {
     public static AssemblyName Info { get; } = typeof(ServerApp).Assembly.GetName();
 
@@ -49,7 +49,7 @@ internal class ServerApp(ServerOptions options) : IDisposable
             .AddSingleton(provider => Info.Version!)
 
             .AddSingleton<ILanguageServerApp, LanguageServerApp>()
-            .AddSingleton<IServerStateProvider, ServerStateProvider>()
+            .AddSingleton<IServerStateProvider>(serverStateProvider)
             .AddSingleton<IDocumentStateProvider, DocumentStateProvider>()
             .AddSingleton<IHealthCheckService, HealthCheckService>()
             .AddSingleton<IWorkspaceService, WorkspaceService>()

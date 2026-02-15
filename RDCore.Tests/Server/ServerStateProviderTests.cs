@@ -56,12 +56,12 @@ public class ServerStateProviderTests
     [TestMethod]
     [DataRow(null, ServerStateValue.Exiting)]
     [DataRow(ServerStateValue.Starting, ServerStateValue.Exiting)]
-    [DataRow(ServerStateValue.Initializing, null)]
-    [DataRow(ServerStateValue.Running, null)]
-    [DataRow(ServerStateValue.RunningTraceless, null)]
-    [DataRow(ServerStateValue.RunningVerbose, null)]
+    [DataRow(ServerStateValue.Initializing, ServerStateValue.Exiting)]
+    [DataRow(ServerStateValue.Running, ServerStateValue.Exiting)]
+    [DataRow(ServerStateValue.RunningTraceless, ServerStateValue.Exiting)]
+    [DataRow(ServerStateValue.RunningVerbose, ServerStateValue.Exiting)]
     [DataRow(ServerStateValue.ShuttingDown, ServerStateValue.Exiting)]
-    [DataRow(ServerStateValue.Exiting, null)]
+    [DataRow(ServerStateValue.Exiting, ServerStateValue.Exiting)]
     public void OnExit(ServerStateValue? initialState, ServerStateValue? expectedState)
     => TestServerStateTransition(sut => sut.OnExit(), initialState, expectedState);
 
