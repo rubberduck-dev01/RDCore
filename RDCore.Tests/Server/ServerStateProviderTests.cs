@@ -9,7 +9,7 @@ public class ServerStateProviderTests
     public void Uninitialized_State_IsStartingState()
     {
         // arrange
-        var sut = new ServerStateProvider();
+        var sut = new ServerStateProvider(new());
 
         // act
         var result = sut.State;
@@ -104,7 +104,7 @@ public class ServerStateProviderTests
     private static void TestServerStateTransition(Action<ServerStateProvider> act, ServerStateValue? initialState, ServerStateValue? expectedState)
     {
         // arrange
-        var sut = new ServerStateProvider();
+        var sut = new ServerStateProvider(new());
 
         if (initialState.HasValue)
         {

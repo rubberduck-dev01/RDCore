@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using RDCore.Configuration;
 using RDCore.Server.Commands;
 using RDCore.Server.Services;
 using RDCore.Server.States;
@@ -14,13 +13,9 @@ using IFile = System.IO.Abstractions.IFile;
 
 namespace RDCore.Server;
 
-internal class ServerApp(IServerStateProvider serverStateProvider, ServerOptions options) : IDisposable
+internal class ServerApp(IServerStateProvider serverStateProvider)
 {
     public static AssemblyName Info { get; } = typeof(ServerApp).Assembly.GetName();
-
-    private ServerOptions Options { get; } = options;
-    private CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
-
     public async Task RunAsync()
     {
         var services = new ServiceCollection();
@@ -31,11 +26,6 @@ internal class ServerApp(IServerStateProvider serverStateProvider, ServerOptions
         await app.RunAsync(provider);
     }
 
-    public void Dispose()
-    {
-        CancellationTokenSource.Dispose();
-    }
-
     private void ConfigureServices(IServiceCollection services)
     {
         services
@@ -44,8 +34,6 @@ internal class ServerApp(IServerStateProvider serverStateProvider, ServerOptions
             .AddSingleton<IFile, FileWrapper>()
             .AddSingleton<IDirectory, DirectoryWrapper>()
 
-            .AddSingleton(provider => CancellationTokenSource)
-            .AddSingleton(provider => Options)
             .AddSingleton(provider => Info.Version!)
 
             .AddSingleton<ILanguageServerApp, LanguageServerApp>()
@@ -67,7 +55,7 @@ internal class ServerApp(IServerStateProvider serverStateProvider, ServerOptions
 
     private void ConfigureLogging(ILoggingBuilder builder)
     {
-        if (Options.Verbose)
+        if (serverStateProvider.Options.Verbose)
         {
             builder.SetMinimumLevel(LogLevel.Trace);
         }

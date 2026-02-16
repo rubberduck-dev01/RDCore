@@ -1,75 +1,86 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDCore.Server.States;
 using System.Diagnostics;
 
 namespace RDCore.Server.Services;
 
 internal interface IHealthCheckService : IDisposable
 {
-    void Start(Action handleUnhealthyClient, long? clientProcessId, int healthCheckIntervalSeconds);
+    void Start(long? clientProcessId);
     void Pause();
     void Resume();
 }
 
-internal class HealthCheckService : IHealthCheckService
+internal sealed class HealthCheckService : IHealthCheckService
 {
     private readonly Timer _timer;
     private readonly ILogger _logger;
 
-    private Action? _handleUnhealthyClient;
+    private readonly IServerStateProvider _serverState;
+
     private TimeSpan _interval;
 
     private bool _didNotify;
     private Process? _process;
 
-    public HealthCheckService(ILoggerFactory loggerFactory)
+    public HealthCheckService(ILogger<HealthCheckService> logger, IServerStateProvider serverState)
     {
         _timer = new Timer(CheckClientProcessHealth, null, Timeout.Infinite, Timeout.Infinite);
-        _logger = loggerFactory.CreateLogger<HealthCheckService>();
+        _logger = logger;
+
+        _serverState = serverState;
     }
 
-    public void Start(Action handleUnhealthyClient, long? clientProcessId, int healthCheckIntervalSeconds)
+    public void Start(long? clientProcessId)
     {
         if (!clientProcessId.HasValue)
         {
+            _logger.LogWarning("🐛 ClientProcessId was somehow not specified in Initialize request.");
             throw new ArgumentNullException(nameof(clientProcessId));
         }
         if (clientProcessId.Value > int.MaxValue)
         {
+            _logger.LogWarning("🐛 ClientProcessId value from Initialize request exceeds System.Int32.MaxValue. What now?");
             throw new ArgumentOutOfRangeException(nameof(clientProcessId));
         }
 
+        // NOTE: we're purposely using a timer to poll process health rather than registering an event handler to watch its exit.
         _process = Process.GetProcessById((int)clientProcessId.Value);
 
         _didNotify = false;
-        _handleUnhealthyClient = handleUnhealthyClient;
-        _interval = TimeSpan.FromSeconds(healthCheckIntervalSeconds);
+        _interval = TimeSpan.FromSeconds(_serverState.Options.HealthCheckIntervalSeconds);
 
-        _logger.LogInformation("Starting health check service (Interval: {TotalSeconds} seconds)", _interval.TotalSeconds);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("👀 Starting health check service (Interval: {TotalSeconds} seconds)", _interval.TotalSeconds);
+        }
         _timer.Change(TimeSpan.Zero, _interval);
     }
 
     public void Pause()
     {
-        if (!_didNotify && _handleUnhealthyClient is not null)
+        if (!_didNotify)
         {
-            _logger.LogInformation("Pausing health check service...");
+            _logger.LogInformation("⏯️ Pausing health check service...");
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
         else
         {
+            _logger.LogWarning("🐛 HealthCheckService was already paused.");
             throw new InvalidOperationException();
         }
     }
 
     public void Resume()
     {
-        if (!_didNotify && _handleUnhealthyClient is not null)
+        if (!_didNotify)
         {
-            _logger.LogInformation("Resuming health check service...");
+            _logger.LogInformation("⏯️ Resuming health check service...");
             _timer.Change(TimeSpan.Zero, _interval);
         }
         else
         {
+            _logger.LogWarning("🐛 HealthCheckService was not paused.");
             throw new InvalidOperationException();
         }
     }
@@ -90,7 +101,7 @@ internal class HealthCheckService : IHealthCheckService
     {
         if (_process!.HasExited)
         {
-            _logger.LogWarning("Client process (ID:{ProcessId}) has exited", _process!.Id);
+            _logger.LogWarning("⚠️ Client process (ID:{ProcessId}) has exited", _process!.Id);
             OnUnhealthyClientDetected();
         }
     }
@@ -99,12 +110,12 @@ internal class HealthCheckService : IHealthCheckService
     {
         if (!_didNotify)
         {
-            _logger.LogCritical("Client process health check failed; server process will be terminated.");
+            _logger.LogCritical("💀 Client process health check failed; server process will be terminated.");
 
             _timer.Change(TimeSpan.Zero, Timeout.InfiniteTimeSpan);
             _didNotify = true;
 
-            _handleUnhealthyClient?.Invoke();
+            _serverState.OnExit();
         }
     }
 }

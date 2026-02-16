@@ -1,4 +1,6 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+﻿using Microsoft.Extensions.Logging;
+using NSubstitute;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using RDCore.Workspace.States;
 
 namespace RDCore.Tests.Workspace;
@@ -10,12 +12,14 @@ public sealed class DocumentStateProviderTests
     private static readonly Uri TestDocumentUri1 = new(TestWorkspaceUri, "/README.md");
     private static readonly Uri TestDocumentUri2 = new(TestWorkspaceUri, "/LICENSE.md");
 
+    private static readonly ILogger<DocumentStateProvider> _logger = Substitute.For<ILogger<DocumentStateProvider>>();
+
     [TestMethod]
     public void Uninitialized_GetCurrentState_Throws()
     {
         // arrange
         var id = new TextDocumentIdentifier(TestDocumentUri1);
-        var sut = new DocumentStateProvider();
+        var sut = new DocumentStateProvider(_logger);
 
         // act/assert
         Assert.Throws<KeyNotFoundException>(() => sut.GetCurrentState(id));
@@ -27,7 +31,7 @@ public sealed class DocumentStateProviderTests
         // arrange
         var id1 = new TextDocumentIdentifier(TestDocumentUri1);
         var id2 = new TextDocumentIdentifier(TestDocumentUri2);
-        var sut = new DocumentStateProvider();
+        var sut = new DocumentStateProvider(_logger);
 
         sut.Initialize([id1]);
 
@@ -40,7 +44,7 @@ public sealed class DocumentStateProviderTests
     {
         // arrange
         var id = new TextDocumentIdentifier(TestDocumentUri1);
-        var sut = new DocumentStateProvider();
+        var sut = new DocumentStateProvider(_logger);
 
         // act
         sut.Initialize([id]);
@@ -133,7 +137,7 @@ public sealed class DocumentStateProviderTests
         // arrange
         var id1 = new TextDocumentIdentifier(TestDocumentUri1);
         var id2 = new TextDocumentIdentifier(TestDocumentUri2);
-        var sut = new DocumentStateProvider();
+        var sut = new DocumentStateProvider(_logger);
 
         if (initialState.HasValue)
         {

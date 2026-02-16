@@ -10,7 +10,7 @@ internal interface IWorkspaceDocumentService
 {
     IEnumerable<WorkspaceDocument> GetAllDocuments();
     void Initialize(string workspaceRoot);
-    Task<bool> TryLoadAsync(string relativePath);
+    Task<bool> TryLoadAsync(TextDocumentIdentifier id);
     Task<bool> TrySaveAsync(TextDocumentIdentifier id);
     bool Unload(TextDocumentIdentifier id);
     void Edit(TextDocumentIdentifier id, string text);
@@ -29,38 +29,52 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
     public void Initialize(string workspaceRoot)
     {
         _workspaceRoot = workspaceRoot;
+        if (logger.IsEnabled(LogLevel.Trace))
+        {
+            logger.LogTrace("WorkspaceDocumentService initialized with workspace root: {workspaceRoot}", workspaceRoot);
+        }
+        logger.LogInformation("✅ Initialize completed.");
     }
 
     public IEnumerable<WorkspaceDocument> GetAllDocuments() => [.. _documents.Values];
 
-    public async Task<bool> TryLoadAsync(string relativePath)
+    public async Task<bool> TryLoadAsync(TextDocumentIdentifier id)
     {
+        var path = id.Uri.GetFileSystemPath();
+        var relativeUri = ioPath.GetRelativePath(_workspaceRoot, path);
+
         try
         {
-            if (ioFile.Exists(relativePath))
+            if (ioFile.Exists(path))
             {
-                var content = await ioFile.ReadAllTextAsync(relativePath);
-                var document = new WorkspaceDocument(relativePath, _workspaceRoot, content);
-                documentStateProvider.OnDocumentLoaded(document.Id);
+                if (logger.IsEnabled(LogLevel.Trace))
+                {
+                    logger.LogTrace("Loading workspace document from '{path}'...", path);
+                }
 
-                logger.LogInformation("Workspace document at '{relativePath}' was loaded successfully.", relativePath);
+                var content = await ioFile.ReadAllTextAsync(path);
+                var document = new WorkspaceDocument(relativeUri, _workspaceRoot, content);
+
+                documentStateProvider.OnDocumentLoaded(document.Id);
+                logger.LogInformation("✅ Workspace document was loaded successfully.");
+
                 return true;
             }
             else
             {
-                var document = new WorkspaceDocument(relativePath, _workspaceRoot);
+                var document = new WorkspaceDocument(relativeUri, _workspaceRoot);
                 _documents[document.Id] = document;
 
-                logger.LogWarning("Workspace document at '{relativePath}' is missing.", relativePath);
+                logger.LogWarning("⚠ Workspace document at '{uri}' is missing.", relativeUri);
                 documentStateProvider.OnDocumentMissing(document.Id);
             }
         }
         catch (Exception exception)
         {
-            var document = new WorkspaceDocument(relativePath, _workspaceRoot);
+            var document = new WorkspaceDocument(relativeUri, _workspaceRoot);
             _documents[document.Id] = document;
 
-            logger.LogWarning(exception, "Workspace document at '{relativePath}' could not be loaded.", relativePath);
+            logger.LogWarning(exception, "❌ Workspace document '{uri}' could not be loaded.", relativeUri);
             documentStateProvider.OnDocumentLoadError(document.Id);
         }
 
@@ -72,37 +86,49 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
         var id = new TextDocumentIdentifier(new Uri(ioPath.Combine(_workspaceRoot, relativePath)));
         if (_documents.ContainsKey(id))
         {
-            logger.LogWarning("Workspace document at '{relativePath}' already exists and cannot be created.", relativePath);
+            logger.LogWarning("⚠️ Workspace document '{uri}' already exists and cannot be created.", relativePath);
             throw new InvalidOperationException("Document already exists.");
         }
 
-        File.Create(id.Uri.GetFileSystemPath());
+        var path = id.Uri.GetFileSystemPath();
+        File.Create(path);
+
+        if (logger.IsEnabled(LogLevel.Trace))
+        {
+            logger.LogTrace("Created new file '{path}'.", path);
+        }
+
         var document = new WorkspaceDocument(relativePath, _workspaceRoot);
         _documents[id] = document;
         documentStateProvider.OnDocumentLoaded(document.Id);
 
-        logger.LogInformation("Workspace document at '{relativePath}' was created successfully.", relativePath);
+        logger.LogInformation("Workspace document was created successfully.");
     }
 
     public bool Unload(TextDocumentIdentifier id)
     {
         if (_documents.TryGetValue(id, out var document))
         {
+            if (logger.IsEnabled(LogLevel.Trace))
+            {
+                logger.LogTrace("Unloading workspace document '{uri}'...", document.RelativePath);
+            }
+
             if (document.IsDirty)
             {
-                logger.LogWarning("Workspace document id '{id}' has unsaved changes being discarded.", id);
+                logger.LogWarning("⚠️ Workspace document has unsaved changes being discarded.");
             }
 
             if (_documents.Remove(id))
             {
                 documentStateProvider.OnDocumentUnloaded(id);
 
-                logger.LogInformation("Workspace document id '{id}' was unloaded successfully.", id);
+                logger.LogInformation("✅ Workspace document was unloaded successfully.");
                 return true;
             }
         }
 
-        logger.LogWarning("Workspace document id '{id}' could not be unloaded.", id);
+        logger.LogDebug("🐛 Workspace document could not be unloaded.");
         return false;
     }
 
@@ -112,13 +138,20 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
         if (currentState is LoadedDocumentState or OpenedDocumentState
             && _documents.TryGetValue(id, out var document) && document is WorkspaceDocument workspaceDocument)
         {
+            if (logger.IsEnabled(LogLevel.Trace))
+            {
+                logger.LogTrace("Editing workspace document '{uri}'...", workspaceDocument.RelativePath);
+            }
+
             _documents[id] = workspaceDocument.WithText(text);
         }
         else
         {
-            logger.LogWarning("Workspace document id '{id}' could not be edited because it is not in a valid state ({state}).", id, currentState.Value);
+            logger.LogWarning("🐛 Workspace document could not be edited because it is not in a valid state ({state}).", currentState.Value);
             throw new InvalidDocumentStateException();
         }
+
+        logger.LogInformation("✅ Workspace document content was updated successfully.");
     }
 
     public void Edit(TextDocumentIdentifier id, TextDocumentRange range, int rangeLength, string text)
@@ -132,7 +165,7 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
             var linesAfter = lines[(lines.Length - range.End.Line)..];
 
             var replacedLines = lines[range.Start.Line..range.End.Line];
-            var textLines = text.Split(Environment.NewLine);
+            //var textLines = text.Split(Environment.NewLine);
 
             var textBefore = replacedLines.First()[..range.Start.Character];
             var textAfter = replacedLines.Last()[range.End.Character..];
@@ -144,39 +177,58 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
             var replacedLinesText = builder.ToString();
 
             var newText = string.Join(Environment.NewLine, linesBefore.Append(replacedLinesText).Concat(linesAfter));
+            if (logger.IsEnabled(LogLevel.Trace))
+            {
+                logger.LogTrace("Editing workspace document '{uri}' at {range}...", workspaceDocument.RelativePath, range);
+            }
+
             _documents[id] = workspaceDocument.WithText(newText);
         }
         else
         {
-            logger.LogWarning("Workspace document id '{id}' could not be edited because it is not in a valid state ({state}).", id, currentState.Value);
+            logger.LogWarning("🐛 Workspace document could not be edited because it is not in a valid state ({state}).", currentState.Value);
             throw new InvalidDocumentStateException();
         }
+
+        logger.LogInformation("✅ Workspace document content was updated successfully.");
     }
 
     public async Task<bool> TrySaveAsync(TextDocumentIdentifier id)
     {
-        if (documentStateProvider.GetCurrentState(id) is LoadedDocumentState or OpenedDocumentState
+        var currentState = documentStateProvider.GetCurrentState(id);
+        if (currentState is LoadedDocumentState or OpenedDocumentState
             && _documents.TryGetValue(id, out var document) && document is WorkspaceDocument workspaceDocument)
         {
-            if (!workspaceDocument.IsDirty)
+            if (workspaceDocument.IsDirty)
             {
-                logger.LogWarning("Workspace document id '{id}' has no changes to save.", id);
-            }
+                try
+                {
+                    var path = ioPath.Combine(_workspaceRoot, document.FileName);
+                    if (logger.IsEnabled(LogLevel.Trace))
+                    {
+                        logger.LogTrace("Saving file: '{path}'...", path);
+                    }
 
-            try
+                    await ioFile.WriteAllTextAsync(path, document.Text);
+                    _documents[id] = workspaceDocument.AsInitialVersion();
+
+                    logger.LogInformation("Workspace document was saved successfully.");
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "❌ Workspace document could not be saved.");
+                }
+            }
+            else
             {
-                var path = ioPath.Combine(_workspaceRoot, document.FileName);
-                await ioFile.WriteAllTextAsync(path, document.Text);
-
-                _documents[id] = workspaceDocument.AsInitialVersion();
-
-                logger.LogInformation("Workspace document id '{id}' was saved successfully.", id);
-                return true;
+                logger.LogWarning("⚠️ Workspace document has no changes to save.");
             }
-            catch (Exception exception)
-            {
-                logger.LogWarning(exception, "Workspace document id '{id}' could not be saved.", id);
-            }
+        }
+        else
+        {
+            logger.LogWarning("🐛 Workspace document could not be saved because it is not in a valid state ({state}).", currentState.Value);
+            throw new InvalidDocumentStateException();
         }
 
         return false;
@@ -193,6 +245,11 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
             var newRelativePath = ioPath.Combine(ioPath.GetDirectoryName(relativePath)!, newName);
             var newId = new TextDocumentIdentifier(new Uri(ioPath.Combine(_workspaceRoot, newRelativePath)));
 
+            if (logger.IsEnabled(LogLevel.Trace))
+            {
+                logger.LogTrace("Renaming file '{oldPath}' to '{newPath}'...", relativePath, newRelativePath);
+            }
+
             _documents.Remove(id);
             _documents[newId] = new WorkspaceDocument(newRelativePath, document.Text, document.Version);
 
@@ -203,11 +260,11 @@ internal class WorkspaceDocumentService(IDocumentStateProvider documentStateProv
                 documentStateProvider.OnDocumentOpened(id);
             }
 
-            logger.LogInformation("Workspace document id '{id}' was renamed to '{newName}' successfully.", id, newName);
+            logger.LogInformation("✅ Workspace file rename operation completed successfully.");
         }
         else
         {
-            logger.LogWarning("Workspace document id '{id}' could not be renamed because it is not in a valid state ({state}).", id, currentState.Value);
+            logger.LogWarning("🐛 Workspace document could not be renamed because it is not in a valid state ({state}).", currentState.Value);
             throw new InvalidDocumentStateException();
         }
     }

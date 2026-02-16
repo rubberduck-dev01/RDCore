@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
-using RDCore.Configuration;
 using RDCore.Server.Handlers.Document;
 using RDCore.Server.Handlers.Lifecycle;
 using RDCore.Server.Handlers.Workspace;
@@ -27,31 +26,29 @@ internal class LanguageServerApp(
     IServerStateProvider serverStateProvider,
     IHealthCheckService healthCheckService,
     IWorkspaceService workspaceService,
-    CancellationTokenSource cancellationTokenSource,
-    ServerOptions options) : ILanguageServerApp
+    ILogger<LanguageServerApp> logger) : ILanguageServerApp
 {
     private static string PipeName => "RDCore.Server";
 
     private OmniSharpLanguageServer? Server { get; set; } = default;
-    private ILoggerFactory LoggerFactory { get; set; } = default!;
 
     private NamedPipeServerStream NamedPipeServerStream { get; set; } = default!;
     private Task? WaitForClientConnectionTask { get; set; }
-
-    public ServerOptions Options { get; } = options;
 
     public ILanguageServer LanguageServer => Server ?? throw new InvalidOperationException("Language server has not been initialized.");
 
     public async Task RunAsync(IServiceProvider provider)
     {
-        LoggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        var logger = LoggerFactory.CreateLogger<LanguageServerApp>();
+        if (logger.IsEnabled(LogLevel.Trace))
+        {
+            logger.LogInformation("Starting language server...");
+        }
+        Server = await OmniSharpLanguageServer.From(ConfigureServer, provider, serverStateProvider.ProcessToken);
 
-        logger.LogInformation("Starting RDCore.LSP language server, connecting IO streams...");
-        Server = await OmniSharpLanguageServer.From(ConfigureServer, provider, cancellationTokenSource.Token);
-
-        logger.LogInformation("RDCore.LSP language server is ready and awaiting client initialize request.");
+        logger.LogInformation("✅ Language server is ready and awaiting client initialize request.");
         await Server.WaitForExit;
+
+        logger.LogInformation("✅ RunAsync completed; process will now exit.");
     }
 
     public void Dispose()
@@ -64,10 +61,6 @@ internal class LanguageServerApp(
         {
             disposableTask.Dispose();
         }
-        if (LoggerFactory is IDisposable disposableLoggerFactory)
-        {
-            disposableLoggerFactory.Dispose();
-        }
         if (Server is IDisposable disposableServer)
         {
             disposableServer.Dispose();
@@ -76,7 +69,8 @@ internal class LanguageServerApp(
 
     private void ConfigureServer(LanguageServerOptions options)
     {
-        NamedPipeServerStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut, 16,
+        NamedPipeServerStream = new NamedPipeServerStream(PipeName, PipeDirection.InOut,
+            serverStateProvider.Options.MaximumInstances,
             PipeTransmissionMode.Byte,
             System.IO.Pipes.PipeOptions.Asynchronous |
             System.IO.Pipes.PipeOptions.CurrentUserOnly);
@@ -85,10 +79,14 @@ internal class LanguageServerApp(
             .WithInput(PipeReader.Create(NamedPipeServerStream))
             .WithOutput(PipeWriter.Create(NamedPipeServerStream));
 
-        WaitForClientConnectionTask = NamedPipeServerStream.WaitForConnectionAsync(cancellationTokenSource.Token);
+        if (logger.IsEnabled(LogLevel.Trace))
+        {
+            logger.LogTrace("Named pipe '{pipeName}' initialized; asynchronously awaiting client connection...", PipeName);
+        }
+        WaitForClientConnectionTask = NamedPipeServerStream.WaitForConnectionAsync(serverStateProvider.ProcessToken);
 
         options
-            .WithServerInfo(GetServerInfo())
+            .WithServerInfo(serverStateProvider.ServerInfo)
             .WithHandler<ExitHandler>()
             .WithHandler<ShutdownHandler>()
             .WithHandler<SetTraceHandler>()
@@ -108,15 +106,8 @@ internal class LanguageServerApp(
                 builder.AddLanguageProtocolLogging();
             });
         });
-    }
 
-    private static ServerInfo GetServerInfo()
-    {
-        return new ServerInfo
-        {
-            Name = ServerApp.Info.Name!,
-            Version = ServerApp.Info.Version!.ToString(3)
-        };
+        logger.LogInformation("✅ ConfigureServer completed.");
     }
 
     private async Task OnLanguageServerInitializeAsync(ILanguageServer server, InitializeParams request, CancellationToken token)
@@ -126,12 +117,10 @@ internal class LanguageServerApp(
         // before it is processed by the server.
         serverStateProvider.OnInitialize();
 
-        var logger = LoggerFactory.CreateLogger<LanguageServerApp>();
-
         if (request.ProcessId.HasValue)
         {
             // Initialize request specifies a client process ID; start monitoring the client process health
-            healthCheckService.Start(() => cancellationTokenSource.Cancel(true), request.ProcessId, Options.HealthCheckIntervalSeconds);
+            healthCheckService.Start(request.ProcessId);
         }
         else
         {
@@ -146,8 +135,11 @@ internal class LanguageServerApp(
         }
         else
         {
+            logger.LogWarning("⚠️ Initialize request did not specify a workspace root path or URI; an exception will be thrown.");
             throw InvalidRequestException.For(request);
         }
+
+        logger.LogInformation("✅ OnLanguageServerInitializeAsync handler completed.");
     }
 
     private async Task OnLanguageServerInitializedAsync(ILanguageServer server, InitializeParams request, InitializeResult response, CancellationToken cancellationToken)
@@ -156,6 +148,7 @@ internal class LanguageServerApp(
         // Gives your class or handler an opportunity to interact with the InitializeParams and InitializeResult
         // after it is processed by the server but before it is sent to the client.
         serverStateProvider.OnInitialized();
+        logger.LogInformation("✅ OnLanguageServerInitializedAsync handler completed.");
     }
 
     private async Task OnLanguageServerStartedAsync(ILanguageServer server, CancellationToken token)
@@ -165,6 +158,6 @@ internal class LanguageServerApp(
         // after the connection has been established.
 
         // TODO - start parsing, we're ready to receive client requests and notifications at this point.
-
+        logger.LogInformation("✅ OnLanguageServerStartedAsync handler completed.");
     }
 }

@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+﻿using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace RDCore.Workspace.States;
 
@@ -52,7 +53,7 @@ internal interface IDocumentStateProvider
     void OnDocumentClosed(TextDocumentIdentifier id);
 }
 
-internal class DocumentStateProvider : IDocumentStateProvider
+internal class DocumentStateProvider(ILogger<DocumentStateProvider> logger) : IDocumentStateProvider
 {
     private readonly Dictionary<TextDocumentIdentifier, DocumentState> _state = [];
 
@@ -70,6 +71,11 @@ internal class DocumentStateProvider : IDocumentStateProvider
         foreach (var id in workspaceDocumentIds)
         {
             _state[id] = DocumentState.Unloaded;
+        }
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("✅ Initialize completed; tracking {documents} unloaded workspace document(s).", _state.Count);
         }
     }
 }
