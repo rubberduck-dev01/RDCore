@@ -4,6 +4,7 @@ namespace RDCore.Configuration;
 
 public record class ServerOptions
 {
+    private const int DefaultConnectTimeoutSeconds = 30;
     private const int DefaultHealthCheckIntervalSeconds = 5;
     private const int DefaultShutdownTimeoutSeconds = 10;
     private const int DefaultMaximumInstances = 16;
@@ -25,6 +26,12 @@ public record class ServerOptions
     /// </summary>
     [Option('t', "shutdown-timeout", Required = false, Default = DefaultShutdownTimeoutSeconds, HelpText = "The maximum number of seconds the server will wait for an Exit notification after receiving a Shutdown request.")]
     public int ShutdownTimeoutSeconds { get; init; } = DefaultShutdownTimeoutSeconds;
+
+    /// <summary>
+    /// The maximum number of seconds the server will await a client connection before aborting.
+    /// </summary>
+    [Option('c', "connect-timeout", Required = false, Default = DefaultConnectTimeoutSeconds, HelpText = "The maximum number of seconds the server will await a client connection before aborting.")]
+    public int ConnectTimeoutSeconds { get; init; } = DefaultConnectTimeoutSeconds;
 
     /// <summary>
     /// The maximum number of named pipe instances that can run concurrently.

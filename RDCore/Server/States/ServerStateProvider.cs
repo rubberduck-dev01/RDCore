@@ -61,12 +61,11 @@ internal class ServerStateProvider(ServerOptions options) : IServerStateProvider
 {
     private static readonly CancellationTokenSource _processTokenSource = new();
     private static readonly CancellationTokenSource _requestTokenSource = new();
-
     private static readonly CancellationTokenSource _shutdownTimeoutTokenSource = new();
 
     private ServerState _state = ServerState.Starting;
     public ServerState State => _state;
-    public ServerOptions Options => options;
+    public ServerOptions Options { get; } = options;
 
     public CancellationToken RequestToken => _requestTokenSource.Token;
     public CancellationToken ProcessToken => _processTokenSource.Token;
@@ -77,7 +76,7 @@ internal class ServerStateProvider(ServerOptions options) : IServerStateProvider
     {
         _state = State is RunningServerState ? ServerState.ShuttingDown : throw new InvalidServerStateException(State.Value);
         _requestTokenSource.Cancel();
-        _shutdownTimeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(options.ShutdownTimeoutSeconds));
+        _shutdownTimeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(Options.ShutdownTimeoutSeconds));
     }
 
     public void OnExit()
