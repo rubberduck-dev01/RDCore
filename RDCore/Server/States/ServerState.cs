@@ -22,7 +22,11 @@ internal abstract record class ServerState
     public virtual int ExitCode => 1;
 }
 
-internal record class StartingServerState : ServerState { public StartingServerState() : base(ServerStateValue.Starting) { } }
+internal record class StartingServerState : ServerState
+{
+    public StartingServerState() : base(ServerStateValue.Starting) { }
+    public override int ExitCode => 0;
+}
 internal record class InitializingServerState : ServerState { public InitializingServerState() : base(ServerStateValue.Initializing) { } }
 internal record class RunningServerState : ServerState
 {

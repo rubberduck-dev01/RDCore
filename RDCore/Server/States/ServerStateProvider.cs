@@ -105,5 +105,6 @@ internal class ServerStateProvider(ServerOptions options) : IServerStateProvider
     {
         _requestTokenSource.Dispose();
         _processTokenSource.Dispose();
+        _shutdownTimeoutTokenSource.Dispose();
     }
 }
