@@ -12,7 +12,7 @@ internal record class VBStdModuleType : VBType, IVBMemberOwnerType
         Members = [.. members ?? []];
     }
 
-    public override VBTypedValue DefaultValue => VBLongPtrType.TypeInfo.DefaultValue;
+    public override VBTypedValue DefaultValue => VBVoidValue.Void;
 
     public ImmutableArray<VBTypeMember> Members { get; init; }
 
