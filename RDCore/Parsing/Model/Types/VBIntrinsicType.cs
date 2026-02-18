@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace RDCore.Parsing.Model.Types.Abstract;
+namespace RDCore.Parsing.Model.Types;
 
 internal abstract record class VBIntrinsicType : VBType
 {

@@ -1,6 +1,6 @@
 ﻿using RDCore.Parsing.Model.Values;
 
-namespace RDCore.Parsing.Model.Types.Abstract;
+namespace RDCore.Parsing.Model.Types;
 
 internal sealed record class VBTypeDesc : VBType
 {

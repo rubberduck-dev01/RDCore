@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -23,4 +23,7 @@ internal record class VBDecimalValue : VBNumericTypedValue,
     public override double NumericValue { get; init; }
 
     public new VBDecimalValue WithValue(double value) => this with { NumericValue = (double)value };
+
+    public bool Equals(IVBTypedValue<VBDecimalValue, decimal>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value.GetHashCode();
 }

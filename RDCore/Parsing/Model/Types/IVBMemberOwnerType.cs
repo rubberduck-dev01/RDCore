@@ -1,7 +1,7 @@
 ﻿using RDCore.Parsing.Model.Types.Complex;
 using System.Collections.Immutable;
 
-namespace RDCore.Parsing.Model.Types.Abstract;
+namespace RDCore.Parsing.Model.Types;
 
 internal interface IVBMemberOwnerType
 {

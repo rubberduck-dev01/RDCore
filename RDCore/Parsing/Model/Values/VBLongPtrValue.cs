@@ -1,6 +1,5 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
-using RDCore.Parsing.Model.Types.Abstract;
 
 namespace RDCore.Parsing.Model.Values;
 
@@ -51,4 +50,7 @@ internal record class VBLongPtrValue : VBNumericTypedValue,
         // this would be a bug in RD3, not in the user code; if thrown, this exception will bubble unhandled through the execution context.
         throw new ArgumentOutOfRangeException(nameof(ptrType));
     }
+
+    public bool Equals(IVBTypedValue<VBLongPtrValue, long>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value.GetHashCode();
 }

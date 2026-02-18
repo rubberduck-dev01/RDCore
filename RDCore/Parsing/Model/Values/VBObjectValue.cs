@@ -1,6 +1,5 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
-using RDCore.Parsing.Model.Types.Abstract;
 using RDCore.Parsing.Model.Types.Complex;
 
 namespace RDCore.Parsing.Model.Values;
@@ -66,4 +65,7 @@ internal record class VBObjectValue : VBTypedValue,
         }
         throw VBRuntimeErrorException.ObjectDoesntSupportPropertyOrMethod(Symbol!, $"`Let` coercion requires an object type that defines a default member, but none was found.");
     }
+
+    public bool Equals(IVBTypedValue<VBObjectValue, Guid>? other) => Value.Equals(other?.Value);
+    public override int GetHashCode() => Value.GetHashCode();
 }

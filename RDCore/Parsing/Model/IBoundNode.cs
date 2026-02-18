@@ -1,7 +1,7 @@
-﻿using RDCore.Parsing.Model.Types.Abstract;
+﻿using RDCore.Parsing.Model.Types;
 using RDCore.Parsing.Model.Values;
 
-namespace RDCore.Parsing.Model.Abstract;
+namespace RDCore.Parsing.Model;
 
 internal interface IBoundNode
 {

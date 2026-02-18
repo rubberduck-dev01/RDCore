@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Types.Abstract;
+﻿using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
 

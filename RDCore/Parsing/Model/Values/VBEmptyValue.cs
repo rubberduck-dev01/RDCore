@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -18,4 +18,7 @@ internal record class VBEmptyValue : VBTypedValue,
 
     public VBDoubleValue AsCoercedNumeric(int depth = 0) => VBDoubleValue.Zero;
     public VBStringValue AsCoercedString(int depth = 0) => VBStringValue.ZeroLengthString;
+
+    public bool Equals(IVBTypedValue<VBEmptyValue, nint>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value.GetHashCode();
 }

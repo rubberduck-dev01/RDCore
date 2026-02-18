@@ -1,7 +1,7 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using RDCore.Parsing.Model.Values;
 
-namespace RDCore.Parsing.Model.Abstract;
+namespace RDCore.Parsing.Model;
 
 internal record class ValuedExpression(Location location) : BoundExpression(location)
 {

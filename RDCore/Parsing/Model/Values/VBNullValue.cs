@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -10,4 +10,7 @@ internal record class VBNullValue : VBTypedValue, IVBTypedValue<VBNullValue, nin
 
     public nint Value { get; } = nint.Zero;
     public override int Size => 0;
+
+    public bool Equals(IVBTypedValue<VBNullValue, nint>? other) => throw VBRuntimeErrorException.InvalidUseOfNull(Symbol!);
+    public override int GetHashCode() => Value.GetHashCode();
 }

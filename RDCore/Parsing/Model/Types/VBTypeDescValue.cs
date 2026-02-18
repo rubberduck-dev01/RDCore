@@ -1,4 +1,4 @@
-﻿namespace RDCore.Parsing.Model.Types.Abstract;
+﻿namespace RDCore.Parsing.Model.Types;
 
 /// <summary>
 /// A metatype that describes a type. Not used in many places!

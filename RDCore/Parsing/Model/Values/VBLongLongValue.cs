@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -24,4 +24,7 @@ internal record class VBLongLongValue : VBNumericTypedValue,
 
     public new VBLongLongValue WithValue(double value) => this with { NumericValue = (long)value };
     public VBLongLongValue WithValue(long value) => this with { NumericValue = value };
+
+    public bool Equals(IVBTypedValue<VBLongLongValue, long>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value.GetHashCode();
 }

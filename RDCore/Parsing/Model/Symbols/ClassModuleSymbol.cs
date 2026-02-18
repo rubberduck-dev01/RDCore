@@ -1,7 +1,6 @@
-﻿using RDCore.Parsing.Model.Abstract;
-using RDCore.Server.ProtocolExtensions;
+﻿using RDCore.Server.ProtocolExtensions;
 
-namespace RDCore.Parsing.Model;
+namespace RDCore.Parsing.Model.Symbols;
 
 internal record class ClassModuleSymbol : ModuleSymbol
 {

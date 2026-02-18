@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -20,4 +20,7 @@ internal record class VBErrorValue : VBTypedValue,
 
     public VBErrorValue WithValue(int value) => this with { Value = value };
     public override string ToString() => $"Error {Value}";
+
+    public bool Equals(IVBTypedValue<VBErrorValue, int>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value.GetHashCode();
 }

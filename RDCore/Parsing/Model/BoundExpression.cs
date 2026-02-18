@@ -1,8 +1,7 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using RDCore.Parsing.Model.Types;
-using RDCore.Parsing.Model.Types.Abstract;
 
-namespace RDCore.Parsing.Model.Abstract;
+namespace RDCore.Parsing.Model;
 
 internal abstract record class BoundExpression(Location Location) : IBoundNode
 {

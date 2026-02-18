@@ -43,13 +43,24 @@ internal enum SymbolKindExt
     /* 128+: extensions */
 
     /// <summary>
-    /// Marks a symbol that does not reach the client; see <see cref="Parsing.Model.IgnoredSymbol"/>
+    /// (Extension) An internal kind of symbol that does not reach the client; see <see cref="Parsing.Model.Symbols.IgnoredSymbol"/>
     /// </summary>
     Ignored = 128,
 
+    /// <summary>
+    /// (Extension) A symbol that represents an attribute name, hidden in the VBE.
+    /// </summary>
     Attribute,
+    /// <summary>
+    /// (Extension) A symbol that represents a line label.
+    /// </summary>
     LineLabel,
+    /// <summary>
+    /// (Extension) A symbol that represents a <c>Date</c> literal (reverse-formatted as <c>#M/D/YYYY#</c> in the VBE).
+    /// </summary>
     DateLiteral,
+    /// <summary>
+    /// (Extension) A symbol that represents a <c>Variant</c> literal, i.e. <c>Empty</c>.
+    /// </summary>
     VariantLiteral,
-
 }

@@ -1,10 +1,10 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
-using RDCore.Parsing.Model.Types.Abstract;
 
 namespace RDCore.Parsing.Model.Values;
 
-internal interface IVBTypedValue<VBTValue, TValue> where VBTValue : VBTypedValue
+internal interface IVBTypedValue<VBTValue, TValue> : IEquatable<IVBTypedValue<VBTValue, TValue>>
+    where VBTValue : VBTypedValue
 {
     TValue Value { get; }
 }

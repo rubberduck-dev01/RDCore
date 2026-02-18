@@ -1,6 +1,6 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 
-namespace RDCore.Parsing.Model.Types.Abstract;
+namespace RDCore.Parsing.Model.Types;
 
 internal interface IVBDeclaredType
 {

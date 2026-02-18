@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -21,4 +21,7 @@ internal record class VBBooleanValue : VBTypedValue, IVBTypedValue<VBBooleanValu
     public VBBooleanValue WithValue(int value) => this with { Value = value != 0 };
 
     public override string ToString() => Value ? Tokens.True : Tokens.False;
+
+    public bool Equals(IVBTypedValue<VBBooleanValue, bool>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value.GetHashCode();
 }

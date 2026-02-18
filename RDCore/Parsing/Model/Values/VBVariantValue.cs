@@ -1,4 +1,4 @@
-﻿using RDCore.Parsing.Model.Abstract;
+﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
@@ -25,4 +25,7 @@ internal record class VBVariantValue : VBTypedValue, IVBTypedValue<VBVariantValu
             Value = value,
             TypeInfo = VBVariantType.TypeInfo with { Subtype = value.TypeInfo }
         };
+
+    public bool Equals(IVBTypedValue<VBVariantValue, object?>? other) => Value == other?.Value;
+    public override int GetHashCode() => Value?.GetHashCode() ?? 0;
 }

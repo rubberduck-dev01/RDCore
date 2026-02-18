@@ -1,5 +1,5 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using RDCore.Parsing.Model.Abstract;
+using RDCore.Parsing.Model.Symbols;
 using System.Diagnostics;
 
 namespace RDCore.Parsing;
