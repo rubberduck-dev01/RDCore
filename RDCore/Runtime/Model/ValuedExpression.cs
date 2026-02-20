@@ -1,9 +1,10 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using RDCore.Parsing.Model;
 using RDCore.Parsing.Model.Values;
 
-namespace RDCore.Parsing.Model;
+namespace RDCore.Runtime.Model;
 
-internal record class ValuedExpression(Location location) : BoundExpression(location)
+internal record class ValuedExpression(Location Location) : BoundExpression(Location)
 {
     public VBTypedValue ResultValue { get; init; } = VBEmptyValue.Empty;
 

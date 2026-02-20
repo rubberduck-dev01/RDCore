@@ -11,6 +11,6 @@ internal record class VBNullValue : VBTypedValue, IVBTypedValue<VBNullValue, nin
     public nint Value { get; } = nint.Zero;
     public override int Size => 0;
 
-    public bool Equals(IVBTypedValue<VBNullValue, nint>? other) => throw VBRuntimeErrorException.InvalidUseOfNull(Symbol!);
+    public bool Equals(IVBTypedValue<VBNullValue, nint>? other) => throw VBRuntimeErrorException.InvalidUseOfNull(Symbol?.SelectionRange!);
     public override int GetHashCode() => Value.GetHashCode();
 }

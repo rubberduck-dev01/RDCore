@@ -47,7 +47,7 @@ internal abstract record class VBArrayValue : VBTypedValue
                 {
                     if (_symbol != null)
                     {
-                        throw VBRuntimeErrorException.SubscriptOutOfRange(_symbol);
+                        throw VBRuntimeErrorException.SubscriptOutOfRange(_symbol.SelectionRange!);
                     }
                 }
                 else
@@ -122,19 +122,19 @@ internal record class VBResizableArrayValue : VBArrayValue
     {
         if (IsWithBlockVariable)
         {
-            throw VBCompileErrorException.InvalidReDim(Symbol!, "The target of a `ReDim` statement cannot be a `With` block variable.");
+            throw VBCompileErrorException.InvalidReDim(Symbol?.SelectionRange!, "The target of a `ReDim` statement cannot be a `With` block variable.");
         }
 
         if (IsParamArray)
         {
-            throw VBCompileErrorException.InvalidParamArrayUse(Symbol!, "Parameter array value cannot be resized.");
+            throw VBCompileErrorException.InvalidParamArrayUse(Symbol?.SelectionRange!, "Parameter array value cannot be resized.");
         }
 
         if (preserve)
         {
             if (dimensions.Length != Dimensions.Length)
             {
-                throw VBRuntimeErrorException.SubscriptOutOfRange(Symbol!, "`ReDim Preserve` cannot change the number of dimensions of a resizable array.");
+                throw VBRuntimeErrorException.SubscriptOutOfRange(Symbol?.SelectionRange!, "`ReDim Preserve` cannot change the number of dimensions of a resizable array.");
             }
 
             for (var i = 0; i < dimensions.Length; i++)
@@ -146,12 +146,12 @@ internal record class VBResizableArrayValue : VBArrayValue
                 {
                     if (oldLower != newLower)
                     {
-                        throw VBRuntimeErrorException.SubscriptOutOfRange(Symbol!, "`ReDim Preserve` cannot change the lower boundary of a resizable array.");
+                        throw VBRuntimeErrorException.SubscriptOutOfRange(Symbol?.SelectionRange!, "`ReDim Preserve` cannot change the lower boundary of a resizable array.");
                     }
 
                     if (oldUpper != newUpper)
                     {
-                        throw VBRuntimeErrorException.SubscriptOutOfRange(Symbol!, "`ReDim Preserve` cannot change the upper boundary of a dimension that isn't the last dimension of a resizable array.");
+                        throw VBRuntimeErrorException.SubscriptOutOfRange(Symbol?.SelectionRange!, "`ReDim Preserve` cannot change the upper boundary of a dimension that isn't the last dimension of a resizable array.");
                     }
 
                     if (newUpper < oldUpper)

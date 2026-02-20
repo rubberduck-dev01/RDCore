@@ -31,7 +31,7 @@ internal record class VBLongPtrValue : VBNumericTypedValue,
         {
             if (value > int.MaxValue || value < int.MinValue)
             {
-                throw VBRuntimeErrorException.Overflow(Symbol!, $"`{TypeInfo.Name}` values must be between **{int.MinValue:N}** and **{int.MaxValue:N}**.");
+                throw VBRuntimeErrorException.Overflow(Symbol?.SelectionRange!, $"`{TypeInfo.Name}` values must be between **{int.MinValue:N}** and **{int.MaxValue:N}**.");
             }
 
             return this with { NumericValue = (int)value };
@@ -41,7 +41,7 @@ internal record class VBLongPtrValue : VBNumericTypedValue,
         {
             if (value > long.MaxValue || value < long.MinValue)
             {
-                throw VBRuntimeErrorException.Overflow(Symbol!, $"`{TypeInfo.Name}` values must be between **{long.MinValue:N}** and **{long.MaxValue:N}**.");
+                throw VBRuntimeErrorException.Overflow(Symbol?.SelectionRange!, $"`{TypeInfo.Name}` values must be between **{long.MinValue:N}** and **{long.MaxValue:N}**.");
             }
 
             return this with { NumericValue = (long)value };

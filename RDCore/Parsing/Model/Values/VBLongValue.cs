@@ -26,7 +26,7 @@ internal record class VBLongValue : VBNumericTypedValue,
     {
         if (value > MaxValue.Value || value < MinValue.Value)
         {
-            throw VBRuntimeErrorException.Overflow(Symbol!, $"`{TypeInfo.Name}` values must be between **{MinValue.Value:N}** and **{MaxValue.Value:N}**.");
+            throw VBRuntimeErrorException.Overflow(Symbol?.SelectionRange!, $"`{TypeInfo.Name}` values must be between **{MinValue.Value:N}** and **{MaxValue.Value:N}**.");
         }
         return this with { NumericValue = (int)value };
     }

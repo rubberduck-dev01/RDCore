@@ -9,8 +9,7 @@ internal record class VBObjectValue : VBTypedValue,
     INumericCoercion,
     IStringCoercion
 {
-    public VBObjectValue(Symbol? symbol)
-        : base(VBObjectType.TypeInfo, symbol) { }
+    public VBObjectValue(Symbol? symbol) : base(VBObjectType.TypeInfo, symbol) { }
 
     public static VBObjectValue Nothing { get; } = new VBNothingValue();
 
@@ -32,12 +31,12 @@ internal record class VBObjectValue : VBTypedValue,
     {
         if (depth >= 9) // TODO configure
         {
-            throw VBRuntimeErrorException.OutOfStackSpace(Symbol!, $"Recursive `Let` coercion did not resolve a typed value, {depth} levels deep.");
+            throw VBRuntimeErrorException.OutOfStackSpace(Symbol?.SelectionRange!, $"Recursive `Let` coercion did not resolve a typed value, {depth} levels deep.");
         }
 
         if (IsNothing())
         {
-            throw VBRuntimeErrorException.ObjectVariableNotSet(Symbol!, $"Recursive `Let` coercion requires the object reference to be assigned so that the default member can be invoked.");
+            throw VBRuntimeErrorException.ObjectVariableNotSet(Symbol?.SelectionRange!, $"Recursive `Let` coercion requires the object reference to be assigned so that the default member can be invoked.");
         }
 
         if (TypeInfo is VBClassType classType && classType.DefaultMember != null)
@@ -63,7 +62,7 @@ internal record class VBObjectValue : VBTypedValue,
                 }
             }
         }
-        throw VBRuntimeErrorException.ObjectDoesntSupportPropertyOrMethod(Symbol!, $"`Let` coercion requires an object type that defines a default member, but none was found.");
+        throw VBRuntimeErrorException.ObjectDoesntSupportPropertyOrMethod(Symbol?.SelectionRange!, $"`Let` coercion requires an object type that defines a default member, but none was found.");
     }
 
     public bool Equals(IVBTypedValue<VBObjectValue, Guid>? other) => Value.Equals(other?.Value);

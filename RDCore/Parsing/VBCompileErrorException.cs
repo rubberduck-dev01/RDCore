@@ -1,6 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using RDCore.Parsing.Model.Symbols;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace RDCore.Parsing;
 
@@ -24,34 +23,37 @@ public enum VBCompileErrorId
 }
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-internal class VBCompileErrorException(Symbol symbol, VBCompileErrorId id, string message, string? verbose = null) : ApplicationException($"Compile error: {message}")
+internal class VBCompileErrorException : ApplicationException
 {
-    private string DebuggerDisplay => $"{Message}{(Verbose is null ? string.Empty : " | " + Verbose)}";
+    public VBCompileErrorException(Range location, VBCompileErrorId id, string message, string? verbose = null)
+        : base($"Compile error: {message}")
+    {
+        VBCompileErrorId = id;
+        Location = location;
+        Verbose = verbose;
+    }
+
+    private string DebuggerDisplay => $"[{VBCompileErrorId.ToDiagnosticCode()}] {Message}{(Verbose is null ? string.Empty : " | " + Verbose)}";
 
     #region Classic-VB compile-time errors
     // NOTE: VB compile errors are just messages, ID is made up.
-    public static VBCompileErrorException OptionStrictForbidden(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.ForbiddenWithOptionStrict, "Option Strict forbidden implicit narrowing conversion or late-bound call.", verbose);
-    public static VBCompileErrorException InvalidUseOfObject(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.InvalidUseOfObject, "Invalid use of object", verbose);
-    public static VBCompileErrorException InvalidParamArrayUse(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.InvalidParamArrayUse, "Invalid ParamArray use", verbose);
-    public static VBCompileErrorException InvalidReDim(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.InvalidReDim, "Invalid ReDim", verbose);
-    public static VBCompileErrorException ExpectedArray(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.ExpectedArray, "Expected array", verbose);
-    public static VBCompileErrorException ExpectedIdentifier(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.ExpectedIdentifier, "Expected identifier", verbose);
-    public static VBCompileErrorException LabelNotDefined(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.LabelNotDefined, "Label not defined", verbose);
-    public static VBCompileErrorException TypeMismatch(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.TypeMismatch, "Type mismatch", verbose);
-    public static VBCompileErrorException UserDefinedTypeNotDefined(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.UserDefinedTypeNotDefined, "User-defined type not defined", verbose);
-    public static VBCompileErrorException ExitDoNotWithinDoLoop(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.ExitDoNotWithinDoLoop, "Exit Do not within Do...Loop", verbose);
-    public static VBCompileErrorException ExitForNotWithinForNext(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.ExitForNotWithinForNext, "Exit For not within For...Next", verbose);
-    public static VBCompileErrorException ExitFunctionNotAllowedInSubOrProperty(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.ExitFunctionNotAllowedInSubOrProperty, "Exit Function not allowed in Sub or Property", verbose);
-    public static VBCompileErrorException AmbiguousName(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.AmbiguousName, $"Ambiguous name detected: {symbol.Name}", verbose);
-    public static VBCompileErrorException DuplicateDeclaration(Symbol symbol, string? verbose = null) => new(symbol, VBCompileErrorId.DuplicateDeclaration, $"Duplicate declaration in current scope", verbose);
+    public static VBCompileErrorException InvalidUseOfObject(Range location, string? verbose = null) => new(location, VBCompileErrorId.InvalidUseOfObject, "Invalid use of object", verbose);
+    public static VBCompileErrorException InvalidParamArrayUse(Range location, string? verbose = null) => new(location, VBCompileErrorId.InvalidParamArrayUse, "Invalid ParamArray use", verbose);
+    public static VBCompileErrorException InvalidReDim(Range location, string? verbose = null) => new(location, VBCompileErrorId.InvalidReDim, "Invalid ReDim", verbose);
+    public static VBCompileErrorException ExpectedArray(Range location, string? verbose = null) => new(location, VBCompileErrorId.ExpectedArray, "Expected array", verbose);
+    public static VBCompileErrorException ExpectedIdentifier(Range location, string? verbose = null) => new(location, VBCompileErrorId.ExpectedIdentifier, "Expected identifier", verbose);
+    public static VBCompileErrorException LabelNotDefined(Range location, string? verbose = null) => new(location, VBCompileErrorId.LabelNotDefined, "Label not defined", verbose);
+    public static VBCompileErrorException TypeMismatch(Range location, string? verbose = null) => new(location, VBCompileErrorId.TypeMismatch, "Type mismatch", verbose);
+    public static VBCompileErrorException UserDefinedTypeNotDefined(Range location, string? verbose = null) => new(location, VBCompileErrorId.UserDefinedTypeNotDefined, "User-defined type not defined", verbose);
+    public static VBCompileErrorException ExitDoNotWithinDoLoop(Range location, string? verbose = null) => new(location, VBCompileErrorId.ExitDoNotWithinDoLoop, "Exit Do not within Do...Loop", verbose);
+    public static VBCompileErrorException ExitForNotWithinForNext(Range location, string? verbose = null) => new(location, VBCompileErrorId.ExitForNotWithinForNext, "Exit For not within For...Next", verbose);
+    public static VBCompileErrorException ExitFunctionNotAllowedInSubOrProperty(Range location, string? verbose = null) => new(location, VBCompileErrorId.ExitFunctionNotAllowedInSubOrProperty, "Exit Function not allowed in Sub or Property", verbose);
+    public static VBCompileErrorException AmbiguousName(Range location, string? verbose = null) => new(location, VBCompileErrorId.AmbiguousName, $"Ambiguous name detected: {symbol.Name}", verbose);
+    public static VBCompileErrorException DuplicateDeclaration(Range location, string? verbose = null) => new(location, VBCompileErrorId.DuplicateDeclaration, $"Duplicate declaration in current scope", verbose);
 
     #endregion
 
-    public string DiagnosticCode => $"VBC{(int)VBCompileErrorId:00000}";
-    public VBCompileErrorId VBCompileErrorId { get; } = id;
-    public Symbol Symbol { get; } = symbol;
-    public string? Verbose { get; } = verbose;
-
-    public Diagnostic Diagnostic => RDCoreDiagnostic.CompileError(this);
-    public IEnumerable<Diagnostic> Diagnostics => [Diagnostic];
+    public VBCompileErrorId VBCompileErrorId { get; }
+    public Range Location { get; }
+    public string? Verbose { get; }
 }

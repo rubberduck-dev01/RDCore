@@ -5,7 +5,7 @@ namespace RDCore.Parsing.Model;
 
 internal abstract record class BoundExpression(Location Location) : IBoundNode
 {
-    public Location SelectionRange { get; init; } = Location;
+    public Location Location { get; init; } = Location;
     public VBType ResultType { get; init; } = UnresolvedType.VBType;
 
     public BoundExpression WithResultType(VBType type) => this with { ResultType = type };

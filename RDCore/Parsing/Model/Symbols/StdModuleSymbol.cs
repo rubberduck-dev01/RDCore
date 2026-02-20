@@ -8,6 +8,4 @@ internal sealed record class StdModuleSymbol : ModuleSymbol
         : base(workspaceRoot, name, SymbolKindExt.Module, parentUri)
     {
     }
-
-    public bool OptionPrivateModule { get; init; }
 }

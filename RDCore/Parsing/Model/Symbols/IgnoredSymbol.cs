@@ -4,9 +4,8 @@ namespace RDCore.Parsing.Model.Symbols;
 
 internal record class IgnoredSymbol : Symbol
 {
-    public IgnoredSymbol(Uri workspaceRoot, string name, string? detail = default, Uri? parentUri = default)
+    public IgnoredSymbol(Uri workspaceRoot, string name, Uri? parentUri = default)
         : base(workspaceRoot, name, SymbolKindExt.Ignored, parentUri)
     {
-        Detail = detail;
     }
 }

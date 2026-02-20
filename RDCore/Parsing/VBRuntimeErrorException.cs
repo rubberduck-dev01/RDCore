@@ -1,14 +1,14 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using RDCore.Parsing.Model.Symbols;
+﻿using RDCore.Server;
 using System.Diagnostics;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace RDCore.Parsing;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-internal class VBRuntimeErrorException(Range location, int vBErrorNumber, string? message = null, string? verbose = null) : ApplicationException($"Runtime error '{vBErrorNumber}': {message ?? (VBRuntimeErrors.TryGetValue(vBErrorNumber, out var errMessage) ? errMessage : VBRuntimeErrors[-1])}")//, IDiagnosticSource
+internal class VBRuntimeErrorException(Range location, int VBErrorNumber, string? message = null, string? verbose = null)
+    : ApplicationException($"Runtime error '{VBErrorNumber}': {message ?? (VBRuntimeErrors.TryGetValue(VBErrorNumber, out var errMessage) ? errMessage : VBRuntimeErrors[-1])}")//, IDiagnosticSource
 {
-    private string DebuggerDisplay => $"[{DiagnosticCode}] Error {VBErrorNumber}: {Message}{(Verbose is null ? string.Empty : " | " + Verbose)}";
+    private string DebuggerDisplay => $"[{RDCoreDiagnosticId.ToDiagnosticCode()}] Error {VBErrorNumber}: {Message}{(Verbose is null ? string.Empty : " | " + Verbose)}";
 
     public static string GetErrorString(int errorNumber) => VBRuntimeErrors.TryGetValue(errorNumber, out var message) ? message : VBRuntimeErrors[-1];
 
@@ -18,6 +18,7 @@ internal class VBRuntimeErrorException(Range location, int vBErrorNumber, string
     public static readonly Dictionary<int, string> VBRuntimeErrors = new()
     {
         [-1] = "Application-defined or object-defined error",
+
         [3] = "Return without GoSub",
         [5] = "Invalid procedure call or argument",
         [6] = "Overflow",
@@ -108,108 +109,101 @@ internal class VBRuntimeErrorException(Range location, int vBErrorNumber, string
     };
 
     #region Classic-VB run-time errors
-    public static VBRuntimeErrorException ReturnWithoutGoSub(Symbol symbol, string? verbose = null) => new(symbol, 3, verbose: verbose);
-    public static VBRuntimeErrorException InvalidProcedureCallOrArgument(Symbol symbol, string? verbose = null) => new(symbol, 5, verbose: verbose);
-    public static VBRuntimeErrorException Overflow(Symbol symbol, string? verbose = null) => new(symbol, 6, verbose: verbose);
-    public static VBRuntimeErrorException OutOfMemory(Symbol symbol, string? verbose = null) => new(symbol, 7, verbose: verbose);
-    public static VBRuntimeErrorException SubscriptOutOfRange(Symbol symbol, string? verbose = null) => new(symbol, 9, verbose: verbose);
-    public static VBRuntimeErrorException ArrayIsFixedOrLocked(Symbol symbol, string? verbose = null) => new(symbol, 10, verbose: verbose);
-    public static VBRuntimeErrorException DivisionByZero(Symbol symbol, string? verbose = null) => new(symbol, 11, verbose: verbose);
+    public static VBRuntimeErrorException ReturnWithoutGoSub(Range location, string? verbose = null) => new(location, 3, verbose: verbose);
+    public static VBRuntimeErrorException InvalidProcedureCallOrArgument(Range location, string? verbose = null) => new(location, 5, verbose: verbose);
+    public static VBRuntimeErrorException Overflow(Range location, string? verbose = null) => new(location, 6, verbose: verbose);
+    public static VBRuntimeErrorException OutOfMemory(Range location, string? verbose = null) => new(location, 7, verbose: verbose);
+    public static VBRuntimeErrorException SubscriptOutOfRange(Range location, string? verbose = null) => new(location, 9, verbose: verbose);
+    public static VBRuntimeErrorException ArrayIsFixedOrLocked(Range location, string? verbose = null) => new(location, 10, verbose: verbose);
+    public static VBRuntimeErrorException DivisionByZero(Range location, string? verbose = null) => new(location, 11, verbose: verbose);
     public static VBRuntimeErrorException TypeMismatch(Range location, string? verbose = null) => new(location, 13, verbose: verbose);
-    public static VBRuntimeErrorException TypeMismatch(Symbol symbol, string? verbose = null) => new(symbol.Range, 13, verbose: verbose);
-    public static VBRuntimeErrorException OutOfStringSpace(Symbol symbol, string? verbose = null) => new(symbol, 14, verbose: verbose);
-    public static VBRuntimeErrorException ExpressionTooComplex(Symbol symbol, string? verbose = null) => new(symbol, 16, verbose: verbose);
-    public static VBRuntimeErrorException CantPerformRequestedOperation(Symbol symbol, string? verbose = null) => new(symbol, 17, verbose: verbose);
-    public static VBRuntimeErrorException UserInterruptOccurred(Symbol symbol, string? verbose = null) => new(symbol, 18, verbose: verbose);
-    public static VBRuntimeErrorException ResumeWithoutError(Symbol symbol, string? verbose = null) => new(symbol, 20, verbose: verbose);
-    public static VBRuntimeErrorException OutOfStackSpace(Symbol symbol, string? verbose = null) => new(symbol, 28, verbose: verbose);
-    public static VBRuntimeErrorException SubOrFunctionNotDefined(Symbol symbol, string? verbose = null) => new(symbol, 35, verbose: verbose);
-    public static VBRuntimeErrorException TooManyDllApplicationClients(Symbol symbol, string? verbose = null) => new(symbol, 47, verbose: verbose);
-    public static VBRuntimeErrorException ErrorLoadingDll(Symbol symbol, string? verbose = null) => new(symbol, 48, verbose: verbose);
-    public static VBRuntimeErrorException BadDllCallingConvention(Symbol symbol, string? verbose = null) => new(symbol, 49, verbose: verbose);
-    public static VBRuntimeErrorException InternalError(Symbol symbol, string? verbose = null) => new(symbol, 51, verbose: verbose);
-    public static VBRuntimeErrorException BadFileNameOrNumber(Symbol symbol, string? verbose = null) => new(symbol, 52, verbose: verbose);
-    public static VBRuntimeErrorException FileNorFound(Symbol symbol, string? verbose = null) => new(symbol, 53, verbose: verbose);
-    public static VBRuntimeErrorException BadFileMode(Symbol symbol, string? verbose = null) => new(symbol, 54, verbose: verbose);
-    public static VBRuntimeErrorException FileAlreadyOpen(Symbol symbol, string? verbose = null) => new(symbol, 55, verbose: verbose);
-    public static VBRuntimeErrorException DeviseIOError(Symbol symbol, string? verbose = null) => new(symbol, 57, verbose: verbose);
-    public static VBRuntimeErrorException FileAlreadyExists(Symbol symbol, string? verbose = null) => new(symbol, 58, verbose: verbose);
-    public static VBRuntimeErrorException BadRecordLength(Symbol symbol, string? verbose = null) => new(symbol, 59, verbose: verbose);
-    public static VBRuntimeErrorException DiskFull(Symbol symbol, string? verbose = null) => new(symbol, 61, verbose: verbose);
-    public static VBRuntimeErrorException InputPastEndOfFile(Symbol symbol, string? verbose = null) => new(symbol, 62, verbose: verbose);
-    public static VBRuntimeErrorException BadRecordNumber(Symbol symbol, string? verbose = null) => new(symbol, 63, verbose: verbose);
-    public static VBRuntimeErrorException TooManyFiles(Symbol symbol, string? verbose = null) => new(symbol, 67, verbose: verbose);
-    public static VBRuntimeErrorException DeviceUnavailable(Symbol symbol, string? verbose = null) => new(symbol, 68, verbose: verbose);
-    public static VBRuntimeErrorException PermissionDenied(Symbol symbol, string? verbose = null) => new(symbol, 70, verbose: verbose);
-    public static VBRuntimeErrorException DiskNotReady(Symbol symbol, string? verbose = null) => new(symbol, 71, verbose: verbose);
-    public static VBRuntimeErrorException CantRenameWithDifferentDrive(Symbol symbol, string? verbose = null) => new(symbol, 74, verbose: verbose);
-    public static VBRuntimeErrorException PathFileAccessError(Symbol symbol, string? verbose = null) => new(symbol, 75, verbose: verbose);
-    public static VBRuntimeErrorException PathNotFound(Symbol symbol, string? verbose = null) => new(symbol, 76, verbose: verbose);
-    public static VBRuntimeErrorException ObjectVariableNotSet(Symbol symbol, string? verbose = null) => new(symbol, 91, verbose: verbose);
-    public static VBRuntimeErrorException ForLoopNotInitialized(Symbol symbol, string? verbose = null) => new(symbol, 92, verbose: verbose);
-    public static VBRuntimeErrorException InvalidPatternString(Symbol symbol, string? verbose = null) => new(symbol, 93, verbose: verbose);
-    public static VBRuntimeErrorException InvalidUseOfNull(Symbol symbol, string? verbose = null) => new(symbol, 94, verbose: verbose);
-    public static VBRuntimeErrorException CannotSinkEvents(Symbol symbol, string? verbose = null) => new(symbol, 96, verbose: verbose);
-    public static VBRuntimeErrorException CannotCallFriendFunction(Symbol symbol, string? verbose = null) => new(symbol, 97, verbose: verbose);
-    public static VBRuntimeErrorException ReferenceToPrivateObject(Symbol symbol, string? verbose = null) => new(symbol, 98, verbose: verbose);
-    public static VBRuntimeErrorException InvalidFileFormat(Symbol symbol, string? verbose = null) => new(symbol, 321, verbose: verbose);
-    public static VBRuntimeErrorException CantCreateTempFile(Symbol symbol, string? verbose = null) => new(symbol, 322, verbose: verbose);
-    public static VBRuntimeErrorException InvalidResourceFormat(Symbol symbol, string? verbose = null) => new(symbol, 325, verbose: verbose);
-    public static VBRuntimeErrorException InvalidPropertyValue(Symbol symbol, string? verbose = null) => new(symbol, 380, verbose: verbose);
-    public static VBRuntimeErrorException InvalidPropertyArrayIndex(Symbol symbol, string? verbose = null) => new(symbol, 381, verbose: verbose);
-    public static VBRuntimeErrorException SetNotRuntimeSupported(Symbol symbol, string? verbose = null) => new(symbol, 382, verbose: verbose);
-    public static VBRuntimeErrorException SetNotSupported(Symbol symbol, string? verbose = null) => new(symbol, 383, verbose: verbose);
-    public static VBRuntimeErrorException NeedPropertyArrayIndex(Symbol symbol, string? verbose = null) => new(symbol, 385, verbose: verbose);
-    public static VBRuntimeErrorException SetNotPermitted(Symbol symbol, string? verbose = null) => new(symbol, 387, verbose: verbose);
-    public static VBRuntimeErrorException GetNotRuntimeSupported(Symbol symbol, string? verbose = null) => new(symbol, 393, verbose: verbose);
-    public static VBRuntimeErrorException GetNotSupported(Symbol symbol, string? verbose = null) => new(symbol, 394, verbose: verbose);
-    public static VBRuntimeErrorException PropertyNotFound(Symbol symbol, string? verbose = null) => new(symbol, 422, verbose: verbose);
-    public static VBRuntimeErrorException PropertyOrMethodNotFound(Symbol symbol, string? verbose = null) => new(symbol, 423, verbose: verbose);
-    public static VBRuntimeErrorException ObjectRequired(Symbol symbol, string? verbose = null) => new(symbol, 424, verbose: verbose);
-    public static VBRuntimeErrorException ActiveXComponentCantCreateObject(Symbol symbol, string? verbose = null) => new(symbol, 429, verbose: verbose);
-    public static VBRuntimeErrorException AutomationNotSupported(Symbol symbol, string? verbose = null) => new(symbol, 430, verbose: verbose);
-    public static VBRuntimeErrorException AutomationFileOrClassNameNotFound(Symbol symbol, string? verbose = null) => new(symbol, 432, verbose: verbose);
-    public static VBRuntimeErrorException ObjectDoesntSupportPropertyOrMethod(Symbol symbol, string? verbose = null) => new(symbol, 438, verbose: verbose);
-    public static VBRuntimeErrorException AutomationError(Symbol symbol, string? verbose = null) => new(symbol, 440, verbose: verbose);
-    public static VBRuntimeErrorException RemoteProcessConnectionLost(Symbol symbol, string? verbose = null) => new(symbol, 442, verbose: verbose);
-    public static VBRuntimeErrorException AutomationObjectHasNoDefaultValue(Symbol symbol, string? verbose = null) => new(symbol, 443, verbose: verbose);
-    public static VBRuntimeErrorException UnsupportedObjectAction(Symbol symbol, string? verbose = null) => new(symbol, 445, verbose: verbose);
-    public static VBRuntimeErrorException UnsupportedObjectNamedArguments(Symbol symbol, string? verbose = null) => new(symbol, 446, verbose: verbose);
-    public static VBRuntimeErrorException UnsupportedObjectLocaleSetting(Symbol symbol, string? verbose = null) => new(symbol, 447, verbose: verbose);
-    public static VBRuntimeErrorException NamedArgumentNotFound(Symbol symbol, string? verbose = null) => new(symbol, 448, verbose: verbose);
-    public static VBRuntimeErrorException ArgumentNotOptional(Symbol symbol, string? verbose = null) => new(symbol, 449, verbose: verbose);
-    public static VBRuntimeErrorException WrongNumberOfArgumentsOrInvalidPropertyAssignment(Symbol symbol, string? verbose = null) => new(symbol, 450, verbose: verbose);
-    public static VBRuntimeErrorException PropertyLetNotDefinedPropertyGetNotAnObject(Symbol symbol, string? verbose = null) => new(symbol, 451, verbose: verbose);
-    public static VBRuntimeErrorException InvalidOrdinal(Symbol symbol, string? verbose = null) => new(symbol, 452, verbose: verbose);
-    public static VBRuntimeErrorException DllFunctionNotFound(Symbol symbol, string? verbose = null) => new(symbol, 453, verbose: verbose);
-    public static VBRuntimeErrorException CodeResourceNotFound(Symbol symbol, string? verbose = null) => new(symbol, 454, verbose: verbose);
-    public static VBRuntimeErrorException CodeResourceLockError(Symbol symbol, string? verbose = null) => new(symbol, 455, verbose: verbose);
-    public static VBRuntimeErrorException KeyAlreadyExists(Symbol symbol, string? verbose = null) => new(symbol, 457, verbose: verbose);
-    public static VBRuntimeErrorException UnsupportedAutomationType(Symbol symbol, string? verbose = null) => new(symbol, 458, verbose: verbose);
-    public static VBRuntimeErrorException UnsupportedSetOfEvents(Symbol symbol, string? verbose = null) => new(symbol, 459, verbose: verbose);
-    public static VBRuntimeErrorException InvalidClipboardFormat(Symbol symbol, string? verbose = null) => new(symbol, 460, verbose: verbose);
-    public static VBRuntimeErrorException MethodOrDataMemberNotFound(Symbol symbol, string? verbose = null) => new(symbol, 461, verbose: verbose);
-    public static VBRuntimeErrorException RemoteMachineUnavailable(Symbol symbol, string? verbose = null) => new(symbol, 462, verbose: verbose);
-    public static VBRuntimeErrorException ClassNotRegistered(Symbol symbol, string? verbose = null) => new(symbol, 463, verbose: verbose);
-    public static VBRuntimeErrorException InvalidPicture(Symbol symbol, string? verbose = null) => new(symbol, 481, verbose: verbose);
-    public static VBRuntimeErrorException PrinterError(Symbol symbol, string? verbose = null) => new(symbol, 482, verbose: verbose);
-    public static VBRuntimeErrorException CantSaveFileToTemp(Symbol symbol, string? verbose = null) => new(symbol, 735, verbose: verbose);
-    public static VBRuntimeErrorException SearchTextNotFound(Symbol symbol, string? verbose = null) => new(symbol, 744, verbose: verbose);
-    public static VBRuntimeErrorException ReplacementsTooLong(Symbol symbol, string? verbose = null) => new(symbol, 746, verbose: verbose);
+    public static VBRuntimeErrorException OutOfStringSpace(Range location, string? verbose = null) => new(location, 14, verbose: verbose);
+    public static VBRuntimeErrorException ExpressionTooComplex(Range location, string? verbose = null) => new(location, 16, verbose: verbose);
+    public static VBRuntimeErrorException CantPerformRequestedOperation(Range location, string? verbose = null) => new(location, 17, verbose: verbose);
+    public static VBRuntimeErrorException UserInterruptOccurred(Range location, string? verbose = null) => new(location, 18, verbose: verbose);
+    public static VBRuntimeErrorException ResumeWithoutError(Range location, string? verbose = null) => new(location, 20, verbose: verbose);
+    public static VBRuntimeErrorException OutOfStackSpace(Range location, string? verbose = null) => new(location, 28, verbose: verbose);
+    public static VBRuntimeErrorException SubOrFunctionNotDefined(Range location, string? verbose = null) => new(location, 35, verbose: verbose);
+    public static VBRuntimeErrorException TooManyDllApplicationClients(Range location, string? verbose = null) => new(location, 47, verbose: verbose);
+    public static VBRuntimeErrorException ErrorLoadingDll(Range location, string? verbose = null) => new(location, 48, verbose: verbose);
+    public static VBRuntimeErrorException BadDllCallingConvention(Range location, string? verbose = null) => new(location, 49, verbose: verbose);
+    public static VBRuntimeErrorException InternalError(Range location, string? verbose = null) => new(location, 51, verbose: verbose);
+    public static VBRuntimeErrorException BadFileNameOrNumber(Range location, string? verbose = null) => new(location, 52, verbose: verbose);
+    public static VBRuntimeErrorException FileNorFound(Range location, string? verbose = null) => new(location, 53, verbose: verbose);
+    public static VBRuntimeErrorException BadFileMode(Range location, string? verbose = null) => new(location, 54, verbose: verbose);
+    public static VBRuntimeErrorException FileAlreadyOpen(Range location, string? verbose = null) => new(location, 55, verbose: verbose);
+    public static VBRuntimeErrorException DeviseIOError(Range location, string? verbose = null) => new(location, 57, verbose: verbose);
+    public static VBRuntimeErrorException FileAlreadyExists(Range location, string? verbose = null) => new(location, 58, verbose: verbose);
+    public static VBRuntimeErrorException BadRecordLength(Range location, string? verbose = null) => new(location, 59, verbose: verbose);
+    public static VBRuntimeErrorException DiskFull(Range location, string? verbose = null) => new(location, 61, verbose: verbose);
+    public static VBRuntimeErrorException InputPastEndOfFile(Range location, string? verbose = null) => new(location, 62, verbose: verbose);
+    public static VBRuntimeErrorException BadRecordNumber(Range location, string? verbose = null) => new(location, 63, verbose: verbose);
+    public static VBRuntimeErrorException TooManyFiles(Range location, string? verbose = null) => new(location, 67, verbose: verbose);
+    public static VBRuntimeErrorException DeviceUnavailable(Range location, string? verbose = null) => new(location, 68, verbose: verbose);
+    public static VBRuntimeErrorException PermissionDenied(Range location, string? verbose = null) => new(location, 70, verbose: verbose);
+    public static VBRuntimeErrorException DiskNotReady(Range location, string? verbose = null) => new(location, 71, verbose: verbose);
+    public static VBRuntimeErrorException CantRenameWithDifferentDrive(Range location, string? verbose = null) => new(location, 74, verbose: verbose);
+    public static VBRuntimeErrorException PathFileAccessError(Range location, string? verbose = null) => new(location, 75, verbose: verbose);
+    public static VBRuntimeErrorException PathNotFound(Range location, string? verbose = null) => new(location, 76, verbose: verbose);
+    public static VBRuntimeErrorException ObjectVariableNotSet(Range location, string? verbose = null) => new(location, 91, verbose: verbose);
+    public static VBRuntimeErrorException ForLoopNotInitialized(Range location, string? verbose = null) => new(location, 92, verbose: verbose);
+    public static VBRuntimeErrorException InvalidPatternString(Range location, string? verbose = null) => new(location, 93, verbose: verbose);
+    public static VBRuntimeErrorException InvalidUseOfNull(Range location, string? verbose = null) => new(location, 94, verbose: verbose);
+    public static VBRuntimeErrorException CannotSinkEvents(Range location, string? verbose = null) => new(location, 96, verbose: verbose);
+    public static VBRuntimeErrorException CannotCallFriendFunction(Range location, string? verbose = null) => new(location, 97, verbose: verbose);
+    public static VBRuntimeErrorException ReferenceToPrivateObject(Range location, string? verbose = null) => new(location, 98, verbose: verbose);
+    public static VBRuntimeErrorException InvalidFileFormat(Range location, string? verbose = null) => new(location, 321, verbose: verbose);
+    public static VBRuntimeErrorException CantCreateTempFile(Range location, string? verbose = null) => new(location, 322, verbose: verbose);
+    public static VBRuntimeErrorException InvalidResourceFormat(Range location, string? verbose = null) => new(location, 325, verbose: verbose);
+    public static VBRuntimeErrorException InvalidPropertyValue(Range location, string? verbose = null) => new(location, 380, verbose: verbose);
+    public static VBRuntimeErrorException InvalidPropertyArrayIndex(Range location, string? verbose = null) => new(location, 381, verbose: verbose);
+    public static VBRuntimeErrorException SetNotRuntimeSupported(Range location, string? verbose = null) => new(location, 382, verbose: verbose);
+    public static VBRuntimeErrorException SetNotSupported(Range location, string? verbose = null) => new(location, 383, verbose: verbose);
+    public static VBRuntimeErrorException NeedPropertyArrayIndex(Range location, string? verbose = null) => new(location, 385, verbose: verbose);
+    public static VBRuntimeErrorException SetNotPermitted(Range location, string? verbose = null) => new(location, 387, verbose: verbose);
+    public static VBRuntimeErrorException GetNotRuntimeSupported(Range location, string? verbose = null) => new(location, 393, verbose: verbose);
+    public static VBRuntimeErrorException GetNotSupported(Range location, string? verbose = null) => new(location, 394, verbose: verbose);
+    public static VBRuntimeErrorException PropertyNotFound(Range location, string? verbose = null) => new(location, 422, verbose: verbose);
+    public static VBRuntimeErrorException PropertyOrMethodNotFound(Range location, string? verbose = null) => new(location, 423, verbose: verbose);
+    public static VBRuntimeErrorException ObjectRequired(Range location, string? verbose = null) => new(location, 424, verbose: verbose);
+    public static VBRuntimeErrorException ActiveXComponentCantCreateObject(Range location, string? verbose = null) => new(location, 429, verbose: verbose);
+    public static VBRuntimeErrorException AutomationNotSupported(Range location, string? verbose = null) => new(location, 430, verbose: verbose);
+    public static VBRuntimeErrorException AutomationFileOrClassNameNotFound(Range location, string? verbose = null) => new(location, 432, verbose: verbose);
+    public static VBRuntimeErrorException ObjectDoesntSupportPropertyOrMethod(Range location, string? verbose = null) => new(location, 438, verbose: verbose);
+    public static VBRuntimeErrorException AutomationError(Range location, string? verbose = null) => new(location, 440, verbose: verbose);
+    public static VBRuntimeErrorException RemoteProcessConnectionLost(Range location, string? verbose = null) => new(location, 442, verbose: verbose);
+    public static VBRuntimeErrorException AutomationObjectHasNoDefaultValue(Range location, string? verbose = null) => new(location, 443, verbose: verbose);
+    public static VBRuntimeErrorException UnsupportedObjectAction(Range location, string? verbose = null) => new(location, 445, verbose: verbose);
+    public static VBRuntimeErrorException UnsupportedObjectNamedArguments(Range location, string? verbose = null) => new(location, 446, verbose: verbose);
+    public static VBRuntimeErrorException UnsupportedObjectLocaleSetting(Range location, string? verbose = null) => new(location, 447, verbose: verbose);
+    public static VBRuntimeErrorException NamedArgumentNotFound(Range location, string? verbose = null) => new(location, 448, verbose: verbose);
+    public static VBRuntimeErrorException ArgumentNotOptional(Range location, string? verbose = null) => new(location, 449, verbose: verbose);
+    public static VBRuntimeErrorException WrongNumberOfArgumentsOrInvalidPropertyAssignment(Range location, string? verbose = null) => new(location, 450, verbose: verbose);
+    public static VBRuntimeErrorException PropertyLetNotDefinedPropertyGetNotAnObject(Range location, string? verbose = null) => new(location, 451, verbose: verbose);
+    public static VBRuntimeErrorException InvalidOrdinal(Range location, string? verbose = null) => new(location, 452, verbose: verbose);
+    public static VBRuntimeErrorException DllFunctionNotFound(Range location, string? verbose = null) => new(location, 453, verbose: verbose);
+    public static VBRuntimeErrorException CodeResourceNotFound(Range location, string? verbose = null) => new(location, 454, verbose: verbose);
+    public static VBRuntimeErrorException CodeResourceLockError(Range location, string? verbose = null) => new(location, 455, verbose: verbose);
+    public static VBRuntimeErrorException KeyAlreadyExists(Range location, string? verbose = null) => new(location, 457, verbose: verbose);
+    public static VBRuntimeErrorException UnsupportedAutomationType(Range location, string? verbose = null) => new(location, 458, verbose: verbose);
+    public static VBRuntimeErrorException UnsupportedSetOfEvents(Range location, string? verbose = null) => new(location, 459, verbose: verbose);
+    public static VBRuntimeErrorException InvalidClipboardFormat(Range location, string? verbose = null) => new(location, 460, verbose: verbose);
+    public static VBRuntimeErrorException MethodOrDataMemberNotFound(Range location, string? verbose = null) => new(location, 461, verbose: verbose);
+    public static VBRuntimeErrorException RemoteMachineUnavailable(Range location, string? verbose = null) => new(location, 462, verbose: verbose);
+    public static VBRuntimeErrorException ClassNotRegistered(Range location, string? verbose = null) => new(location, 463, verbose: verbose);
+    public static VBRuntimeErrorException InvalidPicture(Range location, string? verbose = null) => new(location, 481, verbose: verbose);
+    public static VBRuntimeErrorException PrinterError(Range location, string? verbose = null) => new(location, 482, verbose: verbose);
+    public static VBRuntimeErrorException CantSaveFileToTemp(Range location, string? verbose = null) => new(location, 735, verbose: verbose);
+    public static VBRuntimeErrorException SearchTextNotFound(Range location, string? verbose = null) => new(location, 744, verbose: verbose);
+    public static VBRuntimeErrorException ReplacementsTooLong(Range location, string? verbose = null) => new(location, 746, verbose: verbose);
 
-    public static VBRuntimeErrorException ApplicationDefinedError(Symbol symbol, int number = 1004, string? verbose = null) => new(symbol, number, VBRuntimeErrors[-1], verbose);
+    public static VBRuntimeErrorException ApplicationDefinedError(Range location, int number = 1004, string? verbose = null) => new(location, number, VBRuntimeErrors[-1], verbose);
     #endregion
 
-    public VBRuntimeErrorException(Symbol symbol, int vBErrorNumber, string? message = null, string? verbose = null)
-        : this(symbol.Range, vBErrorNumber, message, verbose) { }
-
-    public string DiagnosticCode => $"VBR{VBErrorNumber:00000}";
     public Range Location { get; } = location;
-    public int VBErrorNumber { get; } = vBErrorNumber;
+    public int VBErrorNumber { get; } = VBErrorNumber;
+    RDCoreDiagnosticId RDCoreDiagnosticId => (RDCoreDiagnosticId)VBErrorNumber;
     public string? Verbose { get; } = verbose;
-
-    public IEnumerable<Diagnostic> Diagnostics => [Diagnostic];
-    public Diagnostic Diagnostic => RDCoreDiagnostic.RuntimeError(this);
 
     public (int, string) Deconstruct(out int vbErrorNumber, out string message) =>
         (vbErrorNumber = VBErrorNumber, message = Message);

@@ -9,9 +9,5 @@ internal abstract record class ModuleSymbol : Symbol
     {
     }
 
-    public bool OptionExplicit { get; init; }
-    public int? OptionBase { get; init; }
-    public bool OptionStrict { get; init; }
-
-    public VBOptionCompare? OptionCompare { get; init; }
+    public override string Name => Get(SymbolProperties.Name) ?? base.Name;
 }

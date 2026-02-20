@@ -9,8 +9,8 @@ namespace RDCore.Parsing.Model.Symbols;
 /// </summary>
 internal abstract record class TypedSymbol : Symbol
 {
-    protected TypedSymbol(Uri workspaceRoot, string name, SymbolKindExt kind, Accessibility accessibility, Uri parentUri)
-        : base(workspaceRoot, name, kind, parentUri)
+    protected TypedSymbol(Uri workspaceRoot, string name, SymbolKindExt kind, Accessibility accessibility, Uri parentUri, ScopeKind? scope = ScopeKind.Global)
+        : base(workspaceRoot, name, kind, parentUri, scope)
     {
         Accessibility = accessibility;
         ResolvedType = UnresolvedType.VBType;

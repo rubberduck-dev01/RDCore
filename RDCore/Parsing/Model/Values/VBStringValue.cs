@@ -26,7 +26,7 @@ internal record class VBStringValue : VBTypedValue,
             return new VBDoubleValue(Symbol).WithValue(coerced);
         }
 
-        throw VBRuntimeErrorException.TypeMismatch(Symbol!, $"Numeric coercion failed to coerce \"{Value}\" to a numeric value.");
+        throw VBRuntimeErrorException.TypeMismatch(Symbol?.SelectionRange!, $"Numeric coercion failed to coerce \"{Value}\" to a numeric value.");
     }
 
     public virtual VBStringValue WithValue(string? value) => this with { Value = value ?? string.Empty };

@@ -32,7 +32,7 @@ internal record class VBDateValue : VBTypedValue,
     {
         if (value > MaxValue.Value || value < MinValue.Value)
         {
-            throw VBRuntimeErrorException.Overflow(Symbol!, $"`{TypeInfo.Name}` values must be between **{MinValue.Value}** and **{MaxValue.Value}**.");
+            throw VBRuntimeErrorException.Overflow(Symbol?.SelectionRange!, $"`{TypeInfo.Name}` values must be between **{MinValue.Value}** and **{MaxValue.Value}**.");
         }
         return this with { Value = value };
     }
@@ -41,7 +41,7 @@ internal record class VBDateValue : VBTypedValue,
     {
         if (value > MaxSerial || value < MinSerial)
         {
-            throw VBRuntimeErrorException.Overflow(Symbol!, $"`{TypeInfo.Name}` values must be between **{MinValue.Value}** and **{MaxValue.Value}**.");
+            throw VBRuntimeErrorException.Overflow(Symbol?.SelectionRange!, $"`{TypeInfo.Name}` values must be between **{MinValue.Value}** and **{MaxValue.Value}**.");
         }
         return this with { Value = Zero.Value.AddDays(value) };
     }

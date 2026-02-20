@@ -1,11 +1,64 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using RDCore.Parsing.Model.Types.Complex;
 using RDCore.Server.ProtocolExtensions;
+using System.Collections.Immutable;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace RDCore.Parsing.Model.Symbols;
 
+internal record class SymbolProperty<T>(string Name) { }
+internal static class SymbolProperties
+{
+    /// <summary>
+    /// The programmatic name of a <see cref="ModuleSymbol"/>, as determined by the <c>VB_Name</c> attribute.
+    /// </summary>
+    public static readonly SymbolProperty<string> Name = new(nameof(Name));
+    /// <summary>
+    /// The value of the <c>VB_PredeclaredId</c> attribute of a <see cref="ClassModuleSymbol"/>.
+    /// </summary>
+    public static readonly SymbolProperty<bool> PredeclaredId = new(nameof(PredeclaredId));
+    /// <summary>
+    /// The value of the <c>VB_Exposed</c> attribute of a <see cref="ClassModuleSymbol"/>
+    /// </summary>
+    public static readonly SymbolProperty<bool> Exposed = new(nameof(Exposed));
+    /// <summary>
+    /// The value of the <c>VB_UserMemId</c> attribute of a <see cref="VBTypeMember"/>
+    /// </summary>
+    public static readonly SymbolProperty<int> MemberId = new(nameof(MemberId));
+
+    /// <summary>
+    /// <c>true</c> for <c>Static</c> declarations, whether explicitly in local scope or implicitly at the procedure level.
+    /// </summary>
+    public static readonly SymbolProperty<bool> IsStatic = new(nameof(IsStatic));
+    /// <summary>
+    /// <c>false</c> for conditionally-compiled symbols in a statically inactive branch.
+    /// </summary>
+    public static readonly SymbolProperty<bool> IsActive = new(nameof(IsActive));
+
+    /// <summary>
+    /// The <c>Option Explicit</c> flag.
+    /// </summary>
+    public static readonly SymbolProperty<bool> OptionExplicit = new(nameof(OptionExplicit));
+    /// <summary>
+    /// The <c>Option Private Module</c> flag.
+    /// </summary>
+    public static readonly SymbolProperty<bool> OptionPrivateModule = new(nameof(OptionPrivateModule));
+    /// <summary>
+    /// The <c>Option Base</c> flag.
+    /// </summary>
+    public static readonly SymbolProperty<int> OptionBase = new(nameof(OptionBase));
+    /// <summary>
+    /// The <c>Option Compare</c> flag.
+    /// </summary>
+    public static readonly SymbolProperty<VBOptionCompare> OptionCompare = new(nameof(OptionCompare));
+}
+
+
 internal enum ScopeKind
 {
+    /// <summary>
+    /// A pseudo-scope for pseudo-symbols that aren't allocated in memory, like <c>VBVoidValue</c>.
+    /// </summary>
     Unallocated,
     /// <summary>
     /// Symbols from referenced libraries, mostly. Lives in the globals heap.
@@ -25,18 +78,16 @@ internal enum ScopeKind
     Instance,
 }
 
-internal abstract record class Symbol : DocumentSymbol
+internal abstract record class Symbol
 {
     /// <summary>
     /// For symbols representing a user workspace project or a referenced library.
     /// </summary>
     /// <param name="workspaceRoot">A <c>Uri</c> representing the absolute path to the workspace root, or referenced library.</param>
     /// <param name="name">The name of the symbol.</param>
-    /// <param name="isUserWorkspace"><c>true</c> when the <c>Uri</c> is the current user workspace root.</param>
-    protected Symbol(Uri workspaceRoot, string name, bool isUserWorkspace)
+    protected Symbol(Uri workspaceRoot, string name)
         : this(workspaceRoot, name, SymbolKindExt.Project)
     {
-        IsUserWorkspace = isUserWorkspace;
     }
 
     /// <summary>
@@ -46,10 +97,9 @@ internal abstract record class Symbol : DocumentSymbol
     /// <param name="name">The name of the symbol.</param>
     /// <param name="kind">A <c>SymbolKind</c> (extended, LSP-compliant) metadata value describing the kind of symbol.</param>
     /// <param name="parentUri">The <c>Uri</c> of the parent symbol (<c>null</c> for the top-level library symbol).</param>
-    protected Symbol(Uri workspaceRoot, string name, SymbolKindExt kind, Uri? parentUri = default)
-        : this(workspaceRoot, ScopeKind.Global, name, kind, default!, default!, parentUri)
+    protected Symbol(Uri workspaceRoot, string name, SymbolKindExt kind, Uri? parentUri = default, ScopeKind? scope = ScopeKind.Global)
+        : this(workspaceRoot, scope ?? ScopeKind.Global, name, kind, default!, default!, parentUri)
     {
-        IsUserWorkspace = false;
     }
 
     /// <summary>
@@ -60,17 +110,23 @@ internal abstract record class Symbol : DocumentSymbol
         Name = name;
         Kind = (SymbolKind)kind;
 
-        Children = [];
-
-        IsUserWorkspace = range is not null && selectionRange is not null;
+        //IsUserWorkspace = range is not null && selectionRange is not null;
         ScopeKind = scope;
 
         ParentUri = parentUri ?? workspaceRoot;
         Uri = CreateUri(ParentUri, name);
 
-        Range = range!;
+        Range = range;
         SelectionRange = selectionRange ?? Range;
     }
+
+    public virtual string Name { get; }
+    public SymbolKind Kind { get; init; }
+
+    public ImmutableArray<Uri> Children { get; init; }
+
+    public Range? Range { get; init; }
+    public Range? SelectionRange { get; init; }
 
     /// <summary>
     /// A <c>Uri</c> that uniquely identifies the symbol.
@@ -80,41 +136,28 @@ internal abstract record class Symbol : DocumentSymbol
     /// The <c>Uri</c> of the parent symbol.
     /// </summary>
     /// <remarks>
-    /// This property is <c>null</c> for a <c>SymbolKind.Project</c> symbol.
+    /// This property is actually <c>null</c> given a <c>SymbolKind.Project</c> symbol.
     /// </remarks>
     public Uri ParentUri { get; init; } = default!;
 
     /// <summary>
-    /// <c>true</c> if the symbol belongs to the user workspace.
+    /// Describes how the runtime manages this symbol in memory.
     /// </summary>
-    public bool IsUserWorkspace { get; init; }
-    /// <summary>
-    /// <c>false</c> if the symbol is statically inactive via conditional compilation, <c>true</c> otherwise.
-    /// </summary>
-    public bool IsActive { get; init; } = true;
-    /// <summary>
-    /// <c>true</c> if the symbol is semantically <c>Static</c> in the VBA sense.
-    /// </summary>
-    /// <remarks>
-    /// <c>Static</c> locals (explicitly or implicitly so) in VBA retain their value when the scope is later re-entered.
-    /// </remarks>
-    public bool IsStatic { get; init; } = false;
-
     public ScopeKind ScopeKind { get; init; }
 
-    public Symbol WithChildren(IEnumerable<Symbol> children) => this with { Children = Container.From(children.OfType<DocumentSymbol>()) };
-    public Symbol WithIsActive(bool value) => this with { IsActive = value };
-
+    public Symbol WithChildren(IEnumerable<Uri> children) => this with { Children = [.. children] };
     public static Uri CreateUri(Uri parent, string name)
     {
         var builder = new UriBuilder(parent)
         {
-            // If we're already in a fragment, append with a dot. 
-            // Otherwise, start the fragment.
             Fragment = string.IsNullOrEmpty(parent.Fragment)
                 ? name
                 : $"{parent.Fragment.TrimStart('#')}.{name}"
         };
         return builder.Uri;
     }
+
+    public ImmutableDictionary<object, object> Properties { get; init; } = [];
+    public T? Get<T>(SymbolProperty<T> key) => Properties.TryGetValue(key, out var value) ? (T)value : default;
+    public Symbol With<T>(SymbolProperty<T> key, T value) => this with { Properties = Properties.SetItem(key, value!) };
 }
