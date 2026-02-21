@@ -16,63 +16,126 @@ internal static class SymbolOperation
 
     private static readonly Dictionary<Uri, BinaryOperation> _binaryInstructions = new()
     {
-        { GlobalSymbols.Addition.Uri, EvaluateAddition }
+        [GlobalSymbols.Addition.Uri] = EvaluateAddition,
+        [GlobalSymbols.Subtraction.Uri] = EvaluateSubtraction,
     };
 
-    public static VBTypedValue EvaluateAddition(
-        VBExecutionContext context,
-        VBBinaryOperatorExpression operation,
+    private static VBTypedValue EvaluateNumericBinaryOp(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
         VBTypedValue lhs,
-        VBTypedValue rhs)
+        VBTypedValue rhs,
+        Func<double, double, double> op,
+        out VBNumericTypedValue lhsNumeric,
+        out VBNumericTypedValue rhsNumeric,
+        out VBType targetType)
     {
+        lhsNumeric = default!;
+        rhsNumeric = default!;
+
         // MS-VBAL 5.6.9.4: If either operand is Null, the result is Null.
-        if (lhs is VBNullValue || rhs is VBNullValue) { return VBNullValue.Null; }
+        if (lhs is VBNullValue || rhs is VBNullValue)
+        {
+            targetType = VBNullType.TypeInfo;
+            return VBNullValue.Null;
+        }
 
         // MS-VBAL 5.6.9.4: If both operands are Empty, the result is an Integer 0.
-        if (lhs is VBEmptyValue && rhs is VBEmptyValue) { return VBIntegerValue.Zero; }
+        if (lhs is VBEmptyValue && rhs is VBEmptyValue)
+        {
+            targetType = VBIntegerType.TypeInfo;
+            return VBIntegerValue.Zero;
+        }
 
         // MS-VBAL 5.4.1.2: Numeric String Conversions
         // If one operand is a String and the other is a numeric, the String operand is converted to a Double.
         // RDC00109 is issued for each such implicit coercion, twice if both sides require numeric coercion.
-        var lhsNumeric = lhs.TypeInfo is INumericType ? (VBNumericTypedValue)lhs : VBDoubleValue.Zero;
-        var rhsNumeric = rhs.TypeInfo is INumericType ? (VBNumericTypedValue)rhs : VBDoubleValue.Zero;
+        lhsNumeric = lhs.TypeInfo is INumericType ? (VBNumericTypedValue)lhs : ((INumericCoercion)lhs).AsCoercedNumeric()!;
+        rhsNumeric = rhs.TypeInfo is INumericType ? (VBNumericTypedValue)rhs : ((INumericCoercion)rhs).AsCoercedNumeric()!;
 
-        if (lhs is VBStringValue lhsString)
+        if (lhs is VBStringValue)
         {
-            context.AddDiagnostic(RDCoreDiagnostic.ImplicitNumericCoercion(operation.Left.Location.Range, lhs.TypeInfo, VBDoubleType.TypeInfo));
-            lhsNumeric = lhsString.AsCoercedNumeric();
+            context.AddDiagnostic(RDCoreDiagnostic.ImplicitNumericCoercion(expression.Left.Location.Range, lhs.TypeInfo, VBDoubleType.TypeInfo));
         }
 
-        if (rhs is VBStringValue rhsString)
+        if (rhs is VBStringValue)
         {
-            context.AddDiagnostic(RDCoreDiagnostic.ImplicitNumericCoercion(operation.Right.Location.Range, rhs.TypeInfo, VBDoubleType.TypeInfo));
-            rhsNumeric = rhsString.AsCoercedNumeric();
+            context.AddDiagnostic(RDCoreDiagnostic.ImplicitNumericCoercion(expression.Right.Location.Range, rhs.TypeInfo, VBDoubleType.TypeInfo));
         }
+
+        // MS-VBAL 5.6.9.4: determine the target type
+        targetType = GetPromotedType(lhsNumeric.TypeInfo, rhsNumeric.TypeInfo);
+
+        // calculate the numeric result
+        var resultValue = op(lhsNumeric.NumericValue, rhsNumeric.NumericValue);
+
+        // MS-VBAL 5.6.9.4: Overflow Check [VBR0006]
+        return (VBTypedValue)((VBNumericTypedValue)targetType.CreateValue(expression.Symbol)).WithValue(resultValue);
+    }
+
+    public static VBTypedValue EvaluateAddition(
+        VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+        VBTypedValue resultValue;
+        VBNumericTypedValue lhsNumeric;
+        VBNumericTypedValue rhsNumeric;
 
         if (lhs is VBStringValue && rhs is VBStringValue)
         {
             // if both operands are strings, then this is a concatenation, not an addition.
             // RDC11006 is issued for the ambiguous concatenation operator usage.
-            context.AddDiagnostic(RDCoreDiagnostic.AmbiguousConcatenation(operation.Symbol.Range!));
+            context.AddDiagnostic(RDCoreDiagnostic.AmbiguousConcatenation(expression.Symbol.Range!));
         }
 
-        // MS-VBAL 5.6.9.4: Addition Operator Promotion Table
-        // "The result type is determined by the types of the operands..."
-        var targetType = GetPromotedType(lhsNumeric.TypeInfo, rhsNumeric.TypeInfo);
+        resultValue = EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+            (left, right) => left + right,
+            out lhsNumeric,
+            out rhsNumeric,
+            out var targetType);
 
         // MS-VBAL 5.6.9.4: Date Math Rule
         // "If one operand is a Date and the other is numeric, the result is a Date."
         if (lhs.TypeInfo is VBDateType || rhs.TypeInfo is VBDateType)
         {
             // Date math is effectively Double math re-wrapped
-            return new VBDateValue(operation.Symbol).WithValue(lhsNumeric.NumericValue + rhsNumeric.NumericValue);
+            context.AddDiagnostic(RDCoreDiagnostic.ImplicitDateSerialConversion(expression.Symbol?.Range!));
+            return new VBDateValue(expression.Symbol).WithValue(((VBNumericTypedValue)resultValue).NumericValue);
         }
 
-        // MS-VBAL 5.6.9.4: Overflow Check [VBR0006]
-        // If the result is too large for the value range of the result type, a run-time error is raised.
-        var resultValue = lhsNumeric.NumericValue + rhsNumeric.NumericValue;
+        return resultValue;
+    }
 
-        return (VBTypedValue)((VBNumericTypedValue)targetType.CreateValue(operation.Symbol)).WithValue(resultValue);
+    public static VBTypedValue EvaluateSubtraction(
+        VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+        VBTypedValue resultValue;
+
+        resultValue = EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+            (left, right) => left - right,
+            out var lhsNumeric,
+            out var rhsNumeric,
+            out var targetType);
+
+        // MS-VBAL 5.6.9.4: Date Math Rule
+        // "If one operand is a Date and the other is numeric, the result is a Date."
+        if (lhs.TypeInfo is VBDateType || rhs.TypeInfo is VBDateType)
+        {
+            // Date math is effectively Double math re-wrapped
+            var diff = lhsNumeric.NumericValue - rhsNumeric.NumericValue;
+            context.AddDiagnostic(RDCoreDiagnostic.ImplicitDateSerialConversion(expression.Symbol?.Range!));
+
+            // If both are dates, return Double. If only one is a date, return Date.
+            return (lhs.TypeInfo is VBDateType && rhs.TypeInfo is VBDateType)
+                ? new VBDoubleValue(expression.Symbol).WithValue(diff)
+                : new VBDateValue(expression.Symbol).WithValue(diff);
+        }
+
+        return resultValue;
     }
 
     private static VBType GetPromotedType(VBType lhs, VBType rhs)

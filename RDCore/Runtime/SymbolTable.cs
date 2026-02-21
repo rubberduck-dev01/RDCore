@@ -13,7 +13,7 @@ internal static class GlobalSymbols
 {
     // operators
     public static readonly AdditionOperatorSymbol Addition = new();
-    //public static readonly SubtractionOperatorSymbol Subtraction = new();
+    public static readonly SubtractionOperatorSymbol Subtraction = new();
     //public static readonly ConcatenationOperatorSymbol Concatenation = new();
 
     // constants

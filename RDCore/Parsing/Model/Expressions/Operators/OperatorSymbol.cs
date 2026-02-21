@@ -45,5 +45,5 @@ internal abstract record class BitwiseOperatorSymbol : BinaryOperatorSymbol
 }
 
 internal record class AdditionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.AdditionOp, SymbolOperation.EvaluateAddition) { }
-//internal record class SubtractionOperationSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.SubtractionOp) { }
+internal record class SubtractionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.SubtractionOp, SymbolOperation.EvaluateSubtraction) { }
 //internal record class LogicalAndOperatorSymbol() : BinaryOperatorSymbol(Tokens.LogicalAndOp, VBBooleanType.TypeInfo) { }
