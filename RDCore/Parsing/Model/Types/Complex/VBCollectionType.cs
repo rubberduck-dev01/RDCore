@@ -8,7 +8,7 @@ namespace RDCore.Parsing.Model.Types.Complex;
 internal record class VBCollectionType : VBClassType, IEnumerableType
 {
     public VBCollectionType(VBClassType vbClass)
-        : this(vbClass.Symbol, vbClass.IsUserDefined, vbClass.Members, vbClass.Members.OfType<VBReturningMember>().Single(e => e.UserMemId == WellKnownDispIds.NewEnum)) { }
+        : this(vbClass.Symbol, vbClass.IsUserDefined, vbClass.Members, vbClass.Members.OfType<VBReturningMember>().Single(e => e.Get(SymbolProperties.UserMemId) == WellKnownDispIds.NewEnum)) { }
 
     public VBCollectionType(ClassModuleSymbol symbol, bool isUserDefined = false, IEnumerable<VBTypeMember>? members = null, VBReturningMember? newEnumMember = null)
         : base(symbol, isUserDefined, members)

@@ -5,16 +5,20 @@ using RDCore.Parsing.Model.Types.Complex;
 namespace RDCore.Parsing.Model.Values;
 
 internal record class VBObjectValue : VBTypedValue,
-    IVBTypedValue<VBObjectValue, Guid>,
+    IVBTypedValue<VBObjectValue, VBLongPtrValue>,
     INumericCoercion,
     IStringCoercion
 {
-    public VBObjectValue(Symbol? symbol) : base(VBObjectType.TypeInfo, symbol) { }
+    public VBObjectValue(Symbol? symbol, VBLongPtrValue? address = default)
+        : base(VBObjectType.TypeInfo, symbol)
+    {
+        Value = address ?? Nothing.Value;
+    }
 
     public static VBObjectValue Nothing { get; } = new VBNothingValue();
 
-    public Guid Value { get; init; }
-    public override int Size => sizeof(int);
+    public VBLongPtrValue Value { get; init; }
+    public override int Size => VBLongPtrValue.BitnessAwarePtrSize;
 
     public bool IsNothing() => Value == Nothing.Value;
 
@@ -65,6 +69,6 @@ internal record class VBObjectValue : VBTypedValue,
         throw VBRuntimeErrorException.ObjectDoesntSupportPropertyOrMethod(Symbol?.SelectionRange!, $"`Let` coercion requires an object type that defines a default member, but none was found.");
     }
 
-    public bool Equals(IVBTypedValue<VBObjectValue, Guid>? other) => Value.Equals(other?.Value);
+    public bool Equals(IVBTypedValue<VBObjectValue, VBLongPtrValue>? other) => Value.Equals(other?.Value);
     public override int GetHashCode() => Value.GetHashCode();
 }

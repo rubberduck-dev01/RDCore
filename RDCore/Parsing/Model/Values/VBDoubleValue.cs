@@ -3,7 +3,7 @@ using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
 
-internal record class VBDoubleValue : VBNumericTypedValue,
+internal sealed record class VBDoubleValue : VBNumericTypedValue,
     IVBTypedValue<VBDoubleValue, double>,
     INumericValue<VBDoubleValue>
 {

@@ -4,11 +4,8 @@ using RDCore.Parsing.Model.Types;
 namespace RDCore.Parsing.Model.Values;
 
 internal abstract record class VBNumericTypedValue : VBTypedValue,
-    INumericValue,
-    INumericCoercion,
-    IStringCoercion,
-    IComparable<VBNumericTypedValue>,
-    IEquatable<VBNumericTypedValue>
+    INumericValue, INumericCoercion, IStringCoercion,
+    IComparable<INumericValue>, IEquatable<VBNumericTypedValue>
 {
     protected VBNumericTypedValue(VBType type, Symbol? symbol = null)
         : base(type, symbol) { }
@@ -28,27 +25,21 @@ internal abstract record class VBNumericTypedValue : VBTypedValue,
     public VBLongLongValue AsLongLong() => new VBLongLongValue(Symbol).WithValue(NumericValue);
     public VBSingleValue AsSingle() => new VBSingleValue(Symbol).WithValue(NumericValue);
 
-    public int CompareTo(VBNumericTypedValue? other) => other is null ? 1 : NumericValue.CompareTo(other.NumericValue);
+    public int CompareTo(INumericValue? other) => other is null ? 1 : NumericValue.CompareTo(other.NumericValue);
     public override string ToString() => NumericValue.ToString();
 
-    internal VBNumericTypedValue WithValue(double value)
+    public INumericValue WithValue(double value) => this switch
     {
-        return this switch
-        {
-            VBByteValue byteValue => byteValue.WithValue(value),
-            VBCurrencyValue currencyValue => currencyValue.WithValue(value),
-            VBDecimalValue decimalValue => decimalValue.WithValue(value),
-            VBDoubleValue doubleValue => doubleValue.WithValue(value),
-            VBIntegerValue integerValue => integerValue.WithValue(value),
-            VBLongValue longValue => longValue.WithValue(value),
-            VBLongLongValue longLongValue => longLongValue.WithValue(value),
-            _ => this with { NumericValue = value },
-        };
-    }
+        VBByteValue byteValue => byteValue.WithValue(value),
+        VBCurrencyValue currencyValue => currencyValue.WithValue(value),
+        VBDecimalValue decimalValue => decimalValue.WithValue(value),
+        VBDoubleValue doubleValue => doubleValue.WithValue(value),
+        VBIntegerValue integerValue => integerValue.WithValue(value),
+        VBLongValue longValue => longValue.WithValue(value),
+        VBLongLongValue longLongValue => longLongValue.WithValue(value),
+        _ => this with { NumericValue = value },
+    };
 
     public override int GetHashCode() => NumericValue.GetHashCode();
-    public virtual bool Equals(VBNumericTypedValue? other)
-    {
-        return other != null && other.NumericValue == NumericValue;
-    }
+    public virtual bool Equals(VBNumericTypedValue? other) => other != null && other.NumericValue == NumericValue;
 }

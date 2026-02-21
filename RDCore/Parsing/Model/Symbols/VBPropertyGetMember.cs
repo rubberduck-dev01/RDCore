@@ -11,13 +11,13 @@ internal interface IVBProperty
 
 internal record class VBPropertyGetMember : VBReturningMember, IVBProperty
 {
-    public VBPropertyGetMember(Uri workspaceRoot, string name, Accessibility accessibility, Uri parentUri, bool isHidden = false)
-        : base(workspaceRoot, name, accessibility, SymbolKindExt.Property, parentUri, isHidden)
+    public VBPropertyGetMember(Uri workspaceRoot, string name, Accessibility accessibility, Uri parentUri)
+        : base(workspaceRoot, name, accessibility, SymbolKindExt.Property, parentUri)
     {
     }
 
-    public VBPropertyGetMember(Uri workspaceRoot, string name, Accessibility accessibility, Uri parentUri, Range range, Range selectionRange, bool isHidden = false)
-        : base(workspaceRoot, name, accessibility, SymbolKindExt.Property, parentUri, range, selectionRange, isHidden)
+    public VBPropertyGetMember(Uri workspaceRoot, string name, Accessibility accessibility, Uri parentUri, Range range, Range selectionRange)
+        : base(workspaceRoot, name, accessibility, SymbolKindExt.Property, parentUri, range, selectionRange)
     {
     }
 }

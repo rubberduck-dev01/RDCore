@@ -5,13 +5,13 @@ namespace RDCore.Parsing.Model.Symbols;
 
 internal record class VBPropertySetMember : VBProcedureMember, IVBProperty
 {
-    public VBPropertySetMember(Uri workspaceUri, string name, Accessibility accessibility, Uri parentUri, bool isHidden = false)
-        : base(workspaceUri, SymbolKindExt.Property, name, accessibility, parentUri, isHidden)
+    public VBPropertySetMember(Uri workspaceUri, string name, Accessibility accessibility, Uri parentUri)
+        : base(workspaceUri, SymbolKindExt.Property, name, accessibility, parentUri)
     {
     }
 
-    public VBPropertySetMember(Uri workspaceUri, string name, Accessibility accessibility, Uri parentUri, Range range, Range selectionRange, bool isHidden = false)
-        : base(workspaceUri, SymbolKindExt.Property, name, accessibility, parentUri, range, selectionRange, isHidden)
+    public VBPropertySetMember(Uri workspaceUri, string name, Accessibility accessibility, Uri parentUri, Range range, Range selectionRange)
+        : base(workspaceUri, SymbolKindExt.Property, name, accessibility, parentUri, range, selectionRange)
     {
     }
 }

@@ -4,6 +4,9 @@ namespace RDCore.Parsing.Model.Values;
 
 internal interface INumericValue
 {
+    double NumericValue { get; }
+    INumericValue WithValue(double value);
+
     VBBooleanValue AsBoolean();
     VBByteValue AsByte();
     VBIntegerValue AsInteger();

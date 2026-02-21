@@ -1,4 +1,5 @@
-﻿using RDCore.Parsing.Model.Values;
+﻿using RDCore.Parsing.Model.Symbols;
+using RDCore.Parsing.Model.Values;
 using System.Collections.Immutable;
 
 namespace RDCore.Parsing.Model.Types;
@@ -8,6 +9,40 @@ namespace RDCore.Parsing.Model.Types;
 /// </summary>
 internal abstract record class VBType
 {
+    private static readonly Dictionary<Type, Func<Symbol, VBTypedValue>> _valueFactories = new()
+    {
+        [typeof(VBIntegerType)] = symbol => new VBIntegerValue(symbol),
+        [typeof(VBLongType)] = symbol => new VBLongValue(symbol),
+        [typeof(VBDoubleType)] = symbol => new VBDoubleValue(symbol),
+        [typeof(VBStringType)] = symbol => new VBStringValue(symbol),
+        [typeof(VBBooleanType)] = symbol => new VBBooleanValue(symbol),
+        [typeof(VBDateType)] = symbol => new VBDateValue(symbol),
+        [typeof(VBVariantType)] = symbol => new VBVariantValue(VBEmptyValue.Empty, symbol),
+        [typeof(VBNullType)] = symbol => new VBNullValue(symbol),
+        [typeof(VBEmptyType)] = symbol => new VBEmptyValue(symbol),
+        [typeof(VBObjectType)] = symbol => new VBObjectValue(symbol)
+    };
+
+    public VBTypedValue CreateValue(Symbol declarationSymbol)
+    {
+        if (_valueFactories.TryGetValue(GetType(), out var factory))
+        {
+            return factory(declarationSymbol);
+        }
+
+        throw new InvalidOperationException($"No value factory registered for type {GetType().Name}");
+    }
+
+    public INumericValue CreateNumericValue(Symbol declarationSymbol)
+    {
+        if (_valueFactories.TryGetValue(GetType(), out var factory))
+        {
+            return (INumericValue)factory(declarationSymbol);
+        }
+
+        throw new InvalidOperationException($"No value factory registered for type {GetType().Name}");
+    }
+
     protected VBType(Type? managedType, string name, bool isUserDefined = false, bool isHidden = false)
     {
         ManagedType = managedType;

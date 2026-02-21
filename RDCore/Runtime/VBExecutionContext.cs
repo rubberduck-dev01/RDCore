@@ -7,6 +7,8 @@ namespace RDCore.Runtime;
 
 internal sealed class VBExecutionContext(WorkspaceDocument doc, SymbolTable globals)
 {
+    required public bool Is64Bit { get; init; }
+
     public WorkspaceDocument Document { get; } = doc;
     public SymbolTable GlobalSymbols { get; } = globals;
 

@@ -1,6 +1,6 @@
 ﻿namespace RDCore.Parsing.Model.Values;
 
-internal record class PrecompilerConstantValue : VBIntegerValue
+internal sealed record class PrecompilerConstantValue : VBIntegerValue
 {
     public PrecompilerConstantValue(string name, Uri parentUri, int value)
     {

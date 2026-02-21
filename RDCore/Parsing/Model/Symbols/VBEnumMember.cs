@@ -6,15 +6,15 @@ namespace RDCore.Parsing.Model.Symbols;
 
 internal record class VBEnumMember : VBReturningMember
 {
-    public VBEnumMember(Uri workspaceRoot, string name, Uri parentUri, BoundExpression valueExpression, bool isHidden = false)
-        : base(workspaceRoot, name, Accessibility.Public, SymbolKindExt.EnumMember, parentUri, isHidden)
+    public VBEnumMember(Uri workspaceRoot, string name, Uri parentUri, BoundExpression valueExpression)
+        : base(workspaceRoot, name, Accessibility.Public, SymbolKindExt.EnumMember, parentUri)
     {
         ResolvedType = VBLongType.TypeInfo;
         ValueExpression = valueExpression;
     }
 
-    public VBEnumMember(Uri workspaceRoot, string name, Uri parentUri, BoundExpression? valueExpression, Range range, Range selectionRange, bool isHidden = false)
-        : base(workspaceRoot, name, Accessibility.Public, SymbolKindExt.EnumMember, parentUri, range, selectionRange, isHidden)
+    public VBEnumMember(Uri workspaceRoot, string name, Uri parentUri, BoundExpression? valueExpression, Range range, Range selectionRange)
+        : base(workspaceRoot, name, Accessibility.Public, SymbolKindExt.EnumMember, parentUri, range, selectionRange)
     {
         ResolvedType = VBLongType.TypeInfo;
         ValueExpression = valueExpression;

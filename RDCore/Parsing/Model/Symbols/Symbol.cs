@@ -51,6 +51,28 @@ internal static class SymbolProperties
     /// The <c>Option Compare</c> flag.
     /// </summary>
     public static readonly SymbolProperty<VBOptionCompare> OptionCompare = new(nameof(OptionCompare));
+    /// <summary>
+    /// A small documentation string about this symbol.
+    /// </summary>
+    /// <remarks>
+    /// Provided via <c>VB_Description</c> attributes.
+    /// </remarks>
+    public static readonly SymbolProperty<string> DocString = new(nameof(DocString));
+    /// <summary>
+    /// A metadata flag that is used for controlling the member behavior.
+    /// </summary>
+    /// <remarks>
+    /// Provided via <c>VB_UserMemId</c> attributes; unique for each member of a given module, with value 0 denoting the default member.
+    /// </remarks>
+    public static readonly SymbolProperty<int> UserMemId = new(nameof(UserMemId));
+    /// <summary>
+    /// A metadata flag that is used for controlling the member behavior.
+    /// </summary>
+    /// <remarks>
+    /// Provided via <c>VB_MemberFlags</c> attributes, with a handful of useful "magic" values.
+    /// </remarks>
+    public static readonly SymbolProperty<int> MemberFlags = new(nameof(MemberFlags));
+
 }
 
 

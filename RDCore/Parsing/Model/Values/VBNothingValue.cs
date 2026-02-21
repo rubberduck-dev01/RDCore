@@ -3,11 +3,10 @@
 namespace RDCore.Parsing.Model.Values;
 
 internal record class VBNothingValue : VBObjectValue,
-    IVBTypedValue<VBObjectValue, Guid>
+    IVBTypedValue<VBObjectValue, VBLongPtrValue>
 {
     public VBNothingValue(Symbol? symbol = null)
-        : base(symbol)
+        : base(symbol, VBLongPtrValue.Zero)
     {
-        Value = Guid.Empty;
     }
 }

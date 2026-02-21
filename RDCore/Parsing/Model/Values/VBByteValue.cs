@@ -31,8 +31,6 @@ internal record class VBByteValue : VBNumericTypedValue,
         return this with { NumericValue = (byte)value };
     }
 
-    public VBByteValue WithValue(int value) => WithValue((double)value);
-
     public bool Equals(IVBTypedValue<VBByteValue, byte>? other) => Value == other?.Value;
     public override int GetHashCode() => Value.GetHashCode();
 }
