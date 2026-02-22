@@ -32,6 +32,7 @@ internal abstract record class VBTypedValue
     public Symbol? Symbol { get; init; }
     public VBType TypeInfo { get; init; }
 
+    public long RawAddress { get; init; }
     public abstract int Size { get; }
 
     public abstract override string ToString();

@@ -1,5 +1,6 @@
 ﻿using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Values;
+using System.Collections.Concurrent;
 
 namespace RDCore.Runtime;
 
@@ -9,35 +10,31 @@ internal class VirtualHeap(VBExecutionContext context)
     //private static readonly long _addressSpace = 0x10FF; // TODO update from MS-VBAL, if specified
 
     private readonly VBExecutionContext _context = context;
-    private readonly Stack<Dictionary<Symbol, VBTypedValue>> _stackFrames = [];
+    private readonly Stack<ConcurrentDictionary<Symbol, VBTypedValue>> _stackFrames = [];
 
-    private readonly Dictionary<Symbol, VBTypedValue> _globalHeap = [];
-    private readonly Dictionary<Symbol, VBTypedValue> _workspaceHeap = [];
-    private readonly Dictionary<Symbol, VBTypedValue> _staticLocalsHeap = [];
-    //private readonly Dictionary<VBObjectValue, Dictionary<Symbol, VBTypedValue>> _objectHeap = [];
+    private readonly ConcurrentDictionary<Symbol, VBTypedValue> _globalHeap = [];
+    private readonly ConcurrentDictionary<Symbol, VBTypedValue> _workspaceHeap = [];
+    private readonly ConcurrentDictionary<Symbol, VBTypedValue> _staticLocalsHeap = [];
 
-    private long _nextObject = _offset;
+    private readonly ConcurrentDictionary<VBObjectValue, ConcurrentDictionary<Symbol, VBTypedValue>> _objectHeap = [];
 
-    private readonly Dictionary<VBObjectValue, VBLongPtrValue> _objPtrMap = [];
-    private readonly Dictionary<VBTypedValue, VBLongPtrValue> _varPtrMap = [];
-    private readonly Dictionary<VBStringValue, VBLongPtrValue> _strPtrMap = [];
+    private long _nextAddress = _offset;
 
-    private readonly Dictionary<Uri, VBLongPtrValue> _allocatedSymbols = [];
+    private readonly ConcurrentDictionary<long, VBTypedValue> _memoryMap = [];
+    private readonly ConcurrentDictionary<Uri, long> _rawAddressMap = [];
 
-    public VBLongPtrValue ObjPtr(VBObjectValue obj) => _objPtrMap.TryGetValue(obj, out var pointer) && pointer is VBLongPtrValue value ? value : VBLongPtrValue.Zero;
-    public VBTypedValue VarPtr(VBTypedValue local) => _varPtrMap.TryGetValue(local, out var pointer) && pointer is VBLongPtrValue value ? value : VBLongPtrValue.Zero;
-    public VBTypedValue StrPtr(VBStringValue str) => _strPtrMap.TryGetValue(str, out var pointer) && pointer is VBLongPtrValue value ? value : VBLongPtrValue.Zero;
     public VBObjectValue CreateObject(ClassModuleSymbol symbol)
     {
-        var address = _nextObject;
-        Interlocked.Add(ref _nextObject, VBLongPtrValue.BitnessAwarePtrSize);
+        var address = _nextAddress;
+        Interlocked.Add(ref _nextAddress, VBLongPtrValue.BitnessAwarePtrSize);
 
-        var ptr = new VBLongPtrValue(symbol) { NumericValue = address };
-        var obj = new VBObjectValue(symbol, ptr);
+        var pointer = new VBLongPtrValue(symbol) { NumericValue = address };
+        var obj = new VBObjectValue(symbol, pointer);
 
-        _objPtrMap[obj] = ptr;
+        _objectHeap[obj] = [];
+        _rawAddressMap[symbol.Uri] = address;
 
-        // TODO: Shift 2 - Invoke _monitors.ForEach(m => m.OnAllocate(...))
+        // TODO: _monitors.ForEach(m => m.OnAllocate(...))
 
         return obj;
     }
@@ -66,21 +63,46 @@ internal class VirtualHeap(VBExecutionContext context)
         heap[symbol] = value;
     }
 
-    public VBLongPtrValue Allocate(Uri symbolUri, int size)
+    public long Allocate(Uri symbolUri, int size)
     {
-        var address = new VBLongPtrValue { NumericValue = _nextObject };
+        var address = _nextAddress;
+        Interlocked.Add(ref _nextAddress, Math.Max(size, VBLongPtrValue.BitnessAwarePtrSize));
 
-        var step = VBLongPtrValue.BitnessAwarePtrSize;
-        Interlocked.Add(ref _nextObject, Math.Max(size, step));
+        var pointer = new VBLongPtrValue { NumericValue = address };
 
-        _allocatedSymbols[symbolUri] = address;
+        _rawAddressMap[symbolUri] = address;
 
         // TODO fire IHeapMonitor.OnAllocate here
         return address;
     }
 
-    public bool Deallocate(Uri symbolUri)
+    public long Allocate(Uri symbolUri, VBTypedValue value)
     {
-        return _allocatedSymbols.Remove(symbolUri);
+        var address = _nextAddress;
+        Interlocked.Add(ref _nextAddress, VBLongPtrValue.BitnessAwarePtrSize);
+
+        var addressedValue = value with { RawAddress = address };
+
+        _rawAddressMap[symbolUri] = address;
+        _memoryMap[address] = addressedValue;
+
+        return address;
+    }
+
+    public void Deallocate(Uri symbolUri)
+    {
+        if (!_rawAddressMap.TryRemove(symbolUri, out var address))
+        {
+            // 🔥this is fine🔥
+            // TODO at least log a warning here
+            return;
+        }
+
+        if (!_memoryMap.TryRemove(address, out var _))
+        {
+            throw new VirtualHeapCorruptionException($"An allocated value was expected to be found at {address:X} for symbol {symbolUri}, but the value was not found.");
+        }
     }
 }
+
+internal class VirtualHeapCorruptionException(string message) : InvalidOperationException(message) { }

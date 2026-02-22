@@ -28,17 +28,18 @@ internal abstract record class VBNumericTypedValue : VBTypedValue,
     public int CompareTo(INumericValue? other) => other is null ? 1 : NumericValue.CompareTo(other.NumericValue);
     public override string ToString() => NumericValue.ToString();
 
-    public INumericValue WithValue(double value) => this switch
-    {
-        VBByteValue byteValue => byteValue.WithValue(value),
-        VBCurrencyValue currencyValue => currencyValue.WithValue(value),
-        VBDecimalValue decimalValue => decimalValue.WithValue(value),
-        VBDoubleValue doubleValue => doubleValue.WithValue(value),
-        VBIntegerValue integerValue => integerValue.WithValue(value),
-        VBLongValue longValue => longValue.WithValue(value),
-        VBLongLongValue longLongValue => longLongValue.WithValue(value),
-        _ => this with { NumericValue = value },
-    };
+    public INumericValue WithValue(double value)
+        => this switch
+        {
+            VBByteValue byteValue => byteValue.WithValue(value),
+            VBCurrencyValue currencyValue => currencyValue.WithValue(value),
+            VBDecimalValue decimalValue => decimalValue.WithValue(value),
+            VBDoubleValue doubleValue => doubleValue.WithValue(value),
+            VBIntegerValue integerValue => integerValue.WithValue(value),
+            VBLongValue longValue => longValue.WithValue(value),
+            VBLongLongValue longLongValue => longLongValue.WithValue(value),
+            _ => this with { NumericValue = value },
+        };
 
     public override int GetHashCode() => NumericValue.GetHashCode();
     public virtual bool Equals(VBNumericTypedValue? other) => other != null && other.NumericValue == NumericValue;

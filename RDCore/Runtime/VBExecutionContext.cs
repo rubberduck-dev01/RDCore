@@ -5,12 +5,11 @@ using System.Collections.Immutable;
 
 namespace RDCore.Runtime;
 
-internal sealed class VBExecutionContext(WorkspaceDocument doc, SymbolTable globals)
+internal sealed class VBExecutionContext(WorkspaceDocument doc)
 {
     required public bool Is64Bit { get; init; }
 
     public WorkspaceDocument Document { get; } = doc;
-    public SymbolTable GlobalSymbols { get; } = globals;
 
     private readonly List<Diagnostic> _diagnostics = [];
     public ImmutableArray<Diagnostic> Diagnostics => [.. _diagnostics];
@@ -18,7 +17,7 @@ internal sealed class VBExecutionContext(WorkspaceDocument doc, SymbolTable glob
 
     public void AddDiagnostic(Diagnostic diagnostic) => _diagnostics.Add(diagnostic);
 
-    // Allows the Binder to "Push/Pop" as it enters Procedures or If-Blocks
+    // Allows the Binder to "Push/Pop" as it enters Procedures
     public IDisposable EnterScope(Symbol scopeSymbol)
     {
         var previous = CurrentScope;

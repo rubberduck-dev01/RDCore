@@ -1,7 +1,4 @@
 ﻿using RDCore.Parsing.Model.Types;
-using RDCore.Parsing.Model.Values;
-using RDCore.Runtime;
-using RDCore.Runtime.Model.Operators;
 using RDCore.Server.ProtocolExtensions;
 using static RDCore.Parsing.Model.Expressions.Operators.SymbolOperation;
 
@@ -9,13 +6,28 @@ namespace RDCore.Parsing.Model.Expressions.Operators;
 
 internal abstract record class OperatorSymbol : StaticSymbol
 {
-    protected OperatorSymbol(string name, BinaryOperation operation, VBType? vbType = default)
+    protected OperatorSymbol(string name, UnaryOperation unaryOp, VBType? vbType = default)
         : base(name, SymbolKindExt.Operator, vbType)
     {
-        Execute = operation;
+        ExecuteUnaryOp = unaryOp;
     }
 
-    public BinaryOperation Execute { get; init; }
+    protected OperatorSymbol(string name, BinaryOperation binaryOp, VBType? vbType = default)
+        : base(name, SymbolKindExt.Operator, vbType)
+    {
+        ExecuteBinaryOp = binaryOp;
+    }
+
+    public virtual UnaryOperation ExecuteUnaryOp { get; init; } = default!;
+    public virtual BinaryOperation ExecuteBinaryOp { get; init; } = default!;
+}
+
+internal abstract record class UnaryOperatorSymbol : OperatorSymbol
+{
+    protected UnaryOperatorSymbol(string name, UnaryOperation operation, VBType? vbType = null)
+        : base(name, operation, vbType)
+    {
+    }
 }
 
 internal abstract record class BinaryOperatorSymbol : OperatorSymbol
@@ -24,26 +36,26 @@ internal abstract record class BinaryOperatorSymbol : OperatorSymbol
         : base(name, operation, vbType)
     {
     }
-
-    protected static bool CanConvertSafely(VBTypedValue lhsValue, VBTypedValue rhsValue)
-        => lhsValue.TypeInfo.ConvertsSafelyToTypes.Contains(rhsValue.TypeInfo);
 }
 
 internal abstract record class BitwiseOperatorSymbol : BinaryOperatorSymbol
 {
-    protected BitwiseOperatorSymbol(string name, VBType? vbType = null)
-        : base(name, null!, vbType)
+    protected BitwiseOperatorSymbol(string name, BinaryOperation operation, VBType? vbType = null)
+        : base(name, operation, vbType)
     {
-        Execute = ExecuteInternal;
-    }
-
-    private VBTypedValue ExecuteInternal(VBExecutionContext context, VBOperatorExpression expression, VBTypedValue lhs, VBTypedValue rhs)
-    {
-        //var result = SymbolOperation.EvaluateBinaryOpResult(context, this, lhs, rhs);
-        return UnresolvedType.VBType.DefaultValue;
     }
 }
 
-internal record class AdditionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.AdditionOp, SymbolOperation.EvaluateAddition) { }
-internal record class SubtractionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.SubtractionOp, SymbolOperation.EvaluateSubtraction) { }
-//internal record class LogicalAndOperatorSymbol() : BinaryOperatorSymbol(Tokens.LogicalAndOp, VBBooleanType.TypeInfo) { }
+internal record class AdditionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.AdditionOp, SymbolOperation.EvaluateBinaryAddition) { }
+internal record class SubtractionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.SubtractionOp, SymbolOperation.EvaluateBinarySubtraction) { }
+internal record class MultiplicationOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.MultiplicationOp, SymbolOperation.EvaluateBinaryMultiplication) { }
+internal record class DivisionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.DivisionOp, SymbolOperation.EvaluateBinaryDivision) { }
+internal record class IntegerDivisionOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.IntegerDivisionOp, SymbolOperation.EvaluateBinaryIntegerDivision) { }
+internal record class ExponentiationOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.PowerOp, SymbolOperation.EvaluateBinaryExponentiation) { }
+internal record class ModuloOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.ModuloOp, SymbolOperation.EvaluateBinaryModulo) { }
+
+internal record class ParenthesizedExpressionOperatorSymbol(VBType? VBType = default) : UnaryOperatorSymbol("(expression)", SymbolOperation.EvaluateUnaryParentheses) { }
+internal record class UnaryPlusOperatorSymbol(VBType? VBType = default) : UnaryOperatorSymbol(Tokens.AdditionOp, SymbolOperation.EvaluateUnaryPlus) { }
+internal record class UnaryMinusOperatorSymbol(VBType? VBType = default) : UnaryOperatorSymbol(Tokens.SubtractionOp, SymbolOperation.EvaluateUnaryMinus) { }
+internal record class BitwiseNotOperatorSymbol(VBType? VBType = default) : UnaryOperatorSymbol(Tokens.LogicalNotOp, SymbolOperation.EvaluateUnaryBitwiseNot) { }
+internal record class BitwiseEqvOperatorSymbol(VBType? VBType = default) : BinaryOperatorSymbol(Tokens.LogicalEqvOp, SymbolOperation.EvaluateBinaryBitwiseEqv) { }

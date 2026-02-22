@@ -62,10 +62,10 @@ public class SymbolOperationTests
         var rhsValue = Wrap(rhs, TestLocation);
         var expression = new VBBinaryOperatorExpression(op, lhsValue, rhsValue, TestLocation);
 
-        return SymbolOperation.EvaluateAddition(context, expression, lhsValue.ResultValue, rhsValue.ResultValue);
+        return SymbolOperation.EvaluateBinaryAddition(context, expression, lhsValue.ResultValue, rhsValue.ResultValue);
     }
 
-    private VBExecutionContext CreateContext(bool is64bit = true) => new(default!, default!) { Is64Bit = true };
+    private VBExecutionContext CreateContext(bool is64bit = true) => new(default!) { Is64Bit = true };
     private Location TestLocation { get; } = new() { Uri = "file:///a:/test/file", Range = new Range(1, 1, 1, 1) };
 
     private ValuedExpression Wrap(object? val, Location location)
