@@ -4,16 +4,16 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace RDCore.Parsing.Model.Types.Complex;
 
-internal abstract record class VBTypeMember : TypedSymbol
+internal abstract record class VBTypeMemberSymbol : TypedSymbol
 {
-    protected VBTypeMember(Uri uri, string name, SymbolKindExt kind, Accessibility accessibility, Uri parentUri)
+    protected VBTypeMemberSymbol(Uri uri, string name, SymbolKindExt kind, Accessibility accessibility, Uri parentUri)
         : base(uri, name, kind, accessibility, parentUri)
     {
         Uri = uri;
         Accessibility = accessibility;
     }
 
-    protected VBTypeMember(Uri uri, string name, SymbolKindExt kind, Accessibility accessibility, Uri parentUri, Range range, Range selectionRange)
+    protected VBTypeMemberSymbol(Uri uri, string name, SymbolKindExt kind, Accessibility accessibility, Uri parentUri, Range range, Range selectionRange)
         : base(uri, ScopeKind.Unallocated, name, kind, accessibility, parentUri, range, selectionRange)
     {
         Uri = uri;

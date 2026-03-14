@@ -1,5 +1,7 @@
-﻿using RDCore.Parsing.Model.Symbols;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using RDCore.Parsing.Model.Symbols;
 using RDCore.Parsing.Model.Types;
+using System.Collections.Immutable;
 
 namespace RDCore.Parsing.Model.Values;
 
@@ -28,4 +30,23 @@ internal record class VBVariantValue : VBTypedValue, IVBTypedValue<VBVariantValu
 
     public bool Equals(IVBTypedValue<VBVariantValue, object?>? other) => Value == other?.Value;
     public override int GetHashCode() => Value?.GetHashCode() ?? 0;
+}
+
+internal record class VBDeferredMemberValue : VBTypedValue
+{
+    public VBDeferredMemberValue(Symbol? symbol)
+        : base(VBVariantType.TypeInfo, symbol)
+    {
+    }
+
+    public override int Size => sizeof(int);
+
+    public string Name { get; init; } = string.Empty;
+    public VBDeferredMemberValue WithName(string name) => this with { Name = name };
+
+    public VBTypedValue? Context { get; init; }
+    public VBDeferredMemberValue WithContext(VBTypedValue context) => this with { Context = context };
+
+    public ImmutableArray<Diagnostic> Diagnostics { get; init; } = [];
+    public VBDeferredMemberValue WithDiagnostic(Diagnostic diagnostic) => this with { Diagnostics = [.. Diagnostics, diagnostic] };
 }

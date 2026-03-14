@@ -5,7 +5,7 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace RDCore.Parsing.Model.Symbols;
 
-internal record class VBProcedureMember : VBTypeMember
+internal record class VBProcedureMember : VBTypeMemberSymbol
 {
     protected VBProcedureMember(Uri workspaceUri, SymbolKindExt kind, string name, Accessibility accessibility, Uri parentUri)
         : base(workspaceUri, name, kind, accessibility, parentUri)

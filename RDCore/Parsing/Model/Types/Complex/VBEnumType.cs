@@ -12,7 +12,7 @@ internal sealed record class VBEnumType : VBType, IVBMemberOwnerType, IVBDeclare
         Declaration = declaration;
         Definitions = definitions;
 
-        Members = [.. (members ?? []).Cast<VBTypeMember>()]; // NOTE: an enum without any members would not be compilable
+        Members = [.. (members ?? []).Cast<VBTypeMemberSymbol>()]; // NOTE: an enum without any members would not be compilable
     }
 
     public override VBType[] ConvertsSafelyToTypes =>
@@ -31,7 +31,7 @@ internal sealed record class VBEnumType : VBType, IVBMemberOwnerType, IVBDeclare
     public Symbol Declaration { get; init; }
     public Symbol[]? Definitions { get; init; }
 
-    public ImmutableArray<VBTypeMember> Members { get; init; }
+    public ImmutableArray<VBTypeMemberSymbol> Members { get; init; }
 
-    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMember> members) => this with { Members = [.. members] };
+    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMemberSymbol> members) => this with { Members = [.. members] };
 }

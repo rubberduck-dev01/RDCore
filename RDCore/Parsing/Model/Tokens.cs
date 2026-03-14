@@ -258,6 +258,7 @@ public static class Tokens
     public const string VB_Customizable = "VB_Customizable";
     public const string VB_Invoke_Func = "VB_ProcData.VB_Invoke_Func";
 
+    public const string MemberAccess = ".";
     public const string PowerOp = "^";
     public const string NegationOp = "-";
     public const string AdditionOp = "+";

@@ -73,6 +73,8 @@ internal enum RDCoreDiagnosticId
     AmbiguousConcatenation,
     PreferErrRaiseOverErrorStatement,
     EnumerationOverArray,
+    LateBoundMemberAccess,
+    UnresolvedLateBoundMemberAccess,
 }
 
 internal static class RDCoreDiagnosticIdExtensions
@@ -169,6 +171,11 @@ internal record class RDCoreDiagnostic : Diagnostic
 
     public static Diagnostic BitwiseOperator(Range range) =>
         CreateDiagnostic(range, DiagnosticSeverity.Hint, RDCoreDiagnosticId.BitwiseOperator, "Bitwise operator; the result of this operation is resolved using bitwise arithmetics.");
+    public static Diagnostic LateBoundMemberAccess(Range range) =>
+        CreateDiagnostic(range, DiagnosticSeverity.Hint, RDCoreDiagnosticId.LateBoundMemberAccess, "Late bound member access; VBA resolves this member call at run-time, consider using a more specific type if possible.");
+
+    public static Diagnostic UnresolvedLateBoundMemberAccess(Range range) =>
+        CreateDiagnostic(range, DiagnosticSeverity.Error, RDCoreDiagnosticId.UnresolvedLateBoundMemberAccess, "Unresolved late bound member access; this call is likely going to raise run-time error 438 (VBR00438) at run-time.");
 
     public static Diagnostic SllFailure(Range range) =>
         CreateDiagnostic(range, DiagnosticSeverity.Hint, RDCoreDiagnosticId.SllFailure, "SLL parser prediction mode failed here; if possible, rephrasing this instruction could improve parsing performance.");

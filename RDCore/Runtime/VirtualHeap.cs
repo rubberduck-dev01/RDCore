@@ -4,12 +4,11 @@ using System.Collections.Concurrent;
 
 namespace RDCore.Runtime;
 
-internal class VirtualHeap(VBExecutionContext context)
+internal class VirtualHeap()
 {
     private static readonly long _offset = 0x1000;
     //private static readonly long _addressSpace = 0x10FF; // TODO update from MS-VBAL, if specified
 
-    private readonly VBExecutionContext _context = context;
     private readonly Stack<ConcurrentDictionary<Symbol, VBTypedValue>> _stackFrames = [];
 
     private readonly ConcurrentDictionary<Symbol, VBTypedValue> _globalHeap = [];

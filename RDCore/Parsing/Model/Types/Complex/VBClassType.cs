@@ -9,7 +9,7 @@ namespace RDCore.Parsing.Model.Types.Complex;
 /// </summary>
 internal record class VBClassType : VBType, IVBMemberOwnerType
 {
-    public VBClassType(ClassModuleSymbol symbol, bool isUserDefined = false, IEnumerable<VBTypeMember>? members = null, bool isHidden = false)
+    public VBClassType(ClassModuleSymbol symbol, bool isUserDefined = false, IEnumerable<VBTypeMemberSymbol>? members = null, bool isHidden = false)
         : base(typeof(object), symbol.Name, isUserDefined, isHidden)
     {
         Symbol = symbol;
@@ -35,7 +35,7 @@ internal record class VBClassType : VBType, IVBMemberOwnerType
     /// <remarks>
     /// Controlled by the <c>VB_DefaultMember</c> attribute or <c>@DefaultMember</c> annotation.
     /// </remarks>
-    public VBTypeMember? DefaultMember { get; init; }
+    public VBTypeMemberSymbol? DefaultMember { get; init; }
     /// <summary>
     /// <c>true</c> if this class type is used as an interface (i.e., other classes implement it).
     /// </summary>
@@ -49,6 +49,6 @@ internal record class VBClassType : VBType, IVBMemberOwnerType
     public override VBType[] ConvertsSafelyToTypes => [.. Supertypes, VBVariantType.TypeInfo];
     public override VBObjectValue DefaultValue { get; } = VBObjectValue.Nothing;
 
-    public ImmutableArray<VBTypeMember> Members { get; init; }
-    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMember> members) => this with { Members = [.. members] };
+    public ImmutableArray<VBTypeMemberSymbol> Members { get; init; }
+    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMemberSymbol> members) => this with { Members = [.. members] };
 }

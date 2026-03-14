@@ -13,7 +13,7 @@ internal sealed record class VBUserDefinedType : VBType, IVBDeclaredType, IVBMem
         Declaration = declaration;
         Definitions = definitions;
 
-        Members = [.. (members ?? []).OfType<VBTypeMember>()];
+        Members = [.. (members ?? []).OfType<VBTypeMemberSymbol>()];
     }
 
     public override VBType[] ConvertsSafelyToTypes { get; } = [VBVariantType.TypeInfo];
@@ -24,6 +24,6 @@ internal sealed record class VBUserDefinedType : VBType, IVBDeclaredType, IVBMem
     public Symbol Declaration { get; init; }
     public Symbol[]? Definitions { get; init; }
 
-    public ImmutableArray<VBTypeMember> Members { get; init; }
-    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMember> members) => this with { Members = [.. members] };
+    public ImmutableArray<VBTypeMemberSymbol> Members { get; init; }
+    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMemberSymbol> members) => this with { Members = [.. members] };
 }

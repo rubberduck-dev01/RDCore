@@ -5,6 +5,6 @@ namespace RDCore.Parsing.Model.Types;
 
 internal interface IVBMemberOwnerType
 {
-    ImmutableArray<VBTypeMember> Members { get; init; }
-    IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMember> members);
+    ImmutableArray<VBTypeMemberSymbol> Members { get; init; }
+    IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMemberSymbol> members);
 }

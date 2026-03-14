@@ -8,7 +8,9 @@ namespace RDCore.Parsing;
 public enum VBCompileErrorId
 {
     ForbiddenWithOptionStrict = 9000,
+    SyntaxError,
     AmbiguousName,
+    VariableNotDefined,
     DuplicateDeclaration,
     InvalidUseOfObject,
     InvalidParamArrayUse,
@@ -22,6 +24,7 @@ public enum VBCompileErrorId
     ExitForNotWithinForNext,
     ExitFunctionNotAllowedInSubOrProperty,
     ExitPropertyNotAllowedInSubOrFunction,
+    MethodOrDataMemberNotFound,
 }
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
@@ -39,7 +42,9 @@ internal class VBCompileErrorException : ApplicationException
 
     #region Classic-VB compile-time errors
     // NOTE: VB compile errors are just messages, ID is made up.
+    public static VBCompileErrorException SyntaxError(Range range, string? verbose = null) => new(range, VBCompileErrorId.SyntaxError, "Syntax error", verbose);
     public static VBCompileErrorException InvalidUseOfObject(Range range, string? verbose = null) => new(range, VBCompileErrorId.InvalidUseOfObject, "Invalid use of object", verbose);
+    public static VBCompileErrorException VariableNotDefined(Range range, string? verbose = null) => new(range, VBCompileErrorId.VariableNotDefined, "Variable not defined", verbose);
     public static VBCompileErrorException InvalidParamArrayUse(Range range, string? verbose = null) => new(range, VBCompileErrorId.InvalidParamArrayUse, "Invalid ParamArray use", verbose);
     public static VBCompileErrorException InvalidReDim(Range range, string? verbose = null) => new(range, VBCompileErrorId.InvalidReDim, "Invalid ReDim", verbose);
     public static VBCompileErrorException ExpectedArray(Range range, string? verbose = null) => new(range, VBCompileErrorId.ExpectedArray, "Expected array", verbose);
@@ -52,6 +57,7 @@ internal class VBCompileErrorException : ApplicationException
     public static VBCompileErrorException ExitFunctionNotAllowedInSubOrProperty(Range range, string? verbose = null) => new(range, VBCompileErrorId.ExitFunctionNotAllowedInSubOrProperty, "Exit Function not allowed in Sub or Property", verbose);
     public static VBCompileErrorException AmbiguousName(Symbol symbol, string? verbose = null) => new(symbol.Range!, VBCompileErrorId.AmbiguousName, $"Ambiguous name detected: {symbol.Name}", verbose);
     public static VBCompileErrorException DuplicateDeclaration(Range range, string? verbose = null) => new(range, VBCompileErrorId.DuplicateDeclaration, $"Duplicate declaration in current scope", verbose);
+    public static VBCompileErrorException MethodOrDataMemberNotFound(Range range, string? verbose = null) => new(range, VBCompileErrorId.MethodOrDataMemberNotFound, $"Method or data member not found", verbose);
 
     #endregion
 

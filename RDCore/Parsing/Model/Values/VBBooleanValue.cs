@@ -3,7 +3,7 @@ using RDCore.Parsing.Model.Types;
 
 namespace RDCore.Parsing.Model.Values;
 
-internal record class VBBooleanValue : VBTypedValue, IVBTypedValue<VBBooleanValue, bool>
+internal record class VBBooleanValue : VBTypedValue, IVBTypedValue<VBBooleanValue, bool>, INumericCoercion, IStringCoercion
 {
     public VBBooleanValue(Symbol? declarationSymbol = null)
         : base(VBBooleanType.TypeInfo, declarationSymbol) { }
@@ -19,9 +19,13 @@ internal record class VBBooleanValue : VBTypedValue, IVBTypedValue<VBBooleanValu
 
     public VBBooleanValue WithValue(bool value) => this with { Value = value };
     public VBBooleanValue WithValue(int value) => this with { Value = value != 0 };
+    public VBBooleanValue WithValue(double value) => this with { Value = value != 0 };
 
     public override string ToString() => Value ? Tokens.True : Tokens.False;
 
     public bool Equals(IVBTypedValue<VBBooleanValue, bool>? other) => Value == other?.Value;
     public override int GetHashCode() => Value.GetHashCode();
+
+    public VBStringValue? AsCoercedString(int depth = 0) => new VBStringValue(Symbol).WithValue(ToString());
+    public VBDoubleValue? AsCoercedNumeric(int depth = 0) => new VBDoubleValue(Symbol).WithValue(Value ? -1 : 0);
 }

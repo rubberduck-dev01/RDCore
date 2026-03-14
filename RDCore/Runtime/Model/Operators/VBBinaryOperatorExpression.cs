@@ -44,4 +44,3 @@ internal record class VBBinaryOperatorExpression : VBOperatorExpression
 internal abstract record VBBitwiseOperatorExpression(OperatorSymbol symbol, ValuedExpression left, ValuedExpression right, Location location)
     : VBBinaryOperatorExpression(symbol, left, right, location)
 { }
-

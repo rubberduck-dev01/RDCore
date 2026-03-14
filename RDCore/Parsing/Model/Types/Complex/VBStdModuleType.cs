@@ -5,7 +5,7 @@ namespace RDCore.Parsing.Model.Types.Complex;
 
 internal record class VBStdModuleType : VBType, IVBMemberOwnerType
 {
-    public VBStdModuleType(string name, bool isUserDefined = true, IEnumerable<VBTypeMember>? members = null, bool isHidden = false)
+    public VBStdModuleType(string name, bool isUserDefined = true, IEnumerable<VBTypeMemberSymbol>? members = null, bool isHidden = false)
         : base(typeof(object), name, isUserDefined, isHidden)
     {
         Members = [.. members ?? []];
@@ -13,7 +13,7 @@ internal record class VBStdModuleType : VBType, IVBMemberOwnerType
 
     public override VBTypedValue DefaultValue => VBVoidValue.Void;
 
-    public ImmutableArray<VBTypeMember> Members { get; init; }
+    public ImmutableArray<VBTypeMemberSymbol> Members { get; init; }
 
-    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMember> members) => this with { Members = [.. members] };
+    public IVBMemberOwnerType WithMembers(IEnumerable<VBTypeMemberSymbol> members) => this with { Members = [.. members] };
 }

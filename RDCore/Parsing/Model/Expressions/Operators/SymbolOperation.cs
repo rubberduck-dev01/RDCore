@@ -1,4 +1,6 @@
-﻿using RDCore.Parsing.Model.Types;
+﻿using RDCore.Parsing.Model.Symbols;
+using RDCore.Parsing.Model.Types;
+using RDCore.Parsing.Model.Types.Complex;
 using RDCore.Parsing.Model.Values;
 using RDCore.Runtime;
 using RDCore.Runtime.Model.Operators;
@@ -19,26 +21,45 @@ internal static class SymbolOperation
         VBTypedValue lhsValue,
         VBTypedValue rhsValue);
 
-    private static readonly Dictionary<Uri, BinaryOperation> _binaryInstructions = new()
-    {
-        [GlobalSymbols.Addition.Uri] = EvaluateBinaryAddition,
-        [GlobalSymbols.Subtraction.Uri] = EvaluateBinarySubtraction,
-        [GlobalSymbols.Multiplication.Uri] = EvaluateBinaryMultiplication,
-        [GlobalSymbols.Division.Uri] = EvaluateBinaryDivision,
-        [GlobalSymbols.IntegerDivision.Uri] = EvaluateBinaryIntegerDivision,
-        [GlobalSymbols.Exponentiation.Uri] = EvaluateBinaryExponentiation,
-        [GlobalSymbols.Modulo.Uri] = EvaluateBinaryModulo,
-    };
+    private static readonly Dictionary<Uri, BinaryOperation> _binaryInstructions =
+        GlobalSymbols.Operators.OfType<BinaryOperatorSymbol>()
+        .ToDictionary(symbol => symbol.Uri, symbol => symbol.ExecuteBinaryOp);
 
-    private static readonly Dictionary<Uri, UnaryOperation> _unaryInstructions = new()
-    {
-        [GlobalSymbols.ParenthesizedExp.Uri] = EvaluateUnaryParentheses,
-        [GlobalSymbols.UnaryPlus.Uri] = EvaluateUnaryPlus,
-        [GlobalSymbols.UnaryMinus.Uri] = EvaluateUnaryMinus,
-        [GlobalSymbols.Not.Uri] = EvaluateUnaryBitwiseNot,
-    };
+    private static readonly Dictionary<Uri, UnaryOperation> _unaryInstructions =
+        GlobalSymbols.Operators.OfType<UnaryOperatorSymbol>()
+        .ToDictionary(symbol => symbol.Uri, symbol => symbol.ExecuteUnaryOp);
 
     public static BinaryOperation GetBinaryInstruction(Uri uri) => _binaryInstructions[uri];
+    public static UnaryOperation GetUnaryInstruction(Uri uri) => _unaryInstructions[uri];
+
+    private static VBType GetPromotedType(VBType lhs, VBType rhs)
+    {
+        // MS-VBAL 5.6.9.4: Type Promotion Hierarchy
+        // Double > Single > Long > Integer > Byte
+        if (lhs is VBDoubleType || rhs is VBDoubleType)
+        {
+            return VBDoubleType.TypeInfo;
+        }
+        if (lhs is VBSingleType || rhs is VBSingleType)
+        {
+            return VBSingleType.TypeInfo;
+        }
+        if (lhs is VBLongType || rhs is VBLongType)
+        {
+            return VBLongType.TypeInfo;
+        }
+        if (lhs is VBIntegerType || rhs is VBIntegerType)
+        {
+            return VBIntegerType.TypeInfo;
+        }
+
+        if (lhs is VBBooleanType && rhs is VBBooleanType)
+        {
+            return VBBooleanType.TypeInfo;
+        }
+
+        return VBByteType.TypeInfo;
+    }
 
     private static VBTypedValue EvaluateUnaryOp(VBExecutionContext context,
         VBUnaryOperatorExpression expression,
@@ -114,14 +135,29 @@ internal static class SymbolOperation
         }
 
         // MS-VBAL 5.6.9.4: determine the target type
-        targetType = GetPromotedType(lhsNumeric.TypeInfo, rhsNumeric.TypeInfo);
+        if (lhs is VBBooleanValue && rhs is VBBooleanValue)
+        {
+            targetType = VBBooleanType.TypeInfo;
+        }
+        else
+        {
+            targetType = GetPromotedType(lhsNumeric.TypeInfo, rhsNumeric.TypeInfo);
+        }
 
         // calculate the numeric result
         var resultValue = op(lhsNumeric.NumericValue, rhsNumeric.NumericValue);
 
         // MS-VBAL 5.6.9.4: Overflow Check [VBR0006]
-        return (VBTypedValue)((VBNumericTypedValue)targetType.CreateValue(expression.Symbol)).WithValue(resultValue);
+        if (targetType is INumericType)
+        {
+            return (VBTypedValue)((VBNumericTypedValue)targetType.CreateValue(expression.Symbol)).WithValue(resultValue);
+        }
+        else
+        {
+            return ((VBBooleanValue)targetType.CreateValue(expression.Symbol)).WithValue(resultValue);
+        }
     }
+
 
     public static VBTypedValue EvaluateBinaryAddition(
         VBExecutionContext context,
@@ -311,17 +347,20 @@ internal static class SymbolOperation
         VBTypedValue value) =>
     EvaluateUnaryOp(context, expression, value, value => value);
 
+    // NOTE: no-op on the value, but forces null/empty propagation and let coercions.
     public static VBTypedValue EvaluateUnaryPlus(
         VBExecutionContext context,
         VBUnaryOperatorExpression expression,
-        VBTypedValue value) =>
-    EvaluateUnaryOp(context, expression, value, value => value);
+        VBTypedValue value) => EvaluateUnaryOp(context, expression, value, value => value);
 
     public static VBTypedValue EvaluateUnaryMinus(
         VBExecutionContext context,
         VBUnaryOperatorExpression expression,
-        VBTypedValue value) =>
-    EvaluateUnaryOp(context, expression, value, value => value);
+        VBTypedValue value)
+    {
+        var validValue = (VBNumericTypedValue)EvaluateUnaryOp(context, expression, value, value => value);
+        return (VBTypedValue)validValue.WithValue(-validValue.NumericValue);
+    }
 
     public static VBTypedValue EvaluateUnaryBitwiseNot(
         VBExecutionContext context,
@@ -333,39 +372,263 @@ internal static class SymbolOperation
         return num.WithValue(~(long)num.NumericValue);
     });
 
-    public static VBTypedValue EvaluateBinaryBitwiseEqv(
+    public static VBTypedValue EvaluateBinaryBitwiseAnd(
         VBExecutionContext context,
         VBBinaryOperatorExpression expression,
         VBTypedValue lhs,
         VBTypedValue rhs)
     {
-        return EvaluateNumericBinaryOp(context, expression, lhs, rhs, (left, right) => ~((long)left ^ (long)right),
+        var result = EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+            (left, right) => (long)left & (long)right,
             out var lhsNumeric,
             out var rhsNumeric,
             out var targetType);
+
+        var numericResult = result as VBNumericTypedValue;
+        var coercedResult = (result as INumericCoercion)?.AsCoercedNumeric();
+        {
+            if (numericResult is null && coercedResult != null)
+            {
+                var diagnostic = RDCoreDiagnostic.ImplicitNumericCoercion(expression.Symbol.SelectionRange!, result.TypeInfo, coercedResult.TypeInfo);
+                context.AddDiagnostic(diagnostic);
+            }
+        }
+
+        return targetType switch
+        {
+            VBBooleanType => new VBBooleanValue(expression.Symbol).WithValue(coercedResult!.AsBoolean().Value),
+            INumericType numericType => (VBTypedValue)targetType.CreateNumericValue(expression.Symbol).WithValue(numericResult!.NumericValue),
+            _ => throw new InvalidOperationException($"Unexpected bitwise result type: {targetType.Name}")
+        };
     }
 
-    private static VBType GetPromotedType(VBType lhs, VBType rhs)
+    public static VBTypedValue EvaluateBinaryBitwiseOr(
+    VBExecutionContext context,
+    VBBinaryOperatorExpression expression,
+    VBTypedValue lhs,
+    VBTypedValue rhs) => EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+        (left, right) => (long)left | (long)right,
+        out var lhsNumeric,
+        out var rhsNumeric,
+        out var targetType);
+
+    public static VBTypedValue EvaluateBinaryBitwiseXOr(
+    VBExecutionContext context,
+    VBBinaryOperatorExpression expression,
+    VBTypedValue lhs,
+    VBTypedValue rhs) => EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+        (left, right) => (long)left ^ (long)right,
+        out var lhsNumeric,
+        out var rhsNumeric,
+        out var targetType);
+
+    public static VBTypedValue EvaluateBinaryBitwiseImp(
+    VBExecutionContext context,
+    VBBinaryOperatorExpression expression,
+    VBTypedValue lhs,
+    VBTypedValue rhs) => EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+        (left, right) => ~(long)left | ~(long)right,
+        out var lhsNumeric,
+        out var rhsNumeric,
+        out var targetType);
+
+    public static VBTypedValue EvaluateBinaryBitwiseEqv(
+        VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs) => EvaluateNumericBinaryOp(context, expression, lhs, rhs,
+            (left, right) => ~((long)left ^ (long)right),
+            out var lhsNumeric,
+            out var rhsNumeric,
+            out var targetType);
+
+    public static VBTypedValue EvaluateBinaryMemberAccess(
+        VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
     {
-        // MS-VBAL 5.6.9.4: Type Promotion Hierarchy
-        // Double > Single > Long > Integer > Byte
-        if (lhs is VBDoubleType || rhs is VBDoubleType)
+        if (lhs.TypeInfo is VBVariantType)
         {
-            return VBDoubleType.TypeInfo;
-        }
-        if (lhs is VBSingleType || rhs is VBSingleType)
-        {
-            return VBSingleType.TypeInfo;
-        }
-        if (lhs is VBLongType || rhs is VBLongType)
-        {
-            return VBLongType.TypeInfo;
-        }
-        if (lhs is VBIntegerType || rhs is VBIntegerType)
-        {
-            return VBIntegerType.TypeInfo;
+            context.AddDiagnostic(RDCoreDiagnostic.LateBoundMemberAccess(lhs.Symbol?.Range!));
         }
 
-        return VBByteType.TypeInfo;
+        if (lhs is IVBMemberOwnerType lhsOwner)
+        {
+            if (rhs.Symbol is not null)
+            {
+                var members = lhsOwner.Members.ToLookup(e => e.Name);
+                var candidates = members[rhs.Symbol.Name];
+                if (candidates.Any())
+                {
+                    // TODO make this statically deterministic, not based on where we found it in the source document.
+                    var member = candidates.OrderBy(e => e.Uri).First();
+                    var value = context.Memory.GetValue(member);
+
+                    return value;
+                }
+                else
+                {
+                    // NOTE: LHS member owner could be a class, a stdmodule, an enum, or a UDT.
+                    if (lhsOwner is not VBClassType lhsClassType)
+                    {
+                        throw VBCompileErrorException.MethodOrDataMemberNotFound(rhs.Symbol.SelectionRange!);
+                    }
+
+                    // if LHS is a class type, let's be nice and work with a deferred member instead:
+                    return new VBDeferredMemberValue(expression.Symbol)
+                           .WithContext(lhs)
+                           .WithName(rhs.Symbol.Name)
+                           .WithDiagnostic(RDCoreDiagnostic.UnresolvedLateBoundMemberAccess(rhs.Symbol.SelectionRange!));
+                }
+            }
+            else
+            {
+                // user has typed the dot, but not the member name yet.
+                // the members should be returned to the client to populate a completion list.
+                // we're using VBVoidValue here to signal this:
+                return VBVoidValue.Void;
+            }
+        }
+        else
+        {
+            // Given a `NonExistingModule.NonExistingMember` member call where neither is defined:
+            if (context.CurrentScope.ScopeSymbol is VBTypeMemberSymbol)
+            {
+                // VBA throws a compile error (variable not defined) if the code is inside the editor (scoped context)
+                throw VBCompileErrorException.VariableNotDefined(lhs.Symbol?.SelectionRange!);
+            }
+            else
+            {
+                // VBA throws a runtime error (VBR00424 object required) if the same code is inside the immediate pane (default context)
+                throw VBRuntimeErrorException.ObjectRequired(lhs.Symbol?.SelectionRange!);
+            }
+        }
+
+        throw VBCompileErrorException.SyntaxError(expression.Location.Range, "An identifier is expected");
     }
+
+    public static VBTypedValue EvaluateBinaryDictionaryAccess(
+        VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBStringValue rhs)
+    {
+        context.AddDiagnostic(RDCoreDiagnostic.LateBoundMemberAccess(expression.Symbol.SelectionRange!));
+
+        if (lhs is not IVBMemberOwnerType lhsOwner ||
+            lhsOwner.Members.FirstOrDefault(member => member.Get(SymbolProperties.UserMemId) == 0) is not VBTypeMemberSymbol defaultMember)
+        {
+            throw VBRuntimeErrorException.ObjectDoesntSupportPropertyOrMethod(lhs.Symbol?.SelectionRange!);
+        }
+
+        if (rhs.Symbol is null)
+        {
+            // user has typed the bang, but not the member name yet (NOTE: it may have been parsed as a type hint)
+            // the members could be returned to the client to populate a completion list.
+            // we're using VBVoidValue here to signal this:
+            return VBVoidValue.Void;
+        }
+
+        return new VBDeferredMemberValue(expression.Symbol)
+               .WithContext(lhs)
+               .WithName(rhs.Symbol.Name)
+               .WithDiagnostic(RDCoreDiagnostic.UnresolvedLateBoundMemberAccess(rhs.Symbol.SelectionRange!));
+    }
+
+    private static VBTypedValue EvaluateCompareOp(
+        VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs,
+        Func<object, object, bool> op,
+        out VBType targetType)
+    {
+        VBNumericTypedValue lhsNumeric = default!;
+        VBNumericTypedValue rhsNumeric = default!;
+
+        // MS-VBAL 5.6.9.4: If either operand is Null, the result is Null.
+        if (lhs is VBNullValue || rhs is VBNullValue)
+        {
+            targetType = VBNullType.TypeInfo;
+            return VBNullValue.Null;
+        }
+
+        if (lhs is VBEmptyValue)
+        {
+            if (rhs is VBNumericTypedValue)
+            {
+                lhsNumeric = VBIntegerValue.Zero;
+            }
+        }
+
+        if (lhs is VBNumericTypedValue)
+        {
+            lhsNumeric = (VBNumericTypedValue)lhs;
+            if (rhs is VBNumericTypedValue)
+            {
+                rhsNumeric = (VBNumericTypedValue)rhs;
+                targetType = lhsNumeric.Size >= rhsNumeric.Size
+                    ? lhsNumeric.TypeInfo
+                    : rhsNumeric.TypeInfo;
+            }
+        }
+    }
+
+    public static VBTypedValue EvaluateCompareEquals(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
+    public static VBTypedValue EvaluateCompareNotEquals(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
+    public static VBTypedValue EvaluateCompareGreaterThan(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
+    public static VBTypedValue EvaluateCompareGreaterThanOrEquals(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
+    public static VBTypedValue EvaluateCompareLessThan(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
+    public static VBTypedValue EvaluateCompareLessThanOrEquals(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
+    public static VBTypedValue EvaluateCompareLike(VBExecutionContext context,
+        VBBinaryOperatorExpression expression,
+        VBTypedValue lhs,
+        VBTypedValue rhs)
+    {
+
+    }
+
 }

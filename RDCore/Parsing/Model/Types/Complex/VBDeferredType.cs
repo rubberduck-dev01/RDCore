@@ -20,7 +20,7 @@ internal interface IVBDeferrableType : IVBInferableType
 internal interface IVBDeferrableTypeMember : IVBInferableType
 {
     VBType? DeferredVBType { get; init; }
-    VBDeferredTypeMember WithDeferredVBType(VBType vbType);
+    VBDeferredTypeMemberSymbol WithDeferredVBType(VBType vbType);
 }
 
 internal abstract record class VBDeferredType : VBType, IVBDeferrableType
@@ -33,8 +33,8 @@ internal abstract record class VBDeferredType : VBType, IVBDeferrableType
 
     public Uri Uri { get; init; }
 
-    public ImmutableHashSet<VBDeferredTypeMember> Members { get; init; } = [];
-    public VBDeferredType WithMembers(IEnumerable<VBDeferredTypeMember> members) => this with { Members = [.. members] };
+    public ImmutableHashSet<VBDeferredTypeMemberSymbol> Members { get; init; } = [];
+    public VBDeferredType WithMembers(IEnumerable<VBDeferredTypeMemberSymbol> members) => this with { Members = [.. members] };
 
     public IVBMemberOwnerType? DeferredVBType { get; init; }
     public VBDeferredType WithDeferredVBType(IVBMemberOwnerType vbType) => this with { DeferredVBType = vbType };
@@ -43,9 +43,9 @@ internal abstract record class VBDeferredType : VBType, IVBDeferrableType
     public IVBInferableType WithCandidateType(VBType vbType) => this with { CandidateTypes = [.. CandidateTypes, vbType] };
 }
 
-internal record class VBDeferredTypeMember : TypedSymbol, IVBDeferrableTypeMember
+internal record class VBDeferredTypeMemberSymbol : TypedSymbol, IVBDeferrableTypeMember
 {
-    public VBDeferredTypeMember(Uri workspaceRoot, string name, SymbolKindExt kind, Uri parentUri)
+    public VBDeferredTypeMemberSymbol(Uri workspaceRoot, string name, SymbolKindExt kind, Uri parentUri)
         : base(workspaceRoot, name, kind, Accessibility.Public, parentUri, ScopeKind.Module)
     {
     }
@@ -54,7 +54,7 @@ internal record class VBDeferredTypeMember : TypedSymbol, IVBDeferrableTypeMembe
     public IVBInferableType WithCandidateType(VBType vbType) => this with { CandidateTypes = [.. CandidateTypes, vbType] };
 
     public VBType? DeferredVBType { get; init; }
-    public VBDeferredTypeMember WithDeferredVBType(VBType vbType) => this with { DeferredVBType = vbType, CandidateTypes = [vbType] };
+    public VBDeferredTypeMemberSymbol WithDeferredVBType(VBType vbType) => this with { DeferredVBType = vbType, CandidateTypes = [vbType] };
 }
 
 internal record class VBDeferredModuleType : VBDeferredType

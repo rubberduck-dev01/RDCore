@@ -65,7 +65,7 @@ public class SymbolOperationTests
         return SymbolOperation.EvaluateBinaryAddition(context, expression, lhsValue.ResultValue, rhsValue.ResultValue);
     }
 
-    private VBExecutionContext CreateContext(bool is64bit = true) => new(default!) { Is64Bit = true };
+    private VBExecutionContext CreateContext(bool is64bit = true) => new(default!, new()) { Is64Bit = true };
     private Location TestLocation { get; } = new() { Uri = "file:///a:/test/file", Range = new Range(1, 1, 1, 1) };
 
     private ValuedExpression Wrap(object? val, Location location)
@@ -83,5 +83,41 @@ public class SymbolOperationTests
             double d => new LiteralExpression<VBDoubleValue>(location).WithResultValue(new VBDoubleValue().WithValue(d)),
             _ => throw new NotSupportedException()
         };
+    }
+
+    [TestMethod]
+    [DataRow(-1.0, -1.0, -1)]   // True And True -> True
+    [DataRow(-1.0, 0.0, 0)]   // True And False -> False
+    [DataRow(0.0, 0.0, 0)]    // False And False -> False
+    [DataRow(1.0, 2.0, 0)]    // 1 And 2 -> False (in Boolean context)
+    public void EvaluateBinaryBitwiseAnd_BooleanContext_MatchesVBAL(double lhs, double rhs, int expected)
+    {
+        var context = CreateContext();
+
+        var lhsValue = new VBDoubleValue().WithValue(lhs);
+        var rhsValue = new VBDoubleValue().WithValue(rhs);
+
+        var expression = new VBBinaryOperatorExpression(GlobalSymbols.LogicalAnd, null!, null!, TestLocation);
+
+        var result = SymbolOperation.EvaluateBinaryBitwiseAnd(context, expression, lhsValue, rhsValue);
+
+        Assert.IsInstanceOfType<VBDoubleValue>(result);
+        Assert.AreEqual(expected, ((VBDoubleValue)result).Value);
+    }
+
+    [TestMethod]
+    public void EvaluateBinaryBitwiseAnd_PureBoolean_ReturnsBoolean()
+    {
+        var context = CreateContext();
+        var lhsValue = new LiteralExpression<VBBooleanValue>(TestLocation) { ResultValue = new VBBooleanValue().WithValue(true) }; // -1
+        var rhsValue = new LiteralExpression<VBBooleanValue>(TestLocation) { ResultValue = new VBBooleanValue().WithValue(true) }; // -1
+
+        var expression = new VBBinaryOperatorExpression(GlobalSymbols.LogicalAnd, lhsValue, rhsValue, TestLocation);
+
+        var result = SymbolOperation.EvaluateBinaryBitwiseAnd(context, expression, lhsValue.ResultValue, rhsValue.ResultValue);
+
+        // MS-VBAL: Bool And Bool -> Bool
+        Assert.IsInstanceOfType<VBBooleanValue>(result);
+        Assert.IsTrue(((VBBooleanValue)result).Value);
     }
 }

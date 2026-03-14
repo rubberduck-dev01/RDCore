@@ -22,7 +22,7 @@ internal static class SymbolProperties
     /// </summary>
     public static readonly SymbolProperty<bool> Exposed = new(nameof(Exposed));
     /// <summary>
-    /// The value of the <c>VB_UserMemId</c> attribute of a <see cref="VBTypeMember"/>
+    /// The value of the <c>VB_UserMemId</c> attribute of a <see cref="VBTypeMemberSymbol"/>
     /// </summary>
     public static readonly SymbolProperty<int> MemberId = new(nameof(MemberId));
 
