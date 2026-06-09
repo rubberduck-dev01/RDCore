@@ -66,7 +66,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
         {
             var lhsCoercion = LetCoercionSemanticsProvider.EvaluateLetCoercionSemantics(runtime.Memory, expression, new(
                 NodeUri: expression.SemanticId, 
-                OperatorSymbol: expression.Symbol, 
+                StaticSymbol: expression.Symbol, 
                 InputIndex: InputIndex.BinaryLeftOperand, 
                 SourceValue: lhs, 
                 DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame.EffectiveType, expression.ResultSymbol)));
@@ -74,7 +74,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
 
             var rhsCoercion = LetCoercionSemanticsProvider.EvaluateLetCoercionSemantics(runtime.Memory, expression, new(
                 NodeUri: expression.SemanticId,
-                OperatorSymbol: expression.Symbol,
+                StaticSymbol: expression.Symbol,
                 InputIndex: InputIndex.BinaryRightOperand,
                 SourceValue: rhs,
                 DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame.EffectiveType, expression.ResultSymbol)));

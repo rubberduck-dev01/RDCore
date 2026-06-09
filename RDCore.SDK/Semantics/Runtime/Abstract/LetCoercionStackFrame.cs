@@ -18,13 +18,13 @@ namespace RDCore.SDK.Semantics.Runtime.Abstract;
 /// <param name="DestinationTypeDesc">Describes the <em>destination type</em> of the let-coercion operation. The described data type must be unwrapped from the descriptor.</param>
 public readonly record struct LetCoercionStackFrame(
     Uri NodeUri,
-    StaticSymbol OperatorSymbol,
+    StaticSymbol StaticSymbol,
     InputIndex InputIndex,
     VBTypedValue SourceValue,
     VBTypeDescValue DestinationTypeDesc) : IStackFrame<LetCoercionInputs>
 {
     Uri IStackFrame.NodeUri => NodeUri;
-    StaticSymbol IStackFrame.StaticSymbol => OperatorSymbol;
+    StaticSymbol IStackFrame.StaticSymbol => StaticSymbol;
     ImmutableArray<VBTypedValue> IStackFrame.Inputs => [SourceValue, DestinationTypeDesc];
 
     VBTypedValue IStackFrame<LetCoercionInputs>.this[LetCoercionInputs value] => 
