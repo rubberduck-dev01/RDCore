@@ -1,4 +1,5 @@
-﻿using RDCore.SDK.Model.AST.Expressions;
+﻿using RDCore.SDK.Model.AST.Abstract;
+using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
@@ -6,6 +7,7 @@ using RDCore.SDK.Model.Values.Intrinsic;
 using RDCore.SDK.Runtime;
 using RDCore.SDK.Semantics.Flags;
 using RDCore.SDK.Semantics.Runtime.Abstract;
+using RDCore.SDK.Semantics.Runtime.Abstract.Operators;
 using RDCore.SDK.Semantics.Runtime.LetCoercion;
 using RDCore.SDK.Semantics.Runtime.Operators.Context;
 using RDCore.SDK.Services.VerboseMessages;
@@ -21,6 +23,14 @@ public record class UnaryNotOperatorRuntimeSemantics(
     : UnaryLogicalOperatorRuntimeSemantics(LetCoercionProvider, FormatterService)
 {
     protected override double EvaluateBitwiseOp(double operand) => ~(long)operand;
+
+    protected override OperatorAnalysisContext<LogicalOperatorSemanticFlags> CreateAnalysisContext(
+        BoundNode<UnaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> node,
+        DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
+        LetCoercionAnalysisContext coercionResult,
+        RuntimeSemanticsEvaluationResult evaluationResult,
+        LogicalOperatorSemanticFlags semanticFlags) 
+        => new(node.SemanticId, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(IVBExecutionContext runtime,
         SemanticContext<LogicalOperatorSemanticFlags> context,
