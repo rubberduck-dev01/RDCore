@@ -4,6 +4,7 @@ using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
+using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values;
 using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Model.Values.Intrinsic;
@@ -72,7 +73,7 @@ public record class ConversionFunctionSemantics(
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext conversionContext, 
         ISemanticFlagsAccumulator<ConversionSemanticFlags> builder, 
-        BoundNode node, 
+        BoundNode<ConversionOperationSemanticContext, ConversionSemanticFlags> node, 
         params VBTypedValue[] inputs)
     {
         throw new NotImplementedException();
@@ -81,13 +82,16 @@ public record class ConversionFunctionSemantics(
     public override RuntimeSemanticsEvaluationResult Evaluate(
         IVBExecutionContext runtime, 
         SemanticContext<ConversionSemanticFlags> context, 
-        BoundNode<ConversionOperationSemanticContext, ConversionSemanticFlags> node, params VBTypedValue[] inputs)
+        BoundStatementNode<ConversionOperationSemanticContext, ConversionSemanticFlags> node, params VBTypedValue[] inputs)
     {
-        _letCoercion.EvaluateLetCoercionSemantics(_resolver, node, new LetCoercionStackFrame(
+        var coercionResult = _letCoercion.EvaluateLetCoercionSemantics(_resolver, node, new LetCoercionStackFrame(
                 NodeUri: node.SemanticId,
                 OperatorSymbol: symbolProvider.TryGetByName(Tokens.CBool, out var symbol) ? symbol : throw new InvalidOperationException(),
                 InputIndex: InputIndex.CTypeSourceValue,
                 SourceValue: inputs[(int)InputIndex.CTypeSourceValue],
                 DestinationTypeDesc: (VBTypeDescValue)inputs[(int)InputIndex.CTypeTargetType]));
+        return coercionResult.IsSuccess
+            ? RuntimeSemanticsEvaluationResult.Success(coercionResult.Result!)
+            : RuntimeSemanticsEvaluationResult.Error(coercionResult.ErrorInfo ?? )
     }
 }

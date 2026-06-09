@@ -46,7 +46,7 @@ where TFlags : struct, Enum
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext conversionContext, 
         ISemanticFlagsAccumulator<TFlags> builder, 
-        BoundNode node, 
+        BoundNode<TContext, TFlags> node, 
         params VBTypedValue[] inputs)
         => Analyze(resolver, conversionContext, builder, (VBOperatorExpression<TContext, TFlags>)node, inputs);
 
@@ -102,7 +102,7 @@ where TFlags : struct, Enum
     /// <param name="evaluationResult">The result of the <em>evaluate result</em> (third/last) evaluation step.</param>
     /// <param name="semanticFlags">The <em>semantic flags</em> associated with this operation evaluation.</param>
     /// <returns></returns>
-    protected abstract OperatorAnalysisContext<TFlags> CreateAnalysisContext(BoundNode node, 
+    protected abstract OperatorAnalysisContext<TFlags> CreateAnalysisContext(BoundNode<TContext, TFlags> node, 
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
@@ -145,22 +145,16 @@ where TFlags : struct, Enum
         <TContext, TFlags> expression,
         OperatorEvaluationFrame frame);
 
-    /// <summary>
-    /// Evaluates the specified <c>expression</c> in the specified execution context, using the specified operands.
-    /// </summary>
-    /// <param name="runtime">The execution context and memory space to operate with.</param>
-    /// <param name="context">The semantic context of this operation, built by <c>Analyze</c>.</param>
-    /// <param name="node">The <em>expression node</em> to be evaluated.</param>
-    /// <param name="inputs">The inputs of the expression.</param>
-    public sealed override RuntimeSemanticsEvaluationResult Evaluate(
-        IVBExecutionContext runtime, 
+    protected sealed override RuntimeSemanticsEvaluationResult EvaluateSemanticNodeResult(
+        ISymbolResolver resolver, 
         SemanticContext<TFlags> context, 
-        BoundNode node, 
+        BoundExpressionNode<TContext, TFlags> expression, 
+        VBType effectiveType, 
         params VBTypedValue[] inputs)
     {
-        var expression = (VBOperatorExpression<TContext, TFlags>)node;
-        var frame = new OperatorEvaluationFrame(expression.SemanticId, expression.Symbol, [.. inputs], VBUnknownType.TypeInfo);
-        return Evaluate((ISymbolResolver)runtime, context, expression, frame);
+        var operatorNode = (VBOperatorExpression<TContext, TFlags>)expression;
+        var frame = new OperatorEvaluationFrame(operatorNode.SemanticId, operatorNode.Symbol, [.. inputs], VBUnknownType.TypeInfo);
+        return Evaluate(resolver, context, operatorNode, frame);
     }
 
     /// <summary>
