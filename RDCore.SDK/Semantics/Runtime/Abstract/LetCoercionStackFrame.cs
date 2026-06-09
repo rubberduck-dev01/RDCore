@@ -13,13 +13,13 @@ namespace RDCore.SDK.Semantics.Runtime.Abstract;
 /// 👉 This mechanism allows detecting <em>recursive let-coercion</em> and avoiding uncontrolled re-entry.
 /// </remarks>
 /// <param name="NodeUri">The <c>Uri</c> of the <em>bound node</em> being evaluated.</param>
-/// <param name="OperandIndex">Encodes the semantic index of the operand being evaluated.</param>
+/// <param name="InputIndex">Encodes the semantic index of the operand being evaluated.</param>
 /// <param name="SourceValue">The <em>source value</em> being let-coerced in this frame.</param>
 /// <param name="DestinationTypeDesc">Describes the <em>destination type</em> of the let-coercion operation. The described data type must be unwrapped from the descriptor.</param>
 public readonly record struct LetCoercionStackFrame(
     Uri NodeUri,
     StaticSymbol OperatorSymbol,
-    OperandIndex OperandIndex,
+    InputIndex InputIndex,
     VBTypedValue SourceValue,
     VBTypeDescValue DestinationTypeDesc) : IStackFrame<LetCoercionInputs>
 {
