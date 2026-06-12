@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+﻿using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using RDCore.SDK.Server.Configuration;
 
 namespace RDCore.SDK.Server.Services.States;
@@ -62,7 +63,7 @@ public interface IServerStateProvider
 /// <summary>
 /// Manages the operational lifecycle state of a <c>ServerApp</c> instance.
 /// </summary>
-public class ServerStateProvider(SdkServerOptions options) : IServerStateProvider, IDisposable
+public class ServerStateProvider(IOptions<SdkServerOptions> options) : IServerStateProvider, IDisposable
 {
     private static readonly CancellationTokenSource _processTokenSource = new();
     private static readonly CancellationTokenSource _requestTokenSource = new();
@@ -70,7 +71,7 @@ public class ServerStateProvider(SdkServerOptions options) : IServerStateProvide
 
     private ServerState _state = ServerState.Starting;
     public ServerState State => _state;
-    public SdkServerOptions Options { get; } = options;
+    public SdkServerOptions Options { get; } = options.Value;
 
     public CancellationTokenSource ShutdownRequestTokenSource => _requestTokenSource;
     public CancellationTokenSource ProcessTokenSource => _processTokenSource;

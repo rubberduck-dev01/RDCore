@@ -3,18 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 using System.IO.Abstractions;
 using System.Reflection;
-using IFile = System.IO.Abstractions.IFile;
 
 namespace RDCore.SDK.Server;
 
@@ -66,6 +61,7 @@ public abstract class AppHost<TApp>(CancellationTokenSource ProcessTokenSource) 
         var options = Configure(configuration, builder.Services, args)!;
 
         ConfigureExternalServices(builder.Services, options);
+        ConfigureAdditionalExternalServices(builder.Services, options);
 
         _host = builder.Build();
         _app = _host.Services.GetRequiredService<TApp>();
@@ -102,20 +98,16 @@ public abstract class AppHost<TApp>(CancellationTokenSource ProcessTokenSource) 
         var options = new SdkAppOptions();
 
         var config = configuration.GetSection("Configuration");
-        services.Configure<SdkAppOptions>(config);
-        config.Bind(options);
+        services.Configure<SdkAppOptions>(config, binder => config.Bind(options));
 
         var serverConfig = configuration.GetSection("Configuration").GetSection("Server");
-        services.Configure<SdkServerOptions>(serverConfig);
-        serverConfig.Bind(options.Server);
+        services.Configure<SdkServerOptions>(serverConfig, binder => serverConfig.Bind(options.Server));
 
         var workspaceConfig = configuration.GetSection("Configuration").GetSection("Workspace");
-        services.Configure<SdkWorkspaceOptions>(workspaceConfig);
-        workspaceConfig.Bind(options.Workspace);
+        services.Configure<SdkWorkspaceOptions>(workspaceConfig, binder => workspaceConfig.Bind(options.Workspace));
 
         var platformConfig = configuration.GetSection("Configuration").GetSection("Platform");
-        services.Configure<SdkPlatformOptions>(platformConfig);
-        platformConfig.Bind(options.Platform);
+        services.Configure<SdkPlatformOptions>(platformConfig, binder => platformConfig.Bind(options.Platform));
 
         if (canOverride)
         {
@@ -132,11 +124,22 @@ public abstract class AppHost<TApp>(CancellationTokenSource ProcessTokenSource) 
     /// <param name="options"></param>
     protected virtual void ConfigureExternalServices(IServiceCollection services, IOptions<SdkAppOptions> options)
     {
-        services
-            .AddSingleton<IHealthCheckService<ILanguageClientApp>, HealthCheckService<ILanguageClientApp>>()
-            .AddSingleton<IHealthCheckService<ILanguageServerApp>, HealthCheckService<ILanguageServerApp>>()
-            .AddSingleton<ILanguageServerProtocolTransportLayer, RDCorePlatformDefaultTransportLayer>()
+        if (typeof(TApp) is ILanguageServerApp)
+        {
+            services
+                .AddSingleton<IHealthCheckService<ILanguageServerApp>, HealthCheckService<ILanguageServerApp>>();
+        }
+        else
+        {
+            services
+                .AddSingleton<IRDCoreLanguageServerProcess, RDCoreLanguageServerProcess>()
+                .AddSingleton<IHealthCheckService<ILanguageClientApp>, HealthCheckService<ILanguageClientApp>>();
+        }
 
+        services
+            .AddSingleton<IServerStateProvider, ServerStateProvider>()
+            .AddSingleton<IFileSystem, FileSystem>()
+            .AddSingleton<ILanguageServerProtocolTransportLayer, RDCorePlatformDefaultTransportLayer>()
             .AddLogging(builder => ConfigureExternalLogging(services, builder, options.Value));
     }
 

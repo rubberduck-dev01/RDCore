@@ -134,6 +134,7 @@ public abstract class LanguageClientApp(
 
     private void ConfigureClient(IServiceCollection services, LanguageClientOptions options)
     {
+        transportLayer.ConfigureClientPipe(options);
         options
             // basic client app information:
             .WithClientInfo(GetClientInfo())
@@ -142,7 +143,8 @@ public abstract class LanguageClientApp(
             .OnInitialize(OnLanguageClientInitializeAsync)
             .OnInitialized(OnLanguageClientInitializedAsync);
 
-        services.AddSingleton<ILanguageClientFacade>(provider => Client!);
+        services.AddSingleton<ILanguageClientFacade>(provider => Client!)
+            .AddSingleton<IRDCoreLanguageServerProcess, RDCoreLanguageServerProcess>();
 
         // everything else the app wants to do:
         ConfigureServices(services);

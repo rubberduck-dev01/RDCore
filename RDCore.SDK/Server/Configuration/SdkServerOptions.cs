@@ -49,13 +49,13 @@ public record class SdkAppCommandLineArgs
     [Option('n', "name", Group = "pipe", Required = false)]
     public string? PipeName { get; init; }
     /// <summary>
-    /// A <em>command-line argument</em> that overrides the <see cref="SocketTransportOptions.Port"/> setting.
+    /// A <em>command-line argument</em> that provides the <see cref="SdkServerOptions.ClientProcessId"/> owner process ID to a server app.
     /// </summary>
     /// <remarks>
-    /// <see cref="TransportOptions"/> does not currently support this setting.
+    /// 👉 This argument is required for starting a server app.
     /// </remarks>
-    [Option('p', "port", Group = "socket", Required = false)]
-    public string? Port { get; init; }
+    [Option('p', "client-id", Required = false)]
+    public int? ClientProcessId { get; init; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.ShutdownTimeoutSeconds"/> setting.
     /// </summary>
@@ -82,6 +82,9 @@ public record class SdkAppCommandLineArgs
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkWorkspaceOptions.WorkspaceUri"/> setting.
     /// </summary>
+    /// <remarks>
+    /// 👉 This argument is required for starting a server app.
+    /// </remarks>
     [Option('w', "workspace")]
     public string? WorkspaceUri { get; init; }
 }
@@ -113,6 +116,13 @@ public record class SdkAppOptions
 /// </summary>
 public record class SdkServerOptions
 {
+    /// <summary>
+    /// The process ID of the client process that starts a LSP server process.
+    /// </summary>
+    /// <remarks>
+    /// 🧩 For an extension, the <c>ClientProcessID</c> is the process ID of the <em>language server</em> application.
+    /// </remarks>
+    public int ClientProcessId { get; set; }
     /// <summary>
     /// The minimum Microsoft.Extensions.Logging.LogLevel of a trace message that makes it through to the trace output.
     /// </summary>
@@ -186,8 +196,8 @@ public record class SdkPlatformOptions
 {
     private const string _defaultBaseUrl = "https://rubberduckvba.ca";
     private const string _defaultApiEndpoint = "/api";
-    private const string _defaultServerExecutable = "./RDCore.LanguageServer.exe";
-    private const string _defaultPluginsLocation = "./plugins";
+    private const string _defaultServerExecutable = "../RDCore.LanguageServer/RDCore.LanguageServer.exe";
+    private const string _defaultPluginsLocation = "/plugins";
 
     /// <summary>
     /// The base URL for the platform's cloud and online services.

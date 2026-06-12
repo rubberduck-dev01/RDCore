@@ -31,7 +31,7 @@ public class RDCoreLanguageServerHost(CancellationTokenSource ProcessTokenSource
 
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IOptions<SdkAppOptions> options)
     {
-        ServerStateProvider = new ServerStateProvider(options.Value.Server);
-        services.AddSingleton<IServerStateProvider>(provider => ServerStateProvider);
+        ServerStateProvider = new ServerStateProvider(Options.Create(options.Value.Server));
+        services.AddSingleton(provider => ServerStateProvider);
     }
 }

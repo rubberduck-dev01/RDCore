@@ -34,6 +34,11 @@ public interface ILanguageServerProtocolTransportLayer : IDisposable
     /// <param name="options">The <c>OmniSharp</c> language server options.</param>
     /// <param name="processToken">The <c>CancellationToken</c> that controls the application's process termination.</param>
     Task GetWaitForClientConnectionTaskAsync(LanguageServerOptions options, CancellationToken processToken);
+    /// <summary>
+    /// Configures client-side pipe transport.
+    /// </summary>
+    /// <param name="options"></param>
+    void ConfigureClientPipe(LanguageClientOptions options);
 }
 
 /// <summary>
@@ -46,6 +51,7 @@ public sealed class RDCorePlatformDefaultTransportLayer(IOptions<TransportOption
 {
     private TransportOptions Options { get; } = Options.Value;
     private NamedPipeServerStream NamedPipeServerStream { get; set; } = default!;
+    private NamedPipeClientStream NamedPipeClientStream { get; set; } = default!;
 
     public void Dispose()
     {
@@ -72,6 +78,15 @@ public sealed class RDCorePlatformDefaultTransportLayer(IOptions<TransportOption
             Logger.LogTrace("⏳ Named pipe '{pipeName}' initialized; asynchronously awaiting client connection...", pipeName);
         }
         return NamedPipeServerStream.WaitForConnectionAsync(processToken);
+    }
+
+    public void ConfigureClientPipe(LanguageClientOptions options)
+    {
+        var pipeName = Options.PipeConfig.PipeName;
+        NamedPipeClientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, System.IO.Pipes.PipeOptions.CurrentUserOnly);
+        options
+            .WithInput(PipeReader.Create(NamedPipeClientStream))
+            .WithOutput(PipeWriter.Create(NamedPipeClientStream));
     }
 }
 
@@ -254,16 +269,6 @@ public abstract class LanguageServerApp(
         => LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageServerStarted_HandlerCompleted);
 
     /// <summary>
-    /// Signals the completion of the <c>Initialize</c> request handler.
-    /// </summary>
-    /// <remarks>
-    /// 🧩 This method is invoked at the end of the <em>initialization handshake</em> after the server configured capabilities and determined a <em>workspace URI</em>.
-    /// </remarks>
-    /// <param name="workspaceUri">The <em>workspace</em> <see cref="Uri"/>, if one could be determined from the supplied initialization parameters.</param>
-    /// <param name="token">A <see cref="CancellationToken"/> for cooperative cancellation.</param>
-    protected virtual async Task OnLanguageServerInitializeCompletedAsync(Uri? workspaceUri, CancellationToken token) { }
-
-    /// <summary>
     /// 🚀 LSP initialization has completed, server is ready to start receiving and responding to client requests and notifications.
     /// </summary>
     /// <param name="token">A <see cref="CancellationToken"/> for cooperative cancellation.</param>
@@ -299,7 +304,6 @@ public abstract class LanguageServerApp(
         }
 
         await OnLanguageServerInitializeAsync(server, request, token);
-        await OnLanguageServerInitializeCompletedAsync(request.RootUri?.ToUri(), token);
         LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageServerInitialize_HandlerCompleted);
     }
 

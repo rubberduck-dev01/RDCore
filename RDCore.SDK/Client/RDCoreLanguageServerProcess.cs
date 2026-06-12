@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using RDCore.SDK.Server.Configuration;
 using System.Diagnostics;
 using System.IO.Abstractions;
 
@@ -30,7 +31,7 @@ public interface IRDCoreLanguageServerProcess : IDisposable
 /// </remarks>
 /// <param name="FileSystem">Provides an abstraction over the file system.</param>
 /// <param name="Options">The <c>LanguageClientSettings</c> encapsulating all the necessary parameters to correctly start and connect the LSP server process.</param>
-public abstract class RDCoreLanguageServerProcess(IFileSystem FileSystem, IOptions<LanguageClientSettings> Options) : IRDCoreLanguageServerProcess
+public class RDCoreLanguageServerProcess(IFileSystem FileSystem, IOptions<SdkAppOptions> Options) : IRDCoreLanguageServerProcess
 {
     private readonly CancellationTokenSource _tokenSource = new();
     private Process? _serverProcess = default;
@@ -79,29 +80,34 @@ public abstract class RDCoreLanguageServerProcess(IFileSystem FileSystem, IOptio
             throw new LanguageServerAlreadyRunningException(running.Id);
         }
 
-        var path = Options.Value.ServerStartupSettings.LanguageServer;
-        if (!FileSystem.File.Exists(path))
-        {
-            throw new LanguageServerNotFoundException(path);
-        }
+        var path = Options.Value.Platform.ServerExecutable;
+        var args = CommandLine.UnParserExtensions.FormatCommandLine(CommandLine.Parser.Default, 
+            new SdkAppCommandLineArgs
+            {
+                ClientProcessId = Options.Value.Server.ClientProcessId,
+                PipeName = Options.Value.Platform.Transport.PipeConfig.PipeName,
+                TraceLevel = Options.Value.Server.TraceLevel,
+                Verbose = Options.Value.Server.Verbose,
+                WorkspaceUri = Options.Value.Workspace.WorkspaceUri,
+            });
 
-        var info = CreateProcessStartInfo(path, [.. Options.Value.ToServerStartupArgs().Select(arg => $"{arg}")]);
+        var info = CreateProcessStartInfo(path, args);
         var process = new Process { StartInfo = info };
 
         _waitForExit = process.WaitForExitAsync(_tokenSource.Token)
             .ContinueWith(t => Shutdown(), _tokenSource.Token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
     }
 
-    private ProcessStartInfo CreateProcessStartInfo(string validPath, params string[] args) => new()
+    private ProcessStartInfo CreateProcessStartInfo(string validPath, string args) => new()
     {
         FileName = validPath,
         WorkingDirectory = Path.GetDirectoryName(validPath),
-        Arguments = string.Join(' ', args),
-        CreateNoWindow = Options.Value.ServerStartupSettings.CreateNoWindow,
+        Arguments = args,
+        CreateNoWindow = true,
         UseShellExecute = false,
 
         RedirectStandardInput = false,
-        RedirectStandardOutput = Options.Value.ServerStartupSettings.RedirectStdOut,
-        RedirectStandardError = Options.Value.ServerStartupSettings.RedirectStdErr
+        RedirectStandardOutput = false,
+        RedirectStandardError = false
     };
 }
