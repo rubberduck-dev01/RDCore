@@ -198,7 +198,7 @@ public record class SdkPlatformOptions
     private const string _defaultApiEndpoint = "/api";
     private const string _defaultServerExecutable = "../RDCore.LanguageServer/RDCore.LanguageServer.exe";
     private const string _defaultParserExecutable = "../RDCore.Parsing/RDCore.ParseServer.exe";
-    private const string _defaultPluginsLocation = "/plugins";
+    private const string _defaultPluginsLocation = "../plugins";
 
     /// <summary>
     /// The base URL for the platform's cloud and online services.
