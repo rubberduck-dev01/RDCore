@@ -198,8 +198,7 @@ public record class SdkPlatformOptions
     private const string _defaultApiEndpoint = "/api";
     private const string _defaultServerExecutable = "../RDCore.LanguageServer/RDCore.LanguageServer.exe";
     private const string _defaultParserExecutable = "../RDCore.Parsing/RDCore.ParseServer.exe";
-    private const string _defaultPluginsLocation = "../plugins";
-
+    
     /// <summary>
     /// The base URL for the platform's cloud and online services.
     /// </summary>
@@ -223,18 +222,47 @@ public record class SdkPlatformOptions
     /// </remarks>
     public string ParserExecutable { get; set; } = _defaultParserExecutable;
     /// <summary>
-    /// The location RDCore plugins are discovered from. Plugins are identified by a folder containing a RDCore plugin manifest.<br/>
-    /// ⚠️ Modifying this setting for a plugin <strong>will</strong> break the RDCore platform.
-    /// </summary>
-    /// <remarks>
-    /// 🧩 If any extensions support plugins, they should be loaded from a subfolder <em>under their own <c>./plugins</c> folder</em>, 
-    /// such that the RDCore directory <strong>remains self-contained</strong> with its entire ecosystem.
-    /// </remarks>
-    public string Plugins { get; set; } = _defaultPluginsLocation;
-    /// <summary>
     /// Configures platform-wide transport layer settings.
     /// </summary>
     public TransportOptions Transport { get; set; } = new();
+    /// <summary>
+    /// Configures extension settings.
+    /// </summary>
+    public ExtensionsOptions Extensions { get; set; } = new();
+}
+/// <summary>
+/// Platform-level extension settings, bound from <c>appsettings.json</c>.
+/// </summary>
+public record class ExtensionsOptions
+{
+    private const string _defaultExtensionsLocation = "../extensions";
+    private const string _defaultExtensionManifestName = "extension.manifest.json";
+
+    /// <summary>
+    /// The location RDCore extensions are discovered from. Plugins/extensions are identified by a folder containing a RDCore extension manifest.<br/>
+    /// </summary>
+    public string Path { get; set; } = _defaultExtensionsLocation;
+    /// <summary>
+    /// The name of the RDCore extension manifest file.
+    /// </summary>
+    /// <remarks>
+    /// ⚠️ This value is constant.
+    /// </remarks>
+    public string Manifest { get; } = _defaultExtensionManifestName;
+    /// <summary>
+    /// A list of allowed extension titles.
+    /// </summary>
+    /// <remarks>
+    /// 👉 RDCore will only load extensions present in this list.
+    /// </remarks>
+    public string[] Allowed { get; set; } = ["RDCore.Diagnostics"];
+    /// <summary>
+    /// A list of blocked extension titles.
+    /// </summary>
+    /// <remarks>
+    /// 👉 RDCore may block a repeatedly problematic extension from being loaded automatically.
+    /// </remarks>
+    public string[] Blocked { get; set; } = [];
 }
 /// <summary>
 /// Platform-level MSAL (Microsoft Authentication Layer) configuration options.
