@@ -1,10 +1,9 @@
 # Introduction
 
-##### ([English](./introduction.en.md))
+\[[EN](./introduction.en.md)\] | [FR]
 
-**RDCore** est une plateforme de langage moderne pour Visual Basic for Applications (VBA).
-Son SDK fournit un modèle sémantique complet, infrastructure run-time, et surface d'outillage extensible pour analyser, exécuter, 
-et faire évoluer le code VBA **à l'extérieur de son environnement historique**.
+**RDCore™** est un **projet open-source** conçu et soutenu par une société privée et visant à bâtir une plateforme de langage moderne pour _Visual Basic for Applications_ (VBA).
+À terme, son SDK fournit un modèle sémantique complet, infrastructure run-time, et surface d'outillage extensible pour analyser, exécuter, et faire évoluer le code VBA **à l'extérieur de son environnement historique**.
 
 ## 🚀L'idée
 
@@ -30,8 +29,7 @@ VBA n'est pas qu'un runtime vieillissant - c'est aussi une _spécification de la
 RDCore est constitué de :
 - **RDCore.SDK** (MIT) définit le _coeur de langage_ : syntaxe, symboles, modèle sémantique, système de typage, etc.
 - **RDCore.Runtime** (GPLv3) implémente les abstractions définies par le SDK autour des sémantiques run-time, la librairie standard, etc.
-- **Hôtes** (GPLv3) incluant un client CLI (rdc.exe), un serveur LSP, et plusieurs autres applications qui orchestrent l'exécution et les interactions.
-
+- **Hôtes** (GPLv3) incluant un client CLI (rdc.exe), un serveur LSP et les applications satellites lui permettant de manipuler et de comprendre le langage (parser, diagnostics, etc.).
 
 ## ✨Ce que RDCore rend possible
 - Analyse sémantique profonde de code VBA
@@ -47,12 +45,13 @@ RDCore est présentement en phase active de développement pré-release.
 - SDK langage: ✅ largement défini
 - Runtime: 🚧 implémentation en cours
 - Librarie standard: 🚧 partiellement définie
-- Hôte CLI (rdc.exe): 🚧 initialisation
+- Parser: 🚧 existe (tout juste)
+- Hôte CLI (rdc.exe): 🚧 existe (tout juste)
 - Contributions publiques: ❌ pas encore ouvertes
 
 ---
  V I V A T 🩷 C U C U M I S ™  
- [Accueil](./index.md) | 🧩[Démarrage](./getting-started.md) | 🔍[Documentation](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+ [Accueil](./index.md) | 🧩[Démarrage](./getting-started.md) | [RD-VBAL](./specs/rd-vbal.md) | [SDK](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
 
 ---
 

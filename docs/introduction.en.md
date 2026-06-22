@@ -1,10 +1,9 @@
 # Introduction
 
-##### ([Français](./introduction.md))
+[EN] | \[[FR](./introduction.md)\]
 
-**RDCore** is a modern language platform for Visual Basic for Applications (VBA).  
-It provides a complete semantic model, runtime infrastructure, and extensible tooling surface to analyze, execute, 
-and evolve VBA code **outside of its historical environment**.
+**RDCore™** is an **open-source project** engineered and maintained by a private company, aiming to build a modern language platform for _Visual Basic for Applications_ (VBA).  
+It ultimately provides a complete semantic model, runtime infrastructure, and extensible tooling surface to analyze, execute, and evolve VBA code **outside of its historical environment**.
 
 ## 🚀The idea
 
@@ -48,12 +47,13 @@ RDCore is currently in active pre-release development.
 - Language SDK: ✅ largely defined
 - Runtime: 🚧 implementation in progress
 - Standard library: 🚧 partially defined
-- CLI host (rdc.exe): 🚧 scaffolded
+- Parser: 🚧 exists (barely)
+- CLI host (rdc.exe): 🚧 exists (barely)
 - Public contributions: ❌ not yet opened
 
 ---
  V I V A T 🩷 C U C U M I S ™  
- ℹ[Home](./index.md) | 🧩[Getting Started](./getting-started.en.md) | 🔍[Documentation](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+ ℹ[Home](./index.md) | 🧩[Getting Started](./getting-started.en.md) | [RD-VBAL](./specs/rd-vbal.md) | [SDK](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
 
 ---
 

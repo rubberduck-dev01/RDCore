@@ -1,0 +1,35 @@
+# 2. RD-VBA Computational Environment
+> ℹ️ This specification is incomplete at this time.
+
+> **MS-VBAL 2. VBA Computational Environment**  
+> VBA is a programming language used to define computer programs that perform computations that occur within a specific computational environment called a _VBA Environment_. A _VBA Environment_ is **typically hosted** and controlled by another computer application called the _host application_. The _host application_ controls and invokes computational processes within its hosted _VBA Environment_. The _host application_ can also make availabel whtin its hosted _VBA Environment_ computational resources that enable VBA programs to access _host application_ data and host computational processes. The remainder of this section defines the key computational concepts of the _VBA Environment_.
+
+A RD-VBA program does run inside a *host*, but that host is `rdc.exe` rather than a _Microsoft Office_ application. This _does_ have yet-unresolved implications with regards to _run-time interoperability_, but should not affect _semantic compatibility_.
+
+> 🎯 `rdc.exe` is a command-line interface (CLI) application whose role is to **assemble and host** the _library_ that is defined by the source code in a _workspace program_. **This application is a work in progress**.
+
+- In RD-VBA the concepts of a _workspace_ and of a _workspace folder_ are defined by the _Language Server Protocol_ (LSP v3.17);
+- A _workspace program_ is an executable in-memory representation of a RD-VBA _workspace_;
+
+> ℹ️ In LSP, a **Workspace Folder** corresponds essentially to a `VBProject`, and a **Workspace** corresponds to a _project group_.
+
+This means a RD-VBA project must necessarily stand on its own and _physically exist_ in the file system, which constitutes a _fundamental paradigm shift_ for VBA code.
+
+## In this section
+
+- [**RD-VBAL 2.1** Implicit Storage](./rd-vbal.2.1.implicit-storage.md)
+- [**RD-VBAL 2.2** Project Structure](./rd-vbal.2.2.rdproj-structure.md)
+- [**RD-VBAL 2.3** Application Host](./rd-vbal.2.3.application-host.md)
+- [**RD-VBAL 2.4** Static Types](./rd-vbal.2.4.static-types.md)
+- [**RD-VBAL 2.5** Runtime Values](./rd-vbal.2.5.runtime-values.md)
+
+
+---
+ V I V A T 🩷 C U C U M I S ™  
+
+---
+
+<p align="center">
+<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
+<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
+</p>

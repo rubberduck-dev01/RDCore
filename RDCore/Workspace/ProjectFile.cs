@@ -23,6 +23,7 @@ internal sealed record class ProjectFile : IEquatable<ProjectFile>
         ProjectInfo = project;
         Version = CoreLanguageServerHost.Info.Version!.ToString(3);
         IsDirty = false;
+        Configuration = [];
     }
     public ProjectFile(ProjectFile source)
     {
@@ -32,6 +33,7 @@ internal sealed record class ProjectFile : IEquatable<ProjectFile>
         ProjectInfo = source.ProjectInfo;
         Version = CoreLanguageServerHost.Info.Version!.ToString(3);
         IsDirty = false;
+        Configuration = source.Configuration;
     }
 
     /// <summary>
@@ -52,6 +54,10 @@ internal sealed record class ProjectFile : IEquatable<ProjectFile>
     /// The <c>RDCore.ServerApp</c> version that this project was created with.
     /// </summary>
     public string Version { get; init; }
+    /// <summary>
+    /// An array of string values containing the relative paths of configuration settings file(s) included in this project.
+    /// </summary>
+    public string[] Configuration { get; init; }
     /// <summary>
     /// Describes the workspace structure (files, folders, project references, etc.)
     /// </summary>

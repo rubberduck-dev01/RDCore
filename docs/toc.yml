@@ -2,5 +2,7 @@
   href: introduction.md
 - name: Getting Started
   href: getting-started.md
-- name: Documentation
+- name: RD-VBAL
+  href: specs/rd-vbal.md
+- name: SDK
   href: api/

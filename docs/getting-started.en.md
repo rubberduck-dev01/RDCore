@@ -1,6 +1,6 @@
 # Getting Started
 
-##### ([Français](./getting-started.md))
+[EN] | \[[FR](./getting-started.md)\]
 
 It only takes a few lines in your entry point to make your application a RDCore app:
 
@@ -37,14 +37,12 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 ...or by inheriting `VBCoreLanguageServerHost` if you're building a _server_ app instead:
 
 ```csharp
-```csharp
 internal class CoreDiagnosticsAppHost() : RDCoreLanguageServerHost<CoreDiagnosticsApp>()
 {
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
     }
 }
-```
 ```
 
 ## Application
@@ -53,7 +51,6 @@ In both cases, the role of the host is to supply services to the `IServiceCollec
 
 Then for a client you would inherit `RDCoreClientApp` :
 
-```csharp
 ```csharp
 internal class RDCoreConsoleClientApp(
     IRDCoreLanguageServerProcess serverProcess,
@@ -88,7 +85,7 @@ internal class RDCoreConsoleClientApp(
 
 ...and for a server app we instead inherit the LSP app from `RDCoreServerApp`:
 
-```
+```csharp
 internal class CoreDiagnosticsApp : RDCoreServerApp
 {
     public CoreDiagnosticsApp(
@@ -125,14 +122,19 @@ In any case, the role of this abstraction layer is to configure the _capabilitie
 - A _server_ application could be a satellite language server, or a platform extension (plug-in).
 - 🌐[LSP 3.17 Specifications](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/)
 
+
+> 🧩 **RDCore Platform Extensions** need a _manifest_ to enable their _discovery_ by the _environment host_; the schema of this manifest is defined by [ExtensionInfo](./_site/api/RDCore.SDK.Extensibility.ExtensionInfo.html); the _environment host_ may provide developer tooling to facilitate the creation of an extension manifest for a given extension.
+
+
+
 ---
  V I V A T 🩷 C U C U M I S ™  
- [Home](./index.md) | ℹ️[Introduction](./introduction.en.md) | 🔍[Documentation](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+ [Home](./index.md) | ℹ️[Introduction](./introduction.en.md) | [RD-VBAL](./specs/rd-vbal.md) | [Documentation](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
 
 ---
 
 <p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
+<img alt="Logo™ 9562-7303 Québec inc." src="./images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
 <small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/>
 <em>"Rubberduck" est utilisé pour fins de référence au projet open-source legacy <strong>utilisé publiquement ainsi depuis 2015</strong> et sans lien ni affiliation avec tout tiers détenteur d'une marque semblable dans quelque juridiction que ce soit. "RDCore" et "VIVAT CUCUMIS" sont des marques de commerce revendiquées par 9562-7303 Québec inc. (en attente)<br/>
 "Rubberduck" is used as a reference to the legacy open-source project <strong>the same way it has been used publicly since 2015</strong> and without any links or affiliation with any third-party trademark holders of a similar trademark in any jurdisdiction. "RDCore" and "VIVAT CUCUMIS" are trademarks claimed by 9562-7303 Québec inc. (pending)

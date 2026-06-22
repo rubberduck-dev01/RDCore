@@ -1,0 +1,128 @@
+# 3.0 Abstract Syntax Tree (AST)
+
+This section describes the nodes of a RD-VBA _abstract syntax tree_, which is the output of the _parser_.
+
+## 3.0.1 Token Semantics
+
+The _token semantics_ of RD-VBA are as specified by MS-VBAL, with the exception(s) described in this section.
+
+> 👉 **RDCore** uses the same grammar as the _legacy Rubberduck project_; this grammar was designed around the MS-VBAL specifications.
+
+
+### 3.0.1.1 Comment Annotations Syntax
+
+RD-VBA comments can contain semantically meaningful metadata in the form of **annotations**, that both the _language core_ and _platform extensions_ can consume as they see fit.
+
+Annotations can bind to:
+- Modules
+- Members (declarations, procedures)
+- Statements in a _logical line of code_.
+
+There are different rules of annotation bindings, depending on their intended _target_:
+- **Module** annotations may only be used to bind at _module_ level and must be specified in the _declarations section_;
+- **Member** annotations must appear **immediately above** the member declaration;
+- It is _implementation-dependent_ how any other annotation types bind to their target.
+
+> ℹ️ This **explicit disambiguation** is necessary because an edge case allows an annotation comment on the last line of the _declarations section_ to perhaps unexpectedly bind to the first module member instead of the module itself if there is no vertical empty space between them.
+
+
+#### 3.0.1.1 Annotation List
+
+```antlr
+annotationList: SINGLEQUOTE (AT annotation)+ (COLON commentBody)?;
+```
+
+Where:
+- `SINGLEQUOTE` is a _comment marker_ token;
+- `AT` is a literal `@` token;
+- `COLON` is a literal `:` token;
+- `LPAREN` is a literal `(` token;
+- `RPAREN` is a literal `)` token;
+- `COMMA` is a literal `,` token;
+- `WS` is a literal ` ` whitespace token;
+- `LINE_CONTINUATION` consists of a whitespace followed by a literal `_` underscore token.
+
+> 👉 Note that anything that follows a `:` colon is considered a regular comment.
+
+
+#### 3.0.1.2 Annotation
+
+```antlr
+annotation: annotationName annotationArgList? whiteSapce?;
+whiteSpace : (WS | LINE_CONTINUATION)+;
+```
+
+Where:
+- `WS` is a literal ` ` empty space token;
+- `LINE_CONTINUATION` consists of an empty space followed by a literal `_` underscore token;
+- `unrestrictedIdentifier` may be any valid _identifier name_.
+
+Examples:
+
+1. Marker annotation
+
+```vb
+'@ExampleAnnotation : this is a regular comment that may explain why there's an annotation here.
+```
+
+2. Annotation list
+
+```vb
+'@ExampleAnnotation1, @ExampleAnnotation2
+```
+
+3. Parameterized
+
+Annotations may be parameterized. If the annotation is part of an _annotations list_, the arguments must be enclosed in parentheses, otherwise they are optional:
+
+```vb
+'@ExampleAnnotation "Argument1", 42
+'@ExampleAnnotation("Argument1", 42)
+'@ExampleAnnotation("Argument1", 42), @ExampleAnnotation2
+```
+
+#### 3.0.1.3 Annotation Arguments
+
+> ℹ️ Whether annotation arguments can be another type of _expression_ than _literal expressions_ is host-dependent; _annotation comments are not intended to be executable_.
+
+```antlr
+annotationArgList:
+annotationArgList : 
+    whiteSpace? LPAREN whiteSpace? annotationArg whiteSpace? RPAREN
+    | whiteSpace? LPAREN whiteSpace? RPAREN
+    | whiteSpace? LPAREN annotationArg (whiteSpace? COMMA whiteSpace? annotationArg)+ whiteSpace? RPAREN
+    | whiteSpace annotationArg
+    | whiteSpace annotationArg (whiteSpace? COMMA whiteSpace? annotationArg)+
+;
+annotationArg : expression;
+whiteSpace : (WS | LINE_CONTINUATION)+;
+```
+
+Where:
+- `LPAREN` is a literal `(` token;
+- `RPAREN` is a literal `)` token;
+- `COMMA` is a literal `,` token;
+- `WS` is a literal ` ` empty space token;
+- `LINE_CONTINUATION` consists of an empty space followed by a literal `_` underscore token.
+
+
+
+## In this section
+
+- [**RD-VBAL 3.1** Attributes and Directives](./rd-vbal.3.1)
+- [**RD-VBAL 3.2** Literal Expressions](./rd-vbal.3.2)
+- [**RD-VBAL 3.3** Operator Expressions](./rd-vbal.3.3)
+- [**RD-VBAL 3.4** Statement Expressions](./rd-vbal.3.4)
+
+
+
+---
+ V I V A T 🩷 C U C U M I S ™  
+
+---
+
+<p align="center">
+<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
+<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
+</p>
+

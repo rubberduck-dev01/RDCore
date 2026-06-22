@@ -1,6 +1,6 @@
 # RDCore™
 
-[Français](./README.md)
+[EN] | [FR](./README.md)
 
 ## Before we begin.
 
@@ -14,29 +14,39 @@ This repository contains different projects **under active development** produci
 
 This arrangement protects both the legacy and current contributors while enabling the future: **The RDCore runtime implementation shall remain open-source**.
 
-> 👉 We're building a very solid _language core_ foundation, but please note that at the moment the only deliverable is the [documentation site](https://rdcore-sdk.github.io).
+> 👉 We're building a solid _language core_ foundation here, but please note that at the moment the only deliverable is the [documentation site](https://rdcore-sdk.github.io).
+
+---
+
+# 1.0.1 RDCore
+
+**RDCore**™ is an actively evolving _Language Server_ (LSP) platform that is currently a **work in progress**. Ultimately, the RDCore deliverables are:
+
+- 🎯 **rdc.exe**: a configurable and extensible RD-VBA _environment host_ and LSP client CLI application;
+- 🎯 **RDCore.LanguageServer.exe**: the platform's "orchestrator" LSP server application;
+- 🎯 **RDCore.Parser.exe**: the platform's parser is a satellite LSP server application owned and coordinated by the main language server;
+- 🎯 **RDCore.Diagnostics.exe**: a core platform extension asynchronously issuing _diagnostics_ to the main language server;
+- 👉 **RDCore.Runtime.dll**: a library containing an implementation for all the RD-VBA runtime semantics and mechanics, _including an implementation of the VBA Standard Library_;
+- 🧩 **RDCore.SDK.dll**: a library exposing the RDCore abstractions and encapsulating the base RD-VBA _language core_ implementation.
+
+# 1.0.2 RD-VBA
+
+The implementation of the platform's _language core_ is a **work in progress**. Ultimately, RD-VBA:
+
+- 🎯 **aims for strict compliance with the MS-VBAL specifications**, ensuring behavioral compatibility with existing VBA semantics;
+- 🧩 **elevates VBA into a modern, extensible, _and fully open-sourced_ language platform** separating the language definition from its original 1993 implementation;
+- 👀 **makes implicit language behavior explicit**, exposing semantic rules, evaluation steps, call stacks, and error conditions as _observable facts_.
 
 
 ---
-## V I V A T 🩷 C U C U M I S ™
+ V I V A T 🩷 C U C U M I S ™  
+ [Home](https://rubberduck-vba.github.io/rdcore/index.en.md)  ℹ️[Introduction](https://rubberduck-vba.github.io/rdcore/introduction.en.md) | 🧩[Getting Started](https://rubberduck-vba.github.io/rdcore/getting-started.en.md) | 🎯[RD-VBAL](https://rubberduck-vba.github.io/rdcore/specs/rd-vbal.md) | [SDK](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+
 ---
 
-## Applications
-
-The repository consists of multiple LSP client/server applications:
-
-- **RDCore.LanguageServer** builds `RDCore.LanguageServer.exe`, the component responsible for a _project workspace_ and the back-end for all the LSP 3.17 IDE features, from completion lists to refacorings. You do not need to start a LSP Server app yourself: per the protocol, the LSP Client starts it for you.
-- **RDCore.Diagnostics** builds `RDCore.Diagnostics.exe`, a satellite LSP server owned by a **RDCore.LanguageServer** instance, responsible for analyzing the semantic context of everything coming its way.
-- **RDCore.Parsing** builds `RDCore.Parsing.exe`, a satellite LSP server owned by a **RDCore.LanguageServer** instance, responsible for the _tokenization_ and _parsing_ of source files into _abstract syntax trees_, made up of nodes defined in the language core SDK library.
-- **RDCore.Runtime** builds `RDCore.Runtime.exe`, a satellite LSP server owned by a **RDCore.LanguageServer** instance, holds the concrete implementations that are key components to the interpreter and run-time memory management semantics: **keeping these bits out of MIT territory ensures RD-VBA remains free and open-source for everyone**.
-- **RDCore.CLI** builds `rdc.exe`, a console application that dogfoods the SDK and implements a lightweight LSP client.
-
-..and liraries:
-
-- **RDCore.SDK** is RD-VBA in a box: it models, encapsulates, and packages the entire type system and static and run-time semantics of the language into a single, fully documented library.
-- **RDCore.Tests** holds the unit test coverage for the entire language core and SDK.
-
-
-The "language core" refers to a subset of namespaces in the SDK library that define RD-VBA as a language; the SDK itself is wider than the language core, it also defines everything any **RDCore** extension needs to hit the ground running and focus on what it wants to specifically look at.
-
-![RDCore solution projects](./assets/RDCore-solution.png)
+<p align="center">
+<img alt="Logo™ 9562-7303 Québec inc." src="./assets/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
+<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/>
+<em>"Rubberduck" is used as a reference to the legacy open-source project <strong>the same way it has been used publicly since 2015</strong> and without any links or affiliation with any third-party trademark holders of a similar trademark in any jurdisdiction. "RDCore" and "VIVAT CUCUMIS" are trademarks claimed by 9562-7303 Québec inc. (pending)
+</small>
+</p>

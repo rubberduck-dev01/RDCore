@@ -125,7 +125,7 @@ Dans tous les cas, le rôle de ce niveau d'abstraction est de configurer les _ca
 
 ---
 V I V A T 🩷 C U C U M I S ™  
-[Accueil](./index.md) | ℹ️[Introduction](./introduction.md) | 🔍[Documentation](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+[Accueil](./index.md) | ℹ️[Introduction](./introduction.md) | [RD-VBAL](./specs/rd-vbal.md) | [SDK](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
 
 ---
 

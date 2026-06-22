@@ -185,4 +185,16 @@
   <data name="RDCore_SeeWebsiteForPlugins" xml:space="preserve">
     <value>Voir https://rubberduckvba.ca pour des compléments additionnels.</value>
   </data>
+  <data name="Command_InvalidArgs" xml:space="preserve">
+    <value>Les intrants fournis sont invalides.</value>
+  </data>
+  <data name="Extension_DefaultDescription" xml:space="preserve">
+    <value>Extension RDCore™</value>
+  </data>
+  <data name="DescribeExtension_AlreadyExists" xml:space="preserve">
+    <value>Un manifeste existe déjà pour l'extension spécifiée.</value>
+  </data>
+  <data name="DescribeExtension_Title" xml:space="preserve">
+    <value>Describe Extension</value>
+  </data>
 </root>

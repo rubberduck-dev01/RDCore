@@ -61,6 +61,15 @@ namespace RDCore.CLI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The supplied arguments are invalid..
+        /// </summary>
+        public static string Command_InvalidArgs {
+            get {
+                return ResourceManager.GetString("Command_InvalidArgs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Displays the listing (source code) of the current program.
         /// </summary>
         public static string Command_List {
@@ -106,11 +115,38 @@ namespace RDCore.CLI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A manifest already exists for the specified extension..
+        /// </summary>
+        public static string DescribeExtension_AlreadyExists {
+            get {
+                return ResourceManager.GetString("DescribeExtension_AlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Describe Extension.
+        /// </summary>
+        public static string DescribeExtension_Title {
+            get {
+                return ResourceManager.GetString("DescribeExtension_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified theme was not found..
         /// </summary>
         public static string Error_ThemeNotFound {
             get {
                 return ResourceManager.GetString("Error_ThemeNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to RDCore™ Extension.
+        /// </summary>
+        public static string Extension_DefaultDescription {
+            get {
+                return ResourceManager.GetString("Extension_DefaultDescription", resourceCulture);
             }
         }
         
