@@ -28,24 +28,15 @@ A **RD-VBA** _environment host_ may configure language-level _restrictions_ or _
 This list is _prioritized_ but not intended to be exhaustive; additional _dialects_ may be supported by different **RD-VBA** _hosts_.
 
 > 🎯 The _scope_ of the **RDCore SDK** minimally covers **VBA**, _then_ **VB6**, _then_ **VBX**, and so on.  
-> 👉 The LSP paradigm shift _alone_ brings RD-VBA much closer to how VB6 works already;   
+> 👉 The LSP paradigm shift _alone_ brings RD-VBA much closer to how VB6 works already.  
 
 
 ## In this section
+- [**RD-VBAL §2.1** Implicit Storage](./rd-vbal.2.1.implicit-storage.html)
+- [**RD-VBAL §2.2** Project Structure](./rd-vbal.2.2.rdproj-structure.html)
+- [**RD-VBAL §2.3** Application Host](./rd-vbal.2.3.application-host.html)
+- [**RD-VBAL §2.4** Static Types](./rd-vbal.2.4.static-types.html)
+- [**RD-VBAL §2.5** Runtime Values](./rd-vbal.2.5.runtime-values.html)
 
-- [**RD-VBAL 2.1** Implicit Storage](./rd-vbal.2.1.implicit-storage.md)
-- [**RD-VBAL 2.2** Project Structure](./rd-vbal.2.2.rdproj-structure.md)
-- [**RD-VBAL 2.3** Application Host](./rd-vbal.2.3.application-host.md)
-- [**RD-VBAL 2.4** Static Types](./rd-vbal.2.4.static-types.md)
-- [**RD-VBAL 2.5** Runtime Values](./rd-vbal.2.5.runtime-values.md)
+> ⏮️ [**RD-VBAL §1.0** Introduction](./rd-vbal.1.0.introduction.html) | ⏭️ [**RD-VBAL §3.0** Syntax Tree](./rd-vbal.3.0.syntax-tree.html)  
 
-
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>

@@ -109,12 +109,12 @@ Where:
 
 ### 3.0.2 Node Types
 
-All AST nodes inherit [BoundNode](../_site/api/RDCore.SDK.Model.AST.Abstract.BoundNode.html), an _abstract_ node that  associates a _semantic ID_ (`Uri`) with a specific _location_ in a _workspace source file_.
+All AST nodes inherit [BoundNode](../api/RDCore.SDK.Model.AST.Abstract.BoundNode.html), an _abstract_ node that  associates a _semantic ID_ (`Uri`) with a specific _location_ in a _workspace source file_.
 
 The node types _directly_ derived from `BoundNode` are as follows:
-- [BoundDirective](../_site/api/RDCore.SDK.Model.AST.Abstract.BoundDirective.html)
-- [BoundExpression](../_site/api/RDCore.SDK.Model.AST.Abstract.BoundExpression.html)
-- [BoundStatement](../_site/api/RDCore.SDK.Model.AST.Abstract.BoundStatement.html)
+- [BoundDirective](../api/RDCore.SDK.Model.AST.Abstract.BoundDirective.html)
+- [BoundExpression](../api/RDCore.SDK.Model.AST.Abstract.BoundExpression.html)
+- [BoundStatement](../api/RDCore.SDK.Model.AST.Abstract.BoundStatement.html)
 
 
 ## 3.0.3 Binding Contexts
@@ -127,25 +127,15 @@ The node types _directly_ derived from `BoundNode` are as follows:
 
 The **RDCore** interpretation is reflected in its modelization as follows:
 - 🎯 _name lookups_ become an _explicit evaluation step_ involving specific AST nodes such as `VBSimpleNameExpression`;
-- 🎯 Evaluation returns an [_evaluation result record_](../_site/api/RDCore.SDK.Runtime.Shared.RuntimeSemanticsEvaluationResult.html) describing and encapsulating the result, or runtime error metadata.
+- 🎯 Evaluation returns an [_evaluation result record_](../api/RDCore.SDK.Runtime.Shared.RuntimeSemanticsEvaluationResult.html) describing and encapsulating the result, or runtime error metadata.
 
 
 ## In this section
+- [**RD-VBAL §3.1** Attributes and Directives](./rd-vbal.3.1.attributes-directives.md)
+- [**RD-VBAL §3.2** Literals](./rd-vbal.3.2.literals.md)
+- [**RD-VBAL §3.3** Operators](./rd-vbal.3.3.0.operators.md)
+- [**RD-VBAL §3.4** Statements](./rd-vbal.3.4.0.statements.md)
+- [**RD-VBAL §3.5** Instructions](./rd-vbal.3.5.0.instructions.md)
 
-- [**RD-VBAL§3.1** Attributes and Directives](./rd-vbal.3.1.attributes-directives.md)
-- [**RD-VBAL§3.2** Literals](./rd-vbal.3.2.literals.md)
-- [**RD-VBAL§3.3** Operators](./rd-vbal.3.3.0.operators.md)
-- [**RD-VBAL§3.4** Statements](./rd-vbal.3.4.0.statements.md)
-- [**RD-VBAL§3.5** Instructions](./rd-vbal.3.5.0.instructions.md)
-
-
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>
+> ⏮️ [**RD-VBAL §2.0** Computational Environment](./rd-vbal.2.0.computational-environment.html) | ⏭️ [**RD-VBAL §4.0** Program Structure](./rd-vbal.4.0.program-structure.html)
 

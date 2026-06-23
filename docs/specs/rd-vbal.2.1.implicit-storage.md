@@ -6,13 +6,13 @@
 
 MS-VBAL addresses legitimate **application configuration** concerns through a _get-only_ API exposed in the _standard library_:
 
-- MS-VBAL 6.1.2.8.1.7 [GetAllSettings](../_site/api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetAllSettings)
-- MS-VBAL 6.1.2.8.1.10 [GetSetting](../_site/api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetSetting)
+- MS-VBAL 6.1.2.8.1.7 [GetAllSettings](../api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetAllSettings)
+- MS-VBAL 6.1.2.8.1.10 [GetSetting](../api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetSetting)
 
 RD-VBA keeps backward compatibility by keeping an implementation backed by the _Windows Registry_, but isn't inherently constrained to it - hence these additions managing _workspace application settings_ using a similar API:
 
-- 🧩RD-VBAL 6.1.2.8.1.7.1 [GetAllJsonSettings](../_site/api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetAllJsonSettings)
-- 🧩RD-VBAL 6.1.2.8.1.10.1 [GetJsonSetting](../_site/api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetJsonSetting)
+- 🧩RD-VBAL 6.1.2.8.1.7.1 [GetAllJsonSettings](../api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetAllJsonSettings)
+- 🧩RD-VBAL 6.1.2.8.1.10.1 [GetJsonSetting](../api/RDCore.SDK.Runtime.Abstract.StdLib.IStdInteractionModule.html#StdInteraction__GetJsonSetting)
 
 > 👉 Whether **any** _standard library_ calls implicate actual or simulated _Windows Registry_ reads is entirely **implementation-dependent** and may behave differently on different platforms. This remains entirely compliant with the relevant MS-VBAL sections as specified.
 
@@ -29,15 +29,8 @@ As a result, the _legacy_ `GetSettings` API maintains its MS-VBA behavior, and R
 
 The _application host_ (`rdc.exe`) is responsible for binding the configuration as the application is _composed_, before it starts executing.
 
-> 🧩This feature has the full power and flexibility of a .NET managed `IConfigurationBuilder` underneath: future extensions could harmonize configuration settings and environment variables, fully deprecating the corresponding legacy APIs as obsolete (_semantic flags_ can then be issued at usage sites, with _code actions_ to update the workspace source code).
+> 🧩This feature has the full power and flexibility of a .NET managed `IConfigurationBuilder` underneath: future extensions could harmonize configuration settings and environment variables, fully deprecating the corresponding legacy APIs as _obsolete_ (_semantic flags_ can then be issued at usage sites, with _code actions_ to update the workspace source code).
 
 
----
- V I V A T 🩷 C U C U M I S ™  
+> ⏮️ [**RD-VBAL §2.0** Computational Environment](./rd-vbal.2.0.computational-environment.html) | ⏭️ [**RD-VBAL §2.2** RDPROJ Structure](./rd-vbal.2.2.rdproj-structure.html)
 
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>

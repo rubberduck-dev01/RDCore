@@ -1,15 +1,9 @@
 # 4.0 RD-VBA Program Structure and Organization
+> ℹ️ This specification is incomplete at this time.
+
+A _RD-VBA Environment_ is organized into a number of _workspace source files_ and _host-defined projects_.
 
 
 
-
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>
+> ⏮️ [**RD-VBAL §3.0** Syntax Tree](./rd-vbal.3.0.syntax-tree.html) | ⏭️ [**RD-VBAL §5.0** Semantics](./rd-vbal.5.0.semantics.html)
 

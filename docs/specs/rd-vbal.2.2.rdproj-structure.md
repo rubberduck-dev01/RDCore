@@ -174,12 +174,5 @@ Describes additional(non-source) files contained in a _workspace folder_ but not
 | Name | The _identifier name_ (token) used in workspace source code to reference this module. |
 
 
----
- V I V A T 🩷 C U C U M I S ™  
+> ⏮️ [**RD-VBAL§2.1** Computational Environment](./rd-vbal.2.1.implicit-storage.html) | ⏭️ [**RD-VBAL§2.3** Application Host](./rd-vbal.2.3.application-host.html)
 
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>

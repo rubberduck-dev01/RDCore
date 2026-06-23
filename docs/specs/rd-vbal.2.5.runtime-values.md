@@ -1,18 +1,18 @@
 # 2.5. RD-VBA Type System - Runtime
 > ℹ️ This specification may be incomplete at this time.
 
-If [VBType](../_site/api/RDCore.SDK.Model.Types.Abstract.VBType.html) is at the core of _static semantics_, then [VBTypedValue](../_site/api/RDCore.SDK.Model.Values.Abstract.VBTypedValue.html) is at the core of _runtime semantics_.
+If [VBType](../api/RDCore.SDK.Model.Types.Abstract.VBType.html) is at the core of _static semantics_, then [VBTypedValue](../api/RDCore.SDK.Model.Values.Abstract.VBTypedValue.html) is at the core of _runtime semantics_.
 
 
 ## 2.5.1 Runtime entities
 
-A _runtime entity_ is a simple abstraction that associates a [VBType](../_site/api/RDCore.SDK.Model.Types.Abstract.VBType.html) with a [Symbol](../_site/api/RDCore.SDK.Model.Symbols.Abstract.Symbol.html), which means every RD-VBA _runtime entity_ is addressable with a `Uri` that is unique across the _workspace_.  
+A _runtime entity_ is a simple abstraction that associates a [VBType](../api/RDCore.SDK.Model.Types.Abstract.VBType.html) with a [Symbol](../api/RDCore.SDK.Model.Symbols.Abstract.Symbol.html), which means every RD-VBA _runtime entity_ is addressable with a `Uri` that is unique across the _workspace_.  
 
 ## 2.5.1.1 Symbols
 
-A _symbol_ necessarily has a `Uri` and a `Name`, but also a [ScopeKind](../_site/api/RDCore.SDK.Model.Symbols.Abstract.ScopeKind.html) and an _(extended) LSP_ [SymbolKind](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html).
+A _symbol_ necessarily has a `Uri` and a `Name`, but also a [ScopeKind](../api/RDCore.SDK.Model.Symbols.Abstract.ScopeKind.html) and an _(extended) LSP_ [SymbolKind](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html).
 
-- The `Uri` of a symbol is a _semantic ID_ that uniquely identifies a symbol across an entire _workspace_; see [RDCoreUriNamespaces](../_site/api/RDCore.SDK.Extensibility.RDCoreUriNamespaces.html). The `Uri` is assembled from the _workspace root_ `Uri` and a relative `Uri` that may include a _fragment_. The content of the fragment is implementation-defined, but the relative `Uri` path should be that of the parent module or procedure scope.
+- The `Uri` of a symbol is a _semantic ID_ that uniquely identifies a symbol across an entire _workspace_; see [RDCoreUriNamespaces](../api/RDCore.SDK.Extensibility.RDCoreUriNamespaces.html). The `Uri` is assembled from the _workspace root_ `Uri` and a relative `Uri` that may include a _fragment_. The content of the fragment is implementation-defined, but the relative `Uri` path should be that of the parent module or procedure scope.
 - The `Name` of a symbol defined in _workspace source code_ **must** be a valid _identifier name_.
 - The `Name` of a _static symbol_ corresponds to its _identifier name_ if it has one. 
 - Otherwise (e.g. operators), a _static symbol_ should have a `Name` that _clearly_ isn't a legal VBA name, to avoid any possible confusion.
@@ -23,9 +23,9 @@ The _scope kind_ of a `Symbol` determines exactly _how_ (and _whether_) it is al
 
 |Value|Description|
 |---|---|
-|Unallocated|A pseudo-scope for pseudo-symbols that aren't allocated in memory, like [VBVoidValue](../_site/api/RDCore.SDK.Model.Values.VBVoidValue.html).|
-|Global|[StaticSymbol](../_site/api/RDCore.SDK.Model.Symbols.Abstract.StaticSymbol.html) instances and symbols obtained from referenced libraries, mostly; lives in the _globals_ heap.|
-|Local|Procedure level, scoped to the local [ICallStackFrame](../_site/api/RDCore.SDK.Runtime.Abstract.Execution.ICallStackFrame.html).|
+|Unallocated|A pseudo-scope for pseudo-symbols that aren't allocated in memory, like [VBVoidValue](../api/RDCore.SDK.Model.Values.VBVoidValue.html).|
+|Global|[StaticSymbol](../api/RDCore.SDK.Model.Symbols.Abstract.StaticSymbol.html) instances and symbols obtained from referenced libraries, mostly; lives in the _globals_ heap.|
+|Local|Procedure level, scoped to the local [ICallStackFrame](../api/RDCore.SDK.Runtime.Abstract.Execution.ICallStackFrame.html).|
 |Module|Module level; lives in the _workspace statics_ heap.|
 |Instance|Instance level; lives in the _object_ heap.|
 |External|Allocated externally; lives _out of process_ at a known address.|
@@ -33,44 +33,44 @@ The _scope kind_ of a `Symbol` determines exactly _how_ (and _whether_) it is al
 The _symbol kind_ of a `Symbol` is as per specified in **LSP 3.17**. The values RD-VBA uses are as follows:
 
 |RD-VBA Value|LSP Equivalence|
-|[Module](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Module)|`SymbolKind.Module`|
-|[Project](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Project)|`SymbolKind.Namespace`|
-|[Class](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Class)|`SymbolKind.Class`|
-|[Procedure](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Procedure)|`SymbolKind.Method`|
-|[Field](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Field)|`SymbolKind.Field`|
-|[Enum](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Enum)|`SymbolKind.Enum`|
-|[Interface](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Interface)|`SymbolKind.Interface`|
-|[Function](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Function)|`SymbolKind.Function`|
-|[Variable](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Varialbe)|`SymbolKind.Variable`|
-|[Constant](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Constant)|`SymbolKind.Constant`|
-|[StringLiteral](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#StringLiteral)|`SymbolKind.String`|
-|[NumberLiteral](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#NumberLiteral)|`SymbolKind.Number`|
-|[BooleanLiteral](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#BooleanLiteral)|`SymbolKind.Boolean`|
-|[Array](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Array)|`SymbolKind.Array`|
-|[Object](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Object)|`SymbolKind.Object`|
-|[Key](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Key)|`SymbolKind.Key`|
-|[Null](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Null)|`SymbolKind.Null`|
-|[EnumMember](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#EnumMember)|`SymbolKind.EnumMember`|
-|[UserDefinedType](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#UserDefinedType)|`SymbolKind.Struct`|
-|[Event](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Event)|`SymbolKind.Event`|
-|[Oerator](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Operator)|`SymbolKind.Operator`|
+|[Module](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Module)|`SymbolKind.Module`|
+|[Project](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Project)|`SymbolKind.Namespace`|
+|[Class](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Class)|`SymbolKind.Class`|
+|[Procedure](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Procedure)|`SymbolKind.Method`|
+|[Field](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Field)|`SymbolKind.Field`|
+|[Enum](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Enum)|`SymbolKind.Enum`|
+|[Interface](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Interface)|`SymbolKind.Interface`|
+|[Function](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Function)|`SymbolKind.Function`|
+|[Variable](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Varialbe)|`SymbolKind.Variable`|
+|[Constant](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Constant)|`SymbolKind.Constant`|
+|[StringLiteral](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#StringLiteral)|`SymbolKind.String`|
+|[NumberLiteral](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#NumberLiteral)|`SymbolKind.Number`|
+|[BooleanLiteral](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#BooleanLiteral)|`SymbolKind.Boolean`|
+|[Array](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Array)|`SymbolKind.Array`|
+|[Object](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Object)|`SymbolKind.Object`|
+|[Key](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Key)|`SymbolKind.Key`|
+|[Null](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Null)|`SymbolKind.Null`|
+|[EnumMember](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#EnumMember)|`SymbolKind.EnumMember`|
+|[UserDefinedType](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#UserDefinedType)|`SymbolKind.Struct`|
+|[Event](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Event)|`SymbolKind.Event`|
+|[Oerator](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Operator)|`SymbolKind.Operator`|
 
 > 👉 LSP standard symbol kinds `File`, `Constructor`, and `TypeParameter` are not used in RD-VBA, and `Namespace` is being repurposed to a different meaning (there is no concept of a _namespace_ in VBA). The `Key` symbol kind may end up being used for the token that follows the `!` operator in _dictionary access expressions_.  
 
 RD-VBA additionally defines the following _extension symbol types_:
 
-- [Ignored](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Ignored);
-- [Attribute](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Attribute);
-- [Directive](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Directive);
-- [LineLabel](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#LineLabel);
-- [DateLiteral](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#DateLiteral);
-- [VariantLiteral](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#VariantLiteral);
-- [TypeDescriptor](../_site/api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#TypeDescriptor).
+- [Ignored](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Ignored);
+- [Attribute](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Attribute);
+- [Directive](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#Directive);
+- [LineLabel](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#LineLabel);
+- [DateLiteral](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#DateLiteral);
+- [VariantLiteral](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#VariantLiteral);
+- [TypeDescriptor](../api/RDCore.SDK.Server.ProtocolExtensions.SymbolKindExt.html#TypeDescriptor).
 
 
 ## 2.5.2 VBTypedValue
 
-RD-VBA defines MS-VBAL _data values_ explicitly, using types inherited from a base [VBTypedValue](../_site/api/RDCore.SDK.Model.Values.Abstract.VBTypedValue.html).  
+RD-VBA defines MS-VBAL _data values_ explicitly, using types inherited from a base [VBTypedValue](../api/RDCore.SDK.Model.Values.Abstract.VBTypedValue.html).  
 
 ### 2.5.2.1 Intrinsic Type Values
 
@@ -78,51 +78,51 @@ The _data values_ of the non-numeric _intrinsic types_ are the following:
 
 |VBTypedValue |VBType |
 |---|---|
-|[VBArrayValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBArrayValue.html)|[VBArrayType](../_site/api/RDCore.SDK.Model.Types.VBArrayType.html)|
-|[VBFixedSizeArrayValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBFixedSizeArrayValue.html)|[VBFixedSizeArrayType](../_site/api/RDCore.SDK.Model.Types.VBFixedSizeArrayType.html)|
-|[VBResizableArrayValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBResizableArrayValue.html)|[VBResizableArrayType](../_site/api/RDCore.SDK.Model.Types.VBResizableArrayType.html)|
-|[VBResizableByteArrayValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBResizableArrayValue.html)|[VBResizableByteArrayType](../_site/api/RDCore.SDK.Model.Types.VBResizableByteArrayType.html)|
-|[VBBooleanValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBBooleanValue.html)|[VBBooleanType](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBBooleanValue.html)]|
-|[VBDateValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBDateValue.html)|[VBDateType](../_site/api/RDCore.SDK.Model.Types.VBDateType.html)|
-|[VBEmptyValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBEmptyValue.html)|[VBEmptyType](../_site/api/RDCore.SDK.Model.Types.VBEmptyType.html)|
-|[VBErrorValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBErrorValue.html)|[[VBErrorType](../_site/api/RDCore.SDK.Model.Types.VBErrorType.html)]|
-|[VBLongPtrValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBLongPtrValue.html)|[VBLongPtr_x64](../_site/api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html) or [VBLongPtr_x86](../_site/api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html) depending on host environment|
-|[VBMissingValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBMissingValue.html)|[VBMissingType](../_site/api/RDCore.SDK.Model.Types.VBMissingType.html)|
-|[VBNullValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBNullValue.html)|[VBNullType](../_site/api/RDCore.SDK.Model.Types.VBNullType.html)|
-|[VBObjectValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBObjectValue.html)|[VBObjectType](../_site/api/RDCore.SDK.Model.Types.VBObjectType.html)|
-|[VBStringValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBStringValue.html)|[VBStringType](../_site/api/RDCore.SDK.Model.Types.VBStringType.html)|
-|[VBFixedStringValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBFixedStringValue.html)|[VBFixedStringType](../_site/api/RDCore.SDK.Model.Types.VBFixedStringType.html)|
-|[VBVariantValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBVariantValue.html)|[VBVariantType](../_site/api/RDCore.SDK.Model.Types.VBVariantType.html)|
+|[VBArrayValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBArrayValue.html)|[VBArrayType](../api/RDCore.SDK.Model.Types.VBArrayType.html)|
+|[VBFixedSizeArrayValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBFixedSizeArrayValue.html)|[VBFixedSizeArrayType](../api/RDCore.SDK.Model.Types.VBFixedSizeArrayType.html)|
+|[VBResizableArrayValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBResizableArrayValue.html)|[VBResizableArrayType](../api/RDCore.SDK.Model.Types.VBResizableArrayType.html)|
+|[VBResizableByteArrayValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBResizableArrayValue.html)|[VBResizableByteArrayType](../api/RDCore.SDK.Model.Types.VBResizableByteArrayType.html)|
+|[VBBooleanValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBBooleanValue.html)|[VBBooleanType](../api/RDCore.SDK.Model.Values.Intrinsic.VBBooleanValue.html)]|
+|[VBDateValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBDateValue.html)|[VBDateType](../api/RDCore.SDK.Model.Types.VBDateType.html)|
+|[VBEmptyValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBEmptyValue.html)|[VBEmptyType](../api/RDCore.SDK.Model.Types.VBEmptyType.html)|
+|[VBErrorValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBErrorValue.html)|[[VBErrorType](../api/RDCore.SDK.Model.Types.VBErrorType.html)]|
+|[VBLongPtrValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBLongPtrValue.html)|[VBLongPtr_x64](../api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html) or [VBLongPtr_x86](../api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html) depending on host environment|
+|[VBMissingValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBMissingValue.html)|[VBMissingType](../api/RDCore.SDK.Model.Types.VBMissingType.html)|
+|[VBNullValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBNullValue.html)|[VBNullType](../api/RDCore.SDK.Model.Types.VBNullType.html)|
+|[VBObjectValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBObjectValue.html)|[VBObjectType](../api/RDCore.SDK.Model.Types.VBObjectType.html)|
+|[VBStringValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBStringValue.html)|[VBStringType](../api/RDCore.SDK.Model.Types.VBStringType.html)|
+|[VBFixedStringValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBFixedStringValue.html)|[VBFixedStringType](../api/RDCore.SDK.Model.Types.VBFixedStringType.html)|
+|[VBVariantValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBVariantValue.html)|[VBVariantType](../api/RDCore.SDK.Model.Types.VBVariantType.html)|
 
 
 #### 2.5.2.1.1 VBNumericTypedValue
 
-All numeric _data values_ inherit [VBNumericTypedValue](../_site/api/RDCore.SDK.Model.Values.Abstract.VBNumericTypedValue.html), which simplifies implementing semantics implicating "_any numeric type_" specifications. This base class implements [INumericType](../_site/api/RDCore.SDK.Model.Values.Abstract.INumericValue.html), a _non-generic_ base abstraction that ensures every numeric type minimally has a `double` managed representation.  
+All numeric _data values_ inherit [VBNumericTypedValue](../api/RDCore.SDK.Model.Values.Abstract.VBNumericTypedValue.html), which simplifies implementing semantics implicating "_any numeric type_" specifications. This base class implements [INumericType](../api/RDCore.SDK.Model.Values.Abstract.INumericValue.html), a _non-generic_ base abstraction that ensures every numeric type minimally has a `double` managed representation.  
 
 Each numeric type of value minimally defines a typed representation of its `MinValue`, `MaxValue`, and `Zero`; other _static values_ may be defined as required by runtime semantics.  
 
-Floating-point types also define a `SignificantIntegerDigits` that is used for correctly representing these values as [VBStringValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBStringValue.html) in _conversions_ and _coercions_ to `String`:
+Floating-point types also define a `SignificantIntegerDigits` that is used for correctly representing these values as [VBStringValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBStringValue.html) in _conversions_ and _coercions_ to `String`:
 
 
 |Value Type|Significant Digits|
 |---|---|
-|[VBSingleValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBSingleValue.html)|7|
-|[VBDoubleValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBDoubleValue.html)|15|
+|[VBSingleValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBSingleValue.html)|7|
+|[VBDoubleValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBDoubleValue.html)|15|
 
 
 A numeric _data value_ can be one of the following:
-- [VBByteValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBByteValue.html)
-- [VBIntegerValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBIntegerValue.html)
-- [VBLongValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBLongValue.html)
-- [VBLongLongValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBLongLongValue.html)
-- [VBSingleValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBSingleValue.html)
-- [VBDoubleValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBDoubleValue.html)
-- [VBCurrencyValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBCurrencyValue.html)
-- [VBDecimalValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBDecimalValue.html)
+- [VBByteValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBByteValue.html)
+- [VBIntegerValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBIntegerValue.html)
+- [VBLongValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBLongValue.html)
+- [VBLongLongValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBLongLongValue.html)
+- [VBSingleValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBSingleValue.html)
+- [VBDoubleValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBDoubleValue.html)
+- [VBCurrencyValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBCurrencyValue.html)
+- [VBDecimalValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBDecimalValue.html)
 
 Additionally, _precompiler constants_ are interpreted as `Integer` values:
 
-- [PrecompilerConstantValue](../_site/api/RDCore.SDK.Model.Values.PrecompilerConstantValue.html)
+- [PrecompilerConstantValue](../api/RDCore.SDK.Model.Values.PrecompilerConstantValue.html)
 
 #### 2.5.2.1.2 Array Values
 > ℹ️ This specification may be incomplete at this time.
@@ -150,7 +150,7 @@ Each dimension of an _array value_ encapsulates a _managed array_ of the underly
 #### 2.5.2.1.3 User-Defined Types (UDT) Values
 > ℹ️ This specification may be incomplete at this time.
 
-An instance of a UDT is a [VBUserDefinedTypeValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBUserDefinedTypeValue.html).
+An instance of a UDT is a [VBUserDefinedTypeValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBUserDefinedTypeValue.html).
 
 The _data type_ of a UDT value is defined by the UDT declaration of its _declared type_.  
 
@@ -160,7 +160,7 @@ The _data type_ of a UDT value is defined by the UDT declaration of its _declare
 #### 2.5.2.1.4 Object Values
 > ℹ️ This specification may be incomplete at this time.
 
-An instance of a [VBObjectType](../_site/api/RDCore.SDK.Model.Types.VBObjectType.html) is always a [VBObjectValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBObjectValue.html).
+An instance of a [VBObjectType](../api/RDCore.SDK.Model.Types.VBObjectType.html) is always a [VBObjectValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBObjectValue.html).
 
 The underlying value of an _object value_ is a unique addressable ID.
 
@@ -168,12 +168,12 @@ The underlying value of an _object value_ is a unique addressable ID.
 #### 2.5.2.1.5 Variant Values
 > ℹ️ This specification may be incomplete at this time.
 
-A [VBVariantValue](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBVariantValue.html) has an underlying _managed value_ that is a managed `struct` type intended to eventually interop with actual COM (unmanaged) variant values.
+A [VBVariantValue](../api/RDCore.SDK.Model.Values.Intrinsic.VBVariantValue.html) has an underlying _managed value_ that is a managed `struct` type intended to eventually interop with actual COM (unmanaged) variant values.
 
 The structure of this internal representation is defined as follows:
 
-- [VBVariantValueType](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBVariantValueType.html) `ValueType`, a flag that identifies the _variant value type_ (`Empty`, `Integer`, `Dispatch`, `BString`, etc.);
-- [ScopeKind](../_site/api/RDCore.SDK.Model.Symbols.Abstract.ScopeKind.html) `ValueAlloc`, giving the host the _allocation scope_ of the value;
+- [VBVariantValueType](../api/RDCore.SDK.Model.Values.Intrinsic.VBVariantValueType.html) `ValueType`, a flag that identifies the _variant value type_ (`Empty`, `Integer`, `Dispatch`, `BString`, etc.);
+- [ScopeKind](../api/RDCore.SDK.Model.Symbols.Abstract.ScopeKind.html) `ValueAlloc`, giving the host the _allocation scope_ of the value;
 - `long ValuePtr`, a pointer to the value in the memory space specified by the `ScopeKind`.
 
 A `VBVariantValue` is always allocated in the _heap memory_, in the same memory space as _object values_.
@@ -181,13 +181,5 @@ A `VBVariantValue` is always allocated in the _heap memory_, in the same memory 
 The act of "unwrapping" a `VBVariantValue` value consists of looking up its allocated internal struct, retrieving its `ValuePtr`, then looking up that value in the appropriate memory space; this yields a scoped `VBTypedValue` that may or may not be an immediately usable _intrinsic data type_ - it may be also be another `VBVariantValue` requiring a new _unwrapping frame_.
 
 
+> ⏮️ [**RD-VBAL §2.4** Static Types](./rd-vbal.2.4.static-types.html) | ⏮️ [**RD-VBAL §3.0** Syntax Tree](./rd-vbal.3.0.syntax-tree.html)
 
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>

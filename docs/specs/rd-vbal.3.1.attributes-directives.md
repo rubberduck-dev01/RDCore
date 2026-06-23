@@ -15,19 +15,19 @@ Directives also include `Def<Type>` _implicit definition_ statements:
 
 |Directive|Description
 |---|---|
-|`DefBool`|Configures implicit definitions for [VBBooleanType](../_site/api/RDCore.SDK.Model.Types.VBBooleanType.html)|
-|`DefByte`|Configures implicit definitions for [VBByteType](../_site/api/RDCore.SDK.Model.Types.VBByteType.html)|
-|`DefInt`|Configures implicit definitions for [VBIntegerType](../_site/api/RDCore.SDK.Model.Types.VBIntegerType.html)|
-|`DefLng`|Configures implicit definitions for [VBLongType](../_site/api/RDCore.SDK.Model.Types.VBLongType.html)|
-|`DefLngLng`|Configures implicit definitions for [VBLongLongType](../_site/api/RDCore.SDK.Model.Types.VBLongLongType.html) in 64-bit environments|
-|`DefLngPtr`|Configures implicit definitions for [VBLongPtrType_x86](../_site/api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html) (32-bit) or [VBLongPtrType_x86](../_site/api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html) (64-bit)|
-|`DefCur`|Configures implicit definitions for [VBCurrencyType](../_site/api/RDCore.SDK.Model.Types.VBCurrencyType.html)|
-|`DefSng`|Configures implicit definitions for [VBSingleType](../_site/api/RDCore.SDK.Model.Types.VBSingleType.html)|
-|`DefDbl`|Configures implicit definitions for [VBDoubleType](../_site/api/RDCore.SDK.Model.Types.VBDoubleType.html)|
-|`DefDate`|Configures implicit definitions for [VBDateType](../_site/api/RDCore.SDK.Model.Types.VBDateType.html)|
-|`DefStr`|Configures implicit definitions for [VBStringType](../_site/api/RDCore.SDK.Model.Types.VBStringType.html)|
-|`DefObj`|Configures implicit definitions for [VBObjectType](../_site/api/RDCore.SDK.Model.Types.VBObjectType.html)|
-|`DefVar`|Configures implicit definitions for [VBVariantType](../_site/api/RDCore.SDK.Model.Types.VBVariantType.html)|
+|`DefBool`|Configures implicit definitions for [VBBooleanType](../api/RDCore.SDK.Model.Types.VBBooleanType.html)|
+|`DefByte`|Configures implicit definitions for [VBByteType](../api/RDCore.SDK.Model.Types.VBByteType.html)|
+|`DefInt`|Configures implicit definitions for [VBIntegerType](../api/RDCore.SDK.Model.Types.VBIntegerType.html)|
+|`DefLng`|Configures implicit definitions for [VBLongType](../api/RDCore.SDK.Model.Types.VBLongType.html)|
+|`DefLngLng`|Configures implicit definitions for [VBLongLongType](../api/RDCore.SDK.Model.Types.VBLongLongType.html) in 64-bit environments|
+|`DefLngPtr`|Configures implicit definitions for [VBLongPtrType_x86](../api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html) (32-bit) or [VBLongPtrType_x86](../api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html) (64-bit)|
+|`DefCur`|Configures implicit definitions for [VBCurrencyType](../api/RDCore.SDK.Model.Types.VBCurrencyType.html)|
+|`DefSng`|Configures implicit definitions for [VBSingleType](../api/RDCore.SDK.Model.Types.VBSingleType.html)|
+|`DefDbl`|Configures implicit definitions for [VBDoubleType](../api/RDCore.SDK.Model.Types.VBDoubleType.html)|
+|`DefDate`|Configures implicit definitions for [VBDateType](../api/RDCore.SDK.Model.Types.VBDateType.html)|
+|`DefStr`|Configures implicit definitions for [VBStringType](../api/RDCore.SDK.Model.Types.VBStringType.html)|
+|`DefObj`|Configures implicit definitions for [VBObjectType](../api/RDCore.SDK.Model.Types.VBObjectType.html)|
+|`DefVar`|Configures implicit definitions for [VBVariantType](../api/RDCore.SDK.Model.Types.VBVariantType.html)|
 
 Other directives include `Implements` and `Attribute` statements:
 
@@ -133,14 +133,5 @@ This attribute holds a short _documentation string_ that IDE tooling can then us
 > 👉 Surfacing attributes does not necessarily make `@Description` annotations obsolete, because hiding `Attribute` directives may or may not be a capability that is supported by a LSP client.
 
 
-
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>
+> ⏮️ [**RD-VBAL §3.0** Syntax Tree](./rd-vbal.3.0.syntax-tree.html) | ⏮️ [**RD-VBAL §3.2** Literals](./rd-vbal.3.2.literals.html)
 

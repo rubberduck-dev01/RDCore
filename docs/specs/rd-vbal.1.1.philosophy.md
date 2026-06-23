@@ -15,7 +15,7 @@ Where the specification defines implicit behaviors, RD-VBA may choose to make th
 This includes features such as:
 
 - The comment annotations syntax from the _legacy Rubberduck VBIDE add-in_;
-- The introduction of an [explicit coercion operator](../api/RDCore.SDK.Semantics.Static.Operators.BinaryLetCoerceOperatorStaticSemantics.yml) for semantic disambiguation;
+- The introduction of an [explicit coercion operator](../api/RDCore.SDK.Semantics.Static.Operators.BinaryLetCoerceOperatorStaticSemantics.html) for semantic disambiguation;
 - The explicit addition of runtime semantics for a unary '+' operator;
 
 These additions do not *alter* the language - they *reveal* it.  
@@ -121,13 +121,5 @@ An abstract server application in the SDK should already handle these lifecycle 
 
 If an extension _successfully_ registers **any** capability, its process continues to run and may handle a reduced set of LSP requests and notifications; otherwise the _environment host_ requests the termination of the extension server process.
 
+> ⏮️ [**RD-VBAL §1.0** Introduction](./rd-vbal.1.0.introduction.html) | ⏭️ [**RD-VBAL §2.0** Computational Environment](./rd-vbal.2.0.computational-environment.html)  
 
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>

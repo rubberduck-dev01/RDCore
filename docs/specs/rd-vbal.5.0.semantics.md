@@ -4,47 +4,47 @@
 
 The role of _static semantics_ is to determine a _declared type_ for a given _bound expression_, given the determined static _declared type_ of its inputs.
 
-Static semantics always yield a [StaticSemanticsEvaluationResult](../_site/api/RDCore.SDK.Semantics.Static.Abstract.StaticSemanticsEvaluationResult.html) that represents either:
-- a `Success` result encapsulating a [VBType](../_site/api/RDCore.SDK.Model.Types.Abstract.VBType.html);
-- an `Error` result encapsulating a [VBCompileErrorInfo](../_site/api/RDCore.SDK.Model.Errors.VBCompileErrorInfo.html).
+Static semantics always yield a [StaticSemanticsEvaluationResult](../api/RDCore.SDK.Semantics.Static.Abstract.StaticSemanticsEvaluationResult.html) that represents either:
+- a `Success` result encapsulating a [VBType](../api/RDCore.SDK.Model.Types.Abstract.VBType.html);
+- an `Error` result encapsulating a [VBCompileErrorInfo](../api/RDCore.SDK.Model.Errors.VBCompileErrorInfo.html).
 
-> 👉 In most error cases, the compile-time error metadata returned is for a [TypeMismatch](../_site/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html#TypeMismatch) error.
+> 👉 In most error cases, the compile-time error metadata returned is for a [TypeMismatch](../api/RDCore.SDK.Model.Errors.VBCompileErrorId.html#TypeMismatch) error.
 
-> ✅ Static semantics are currently DONE for all operators
-> ✅ Static semantics are currently DONE for all let-coercions
-> 🎯 Static semantics are currently TODO for all statements
+> ✅ Static semantics are currently DONE for all operators  
+> ✅ Static semantics are currently DONE for all let-coercions  
+> 🎯 Static semantics are currently TODO for all statements  
 
 
 ## 5.0.2 Runtime Semantics
 
 The role of _runtime semantics_ depends on the type of node being evaluated:
 - _Directives_ and _literal_ or _constant expressions_ evaluate to their static / compile-time value;
-- _Operators_ evaluate a [VBTypedValue](../_site/api/RDCore.SDK.Model.Values.Abstract.VBTypedValue.html) from their _operands_;
+- _Operators_ evaluate a [VBTypedValue](../api/RDCore.SDK.Model.Values.Abstract.VBTypedValue.html) from their _operands_;
 - _Statements_ induce _side-effects_ to _program_, _global_, or _host environment_ state.
 
 
 ### 5.0.2.1 Operator Evaluation
-> ℹ️ This section describes the implementation of **MS-VBAL§5.6.9.2** Simple Data Operators
+> ℹ️ This section describes the implementation of **MS-VBAL§5.6.9.2** Simple Data Operators  
 
 The _evaluation pipeline_ of all operators follows a clear sequence:
 1. The _effective type_ of the operation is determined, based on the _declared type_ of its _operands_;
-2. Validation: all non-[null](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBNullValue.html) _operands_ are let-coerced to the determined _effective type_ of the operation;
+2. Validation: all non-[null](../api/RDCore.SDK.Model.Values.Intrinsic.VBNullValue.html) _operands_ are let-coerced to the determined _effective type_ of the operation;
 3. Evaluation: a templated method evaluates a result, having the _execution context_ and the validated _operands_ to work with.
 
-The sequence may be aborted at any point to return an _error result_ that encapsulates [VBRuntimeErrorInfo](../_site/api/RDCore.SDK.Model.Errors.VBRuntimeErrorInfo.html) error metadata.
+The sequence may be aborted at any point to return an _error result_ that encapsulates [VBRuntimeErrorInfo](../api/RDCore.SDK.Model.Errors.VBRuntimeErrorInfo.html) error metadata.
 
 
 ## 5.0.3 Semantic Analysis
 
 The _analysis pipeline_ of all operators follows a clear sequence:
 1. The _effective type_ of the operation is determined, based on the _declared type_ of its _operands_ and invoking the same methods as runtime semantics;
-2. Validation: all non-[null](../_site/api/RDCore.SDK.Model.Values.Intrinsic.VBNullValue.html) _operands_ are let-coerced to the determined _effective type_ of the operation, using the same runtime semantics let-coercion provider as the evaluation pipeline;
+2. Validation: all non-[null](../api/RDCore.SDK.Model.Values.Intrinsic.VBNullValue.html) _operands_ are let-coerced to the determined _effective type_ of the operation, using the same runtime semantics let-coercion provider as the evaluation pipeline;
 3. Semantic evaluation: a templated method evaluates a _semantic result_, having the _execution context_ and the validated _operands_ to work with **but without inducing any side-effects**.
 
-The `Analyze` method then yields a [_builder_](../_site/api/RDCore.SDK.Semantics.Builders.ISemanticContextContributor-2.html) that builds a _semantic context_ for this specific _expression node_ that includes the results of each evaluation step:
-- A [DetermineOperatorEffectiveTypeResult](../_site/api/RDCore.SDK.Runtime.Shared.DetermineOperatorEffectiveTypeResult.html) encapsulating the result of the first step;
-- A [LetCoercionAnalysisContext](../_site/api/RDCore.SDK.Semantics.Analysis.LetCoercionAnalysisContext.html) encapsulating the aggregated evaluation stack and outcome of all let-coercion operations, with their respective _semantic flags_;
-- A [RuntimeSemanticsEvaluationResult](../_site/api/RDCore.SDK.Runtime.Shared.RuntimeSemanticsEvaluationResult.html) encapsulating the result of the operation.
+The `Analyze` method then yields a [_builder_](../api/RDCore.SDK.Semantics.Builders.ISemanticContextContributor-2.html) that builds a _semantic context_ for this specific _expression node_ that includes the results of each evaluation step:
+- A [DetermineOperatorEffectiveTypeResult](../api/RDCore.SDK.Runtime.Shared.DetermineOperatorEffectiveTypeResult.html) encapsulating the result of the first step;
+- A [LetCoercionAnalysisContext](../api/RDCore.SDK.Semantics.Analysis.LetCoercionAnalysisContext.html) encapsulating the aggregated evaluation stack and outcome of all let-coercion operations, with their respective _semantic flags_;
+- A [RuntimeSemanticsEvaluationResult](../api/RDCore.SDK.Runtime.Shared.RuntimeSemanticsEvaluationResult.html) encapsulating the result of the operation.
 
 > 👉 The role of the `Analyze` method at this level is simply to report the _semantic facts_ of an operation, that usually cannot be inferred from the operands or _effective type_ alone. **These flags are pure _facts_, not _opinions_**.
 
@@ -54,22 +54,14 @@ The `Analyze` method then yields a [_builder_](../_site/api/RDCore.SDK.Semantics
 
 **RDCore** implements the MS-VBAL type coercion rules _verbatim_ through _pattern-matching_ against its type system.
 
-> ✅ Runtime semantics are currently DONE for all operators
-> 🚧 Runtime semantics are currently IN PROGRESS for let-coercions
-> 🎯 Runtime semantics are currently TODO for all statements
-> 🎯 Runtime semantics are currently TODO for the standard library
-> 🚧 Evaluation pipeline is currently IN PROGRESS
-> 🚧 Analysis pipeline is currently IN PROGRESS
-> 🚧 Execution pipeline is currently IN PROGRESS
+> ✅ Runtime semantics are currently DONE for all operators  
+> 🚧 Runtime semantics are currently IN PROGRESS for let-coercions  
+> 🎯 Runtime semantics are currently TODO for all statements  
+> 🎯 Runtime semantics are currently TODO for the standard library  
+> 🚧 Evaluation pipeline is currently IN PROGRESS  
+> 🚧 Analysis pipeline is currently IN PROGRESS  
+> 🚧 Execution pipeline is currently IN PROGRESS  
 
 
----
- V I V A T 🩷 C U C U M I S ™  
-
----
-
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="../images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/></small>
-</p>
+> ⏮️ [**RD-VBAL §4.0** Program Structure](./rd-vbal.4.0.program-structure.html) | ⏭️ [**RD-VBAL §6.0** Standard Library](./rd-vbal.6.0.standard-library.html)
 
