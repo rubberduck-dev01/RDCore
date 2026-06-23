@@ -1,7 +1,7 @@
 # Démarrage
 > ℹ️ Cette documentation peut être incomplète en ce moment.
 
-\[[EN](./getting-started.html)\] | \[[FR](./getting-started.fr.md)\]
+\[[EN](./getting-started.html)\] | \[[FR](./getting-started.fr.html)\]
 
 Il suffit de quelques lignes dans votre point d'entrée pour que votre application **RDCore** soit prise en charge :
 

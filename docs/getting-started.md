@@ -1,7 +1,7 @@
 # Getting Started
 > ℹ️ This documentation may be incomplete at this time.
 
-[EN] | \[[FR](./getting-started.html)\]
+\[[EN](./getting-started.html)\] | \[[FR](./getting-started.fr.html)\]
 
 It only takes a few lines in your entry point to make your application a RDCore app:
 

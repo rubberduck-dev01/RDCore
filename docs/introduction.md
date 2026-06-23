@@ -1,6 +1,6 @@
 # Introduction
 
-\[[EN](./introduction.md)\] | \[[FR](./introduction.fr.html)\]
+\[[EN](./introduction.html)\] | \[[FR](./introduction.fr.html)\]
 
 **RDCore™** is an **open-source project** engineered and maintained by a private company, aiming to build a modern language platform for _Visual Basic for Applications_ (VBA).  
 It ultimately provides a complete semantic model, runtime infrastructure, and extensible tooling surface to analyze, execute, and evolve VBA code **outside of its historical environment**.
