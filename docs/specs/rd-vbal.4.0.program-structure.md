@@ -48,7 +48,7 @@ As far as _Microsoft Office Automation_ is concerned, this _attach to host proce
 
 ### 4.0.4 VBIDE Synchronization
 
-🎯 The **RDCore** tooling shall ultimately include a _lightweight VBIDE add-in_ responsible for:
+🎯 The **RDCore** platform tooling shall ultimately include a _lightweight VBIDE add-in_ responsible for:
 - Exporting a **MS-VBA** _source project_ to a **RD-VBA** _workspace folder_;
 - Importing a **RD-VBA** _workspace folder_ into a **MS-VBA** _source project_;
 - Launching a **RD-VBA** _environment host_ attached to a specified _host process ID_.

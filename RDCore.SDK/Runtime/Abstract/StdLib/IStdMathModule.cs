@@ -9,8 +9,7 @@ namespace RDCore.SDK.Runtime.Abstract.StdLib;
 /// <strong>MS-VBAL 6.1.2.10 Math Module</strong>
 /// </summary>
 /// <remarks>
-/// Formalizes the public interface of the standard library <c>VBA.Math</c> module.<br/>
-/// ℹ️ <strong>This interface is currently incomplete.</strong>
+/// Formalizes the public interface of the standard library <c>VBA.Math</c> module.
 /// </remarks>
 public interface IStdMathModule
 {
