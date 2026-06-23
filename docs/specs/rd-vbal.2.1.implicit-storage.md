@@ -16,7 +16,7 @@ RD-VBA keeps backward compatibility by keeping an implementation backed by the _
 
 > 👉 Whether **any** _standard library_ calls implicate actual or simulated _Windows Registry_ reads is entirely **implementation-dependent** and may behave differently on different platforms. This remains entirely compliant with the relevant MS-VBAL sections as specified.
 
-> [!Important]
+> [!IMPORTANT]
 > The _host environment_ **may** expose configuration settings that can set the implicit storage of `GetAllSettings` and `GetSetting` to _workspace application settings_, making these functions work exactly as if they were invoking `GetAllJsonSettings` and `GetJsonSetting`, respectively.
 
 

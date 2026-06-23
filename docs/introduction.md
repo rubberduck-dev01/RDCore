@@ -33,7 +33,7 @@ RDCore is composed of:
 - **Hosts** (GPLv3) include a CLI client (rdc.exe), a LSP server, and other applications that orchestrate execution and interactions.
 
 
-## ✨ What RDCore could make possible
+## ✨ What RDCore Enables
 - **Analyze VBA code** at depths only _LSP analyzers_ can reach
 - **Execute** VBA code outside the VBIDE
 - **Build dev tools** via the _Language Server Protocol_ (LSP)

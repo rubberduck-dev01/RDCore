@@ -1,7 +1,5 @@
 # [RD-VBAL]: VBA Language Platform Specification
 ---
-> [!Note]
-> **RD-VBA** is an implementation of the MS-VBAL specification that is independent from its historical **MS-VBA** runtime host **RD-VBAL** is the name of the specification/documentation of the _language server platform_, which _includes_ the RD-VBA _language core_.  
 
 ## Table of Contents
 
@@ -23,6 +21,8 @@
 - 5. [Implicit Type Coercions](./rd-vbal.5.0.type-coercions.html)
 - 6. [Standard Library](./rd-vbal.6.0.standard-library.html)
 
+> [!NOTE]
+> **RD-VBA** is an implementation of the MS-VBAL specification that is independent from its historical **MS-VBA** runtime host **RD-VBAL** is the name of the specification/documentation of the _language server platform_, which _includes_ the RD-VBA _language core_.  
 
 ---
 
