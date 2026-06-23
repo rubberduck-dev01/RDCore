@@ -14,7 +14,7 @@ This repository contains different projects **under active development** produci
 
 This arrangement protects both the legacy and current contributors while enabling the future: **The RDCore runtime implementation shall remain open-source**.
 
-> 👉 We're building a solid _language core_ foundation here, but please note that at the moment the only deliverable is the [documentation site](https://rdcore-sdk.github.io).
+👉 We're building a solid _language core_ foundation here, but please note that at the moment the only deliverable is the [documentation site](https://rdcore-sdk.github.io).
 
 ---
 
@@ -39,7 +39,8 @@ This arrangement protects both the legacy and current contributors while enablin
 
 
 ## 📊 Project Status
-> ℹ️ This section is kept up to date as implementation progresses.
+> [!NOTE]
+> This section is kept up to date as implementation progresses.
 
 RDCore is currently in active **pre-alpha** development - the **only deliverable for now** consists of its **specification** and **documentation**. 
 - Core architecture: ✅ stable
@@ -60,7 +61,8 @@ The implementation of the platform's _language core_ is a **work in progress**. 
 - 👀 **makes implicit language behavior explicit**, exposing semantic rules, evaluation steps, call stacks, and error conditions as _observable facts_.
 
 ## Implementation Status
-> ℹ️ This section is kept up to date as implementation progresses.
+> [!NOTE]
+> This section is kept up to date as implementation progresses.
 
 - ✅ Static semantics IMPLEMENTED for all operators  
 - ✅ Static semantics IMPLEMENTED for all let-coercions  
@@ -75,9 +77,9 @@ The implementation of the platform's _language core_ is a **work in progress**. 
 ### Test Coverage
 - 🧪 OVERALL test coverage (rdcore.sdk.dll): 17.4 %blocks; **15.0 %lines** | ⚠️ BELOW TARGET (>70%)
 
-The current operator tests run the static semantics through a matrix of [VBIntrinsicType](./api/RDCore.SDK.Model.Types.Abstract.VBIntrinsicType.html) that exercises most if not all _specified_  input combinations:
+The current operator tests run the static semantics through a matrix of [VBIntrinsicType](https://rubberduck-vba.github.io/rdcore/api/RDCore.SDK.Model.Types.Abstract.VBIntrinsicType.html) that exercises most if not all _specified_  input combinations:
 
-![operator static semantics tests](./images/operator-static-semantic-tests.png)  
+![operator static semantics tests](./docs/images/operator-static-semantic-tests.png)  
 
 👉 Missing: tests for any _unspecified_ combinations (if any), and error conditions / type mismatch checks.
 

@@ -10,7 +10,8 @@ Ce référentiel contient différents projets **en phase de développement actif
 - **Tout le reste** est construit autour et sous licence **⚖️GPLv3**.
 
 Cet arrangement protège tant les contributeurs historiques qu'actuels, tout en protégeant son avenir : **l'implémentation du _runtime_ de RDCore demeurera open-source**.
-> 👉 Nous construisons ici une solide fondation pour le _coeur de langage_, mais veuillez noter qu'en ce moment le seul livrable est le [site de documentation](https://rubberduck-vba.github.io/rdcore).
+
+👉 Nous construisons ici une solide fondation pour le _coeur de langage_, mais veuillez noter qu'en ce moment le seul livrable est le [site de documentation](https://rubberduck-vba.github.io/rdcore).
 
 ---
 
@@ -34,7 +35,8 @@ Entre autres :
 
 
 ### 📊 Statut du projet
-> ℹ️ Cette section est tenue à jour à mesure que progresse l'implémentation.
+> [!NOTE]
+> Cette section est tenue à jour à mesure que progresse l'implémentation.
 
 RDCore est présentement en phase active de développement **pré-alpha** - le **seul livrable pour l'instant** consiste en sa **spécification** et sa **documentation**.  
 - Architecture: ✅ stable
@@ -55,7 +57,8 @@ L'implémentation du _coeur de langage_ de la plateforme est également un **pro
 
 
 ## État de l'implémentation
-> ℹ️ Cette section est tenue à jour à mesure que progresse l'implémentation.
+> [!NOTE]
+> Cette section est tenue à jour à mesure que progresse l'implémentation.
 
 - ✅ Sémantiques _statiques_ IMPLÉMENTÉES pour les opérateurs  
 - ✅ Sémantiques _statiques_ IMPLÉMENTÉES pour les _let-coercions_
@@ -70,21 +73,20 @@ L'implémentation du _coeur de langage_ de la plateforme est également un **pro
 ### Couverture de tests
 - 🧪 couverture TOTALE (rdcore.sdk.dll): 17.4 %blocs; **15.0 %lignes** | ⚠️ SOUS LA CIBLE (>70%)
 
-Des tests exercent les sémantiques statiques des opérateurs à travers une matrice de [VBIntrinsicType](./api/RDCore.SDK.Model.Types.Abstract.VBIntrinsicType.html) qui traversent la plupart (toutes?) des combinaisons _spécifiées_ d'intrants:
+Des tests exercent les sémantiques statiques des opérateurs à travers une matrice de [VBIntrinsicType](https://rubberduck-vba.github.io/rdcore/api/RDCore.SDK.Model.Types.Abstract.VBIntrinsicType.html) qui traversent la plupart (toutes?) des combinaisons _spécifiées_ d'intrants:
 
-![tests sémantiques statiques opérateurs](./images/operator-static-semantic-tests.png)  
+![tests sémantiques statiques opérateurs](./docs/images/operator-static-semantic-tests.png)  
 
 👉 Manquants: tests pour toutes combinaisons _non spécifiées_ (s'il y a lieu), et conditions d'erreur / validations des _type mismatch_.
 
 ---
- V I V A T 🩷 C U C U M I S ™  
  [Accueil](https://rubberduck-vba.github.io/rdcore/index.fr.html) | ℹ️[Introduction](https://rubberduck-vba.github.io/rdcore/introduction.fr.html) | 🧩[Démarrage](https://rubberduck-vba.github.io/rdcore/getting-started.html) | 🎯[RD-VBAL](https://rubberduck-vba.github.io/rdcore/specs/rd-vbal.html) | [SDK](https://rubberduck-vba.github.io/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
 
 ---
 
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="./assets/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/>
-<em>"Rubberduck" est utilisé pour fins de référence au projet open-source legacy <strong>utilisé publiquement ainsi depuis 2015</strong> et sans lien ni affiliation avec tout tiers détenteur d'une marque semblable dans quelque juridiction que ce soit. Le logo corporatif (logo contour bleu), "RDCore" et "VIVAT CUCUMIS" sont des marques de commerce revendiquées par 9562-7303 Québec inc. (en attente)
-</small>
+<hr/><h6 align='center'>V I V A T ❤️ C U C U M I S ™</h6><hr/>
+<p align='center'><img alt='Logo™ 9562-7303 Québec inc.' src='./assets/vector-ducky.svg' style='width:200px; align:center;' /></p>
+<br/>
+<p align='center' style='font-size:8pt;'>
+<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/><em>Seul, &quot;Rubberduck&quot; est utilisé pour fins de référence au projet open-source legacy <strong>utilisé publiquement ainsi depuis 2015</strong> et sans lien ni affiliation avec tout tiers détenteur d'une marque semblable dans quelque juridiction que ce soit.<br/>&quot;Rubberduck VBA&quot;, &quot;RDCore&quot; et &quot;VIVAT CUCUMIS&quot; sont des marques de commerce revendiquées par 9562-7303 Québec inc. (en attente); Toutes les marques appartiennent à leur détenteur respectif.<br/>RDCore n'est pas un produit de Microsoft et n'est pas affilié à Microsoft, ni directement, ni indirectement.<br/><br/>If used alone, <em>&quot;Rubberduck&quot; is used as a reference to the legacy open-source project <strong>the same way it has been used publicly since 2015</strong> and without any links or affiliation with any third-party trademark holders of a similar trademark in any jurdisdiction.<br/>&quot;Rubberduck VBA&quot;, &quot;RDCore&quot; and &quot;VIVAT CUCUMIS&quot; are trademarks claimed by 9562-7303 Québec inc. (pending). All trademarks belong to their respective owners.<br/>RDCore is not a Microsoft product and is not affiliated with Microsoft, directly or indirectly.</small>
 </p>
