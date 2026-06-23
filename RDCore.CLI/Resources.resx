@@ -187,4 +187,16 @@ Long Live the Cucumber (Latin)</comment>
   <data name="RDCore_SeeWebsiteForPlugins" xml:space="preserve">
     <value>See https://rubberduckvba.ca for additional plugins</value>
   </data>
+  <data name="Command_InvalidArgs" xml:space="preserve">
+    <value>The supplied arguments are invalid.</value>
+  </data>
+  <data name="Extension_DefaultDescription" xml:space="preserve">
+    <value>RDCore™ Extension</value>
+  </data>
+  <data name="DescribeExtension_AlreadyExists" xml:space="preserve">
+    <value>A manifest already exists for the specified extension.</value>
+  </data>
+  <data name="DescribeExtension_Title" xml:space="preserve">
+    <value>Describe Extension</value>
+  </data>
 </root>

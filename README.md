@@ -1,56 +1,72 @@
 # RDCore™
 
-[Anglais](./README.en.md)
+[EN](./README.en.md) | [FR]
 
 ### Avant de commencer.
 
-> Nouveau ici? Rubberduck a toujours été une initiative open-source.
-> **RDCore l'honore avec une formule Open-Core**. Voir [rubberduckvba.ca](https://rubberduckvba.ca) pour plus d'informations.
+> 👋 Nouveau ici? Rubberduck a toujours été une initiative open-source.
+> **RDCore l'honore avec une formule Open-Core**. Voir [rubberduckvba.ca](https://rubberduckvba.ca) pour plus de détails.
 
-Ce référentiel contient différents projets produisant différentes librairies et exécutables.
+Ce référentiel contient différents projets **en phase de développement actif** produisant différentes librairies et exécutables sous un modèle de licence relativement simple :
 
-**Tout code sous licence GPLv3 dépend de code sous licence MIT**, et jamais l'inverse; il y a une _barrière inter-processus_ claire entre les composantes.
+- **La librairie RDCore.SDK** est sous licence **⚖️MIT**;
+- **Tout le reste** est construit autour et sous licence **⚖️GPLv3**.
 
-- ⚖️ Les projets de RDCore sont **généralement** sous licence **GPLv3**
-- ⚖️ Les projets sous licence **GPLv3** sont protégés et _sauf sur autorisation explicite par écrit de **9562-7303 Québec inc.**_ (à travers un accord commercial), tout travail dérivatif doit être publié avec son code source sous licence GPLv3. Ces projets sont:
-  - **RDCore.Parsing**
-  - **RDCore.Runtime**
+Cet arrangement protège tant les contributeurs historiques qu'actuels, tout en protégeant son avenir : **l'implémentation du _runtime_ de RDCore demeurera open-source**.
 
-Cet arrangement protège tant les contributeurs historiques qu'actuels, en s'assurant que **l'implémentation du _parser_ et du _runtime_ de RDCore demeure dans les mains de sa communauté open-source**.
+> 👉 Nous construisons ici une solide fondation pour le _coeur de langage_, mais veuillez noter qu'en ce moment le seul livrable est le [site de documentation](https://rubberduck-vba.github.io/rdcore).
 
 ---
-## V I V A T 🩷 C U C U M I S ™
+
+## RDCore
+
+**RDCore**™ est une plateforme de _serveur de langage_ (LSP) dont les travaux d'implémentation sont **présentement en cours**. À la cible, les livrables de RDCore sont :
+
+- 🎯 **rdc.exe**: un _environnement hôte_ RD-VBA configurable et extensible, client LSP (CLI);
+- 🎯 **RDCore.LanguageServer.exe**: le serveur d'orchestration LSP de la plateforme;
+- 🎯 **RDCore.Parser.exe**: le _parser_ de la plateforme est une application serveur LSP satellite détenue et orchestrée par le serveur de langage principal;
+- 🎯 **RDCore.Diagnostics.exe**: une extension _core_ de la plateforme qui envoie les _diagnostics_ au serveur de langage principal de façon asynchrone;
+- 👉 **RDCore.Runtime.dll**: une librairie renfermant l'implémentation de toute la sémantique et mécanismes du run-time de RD-VBA, _incluant une implémentation de la librairie VBA standard_;
+- 🧩 **RDCore.SDK.dll**: une librairie exposant les abstractions de la plateforme RDCore et encapsulant les implémentations de base du _coeur de langage_ RD-VBA.
+
+
+### ✨Ce que RDCore rend envisageable
+- Analyse sémantique profonde de code VBA
+- Exécution de code VBA hors du VBIDE
+- Outillage langage via le protocole _Language Server_ (LSP)
+- Inspection du comportement à l'exécution, faits sémantiques 
+- Extension de la plateforme avec des analyseurs et plug-ins
+
+
+### 📊Statut du projet
+RDCore est présentement en phase active de développement - le seul livrable pour l'instant consiste en sa spécification et sa documentation.
+- Architecture: ✅ stable
+- SDK langage: ✅ largement défini
+- Runtime: 🚧 implémentation en cours
+- Librarie standard: 🚧 partiellement définie
+- Parser: 🚧 existe (tout juste)
+- Hôte CLI (rdc.exe): 🚧 existe (tout juste)
+- Contributions publiques: ❌ pas encore ouvertes
+
+
+## RD-VBA
+
+L'implémentation du _coeur de langage_ de la plateforme est également un **projet en cours de réalisation**. Ultimement, RD-VBA :
+
+- 🎯 **vise une stricte adhésion aux spécifications MS-VBAL**, assurant une compatibilité comportementale avec les sémantiques spécifiées existantes de VBA;
+- 🧩 **élève VBA en une plate-forme de langage moderne, extensible, et _entièrement open-source_**, séparant la _définition du langage_ de son _implémentation originale_ de 1993;
+- 👀 **rend explicite les comportements implicites du langage** en exposant les règles sémantiques, étapes d'évaluation, piles d'appels, et états d'erreur en tant que _faits observables_.
+
+
+---
+ V I V A T 🩷 C U C U M I S ™  
+ [Accueil](https://rubberduck-vba.github.io/rdcore) | ℹ️[Introduction](https://rubberduck-vba.github.io/rdcore/introduction.md) | 🧩[Démarrage](https://rubberduck-vba.github.io/rdcore/getting-started.md) | 🎯[RD-VBAL](https://rubberduck-vba.github.io/rdcore/specs/rd-vbal.md) | [SDK](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+
 ---
 
-## Projet
-
-Le référentiel est consistué d'un bouquet en développement actif de projets qui sont tous complémentaires : 
-
-- **RDCore.LanguageServer** (`RDCore.LanguageServer.exe`) est la composante responsable de la gestion de l'_espace de travail_, et les services en arrière-plan pour toutes les fonctionnalités IDE supportées par LSP 3.17, des listes de complétion aux refactorings.  
-  👉 L'implémentation de ce serveur constitue la pierre angulaire de la phase II (développement actif en mode Open-Core) du projet.
-
-- **RDCore.Diagnostics** (`RDCore.Diagnostics.exe`) est un serveur LSP _satellite_ détenu par une instance de **RDCore.LanguageServer**, responsable de l'analyse du contexte sémantique de tout ce qui lui passe sous la main.  
-  👉 Cette extension constitue la preuve de concept du modèle d'extensibilité, et son implémentation pendant la phase II du projet devrait voir les capacités de diagnostics de RDCore largement surpasser celles du projet _Rubberduck_ historique.
-
-- **RDCore.Parsing** (`RDCore.Parser.exe`) sera également un serveur LSP _satellite_ détenu par une instance de **RDCore.LanguageServer**, responsable de l'analyse du code source et de sa transformation en arborescence abstraite de syntaxe (AST), constitué de noeuds définis dans la librairie SDK.  
-  👉 L'implémentation de ce serveur essentiel était initialement prévue à la phase I, mais décale à la phase II.
-
-- **RDCore.Runtime** (`RDCore.Runtime.dll`), un serveur LSP _satellite_ détenu par une instance de **RDCore.LanguageServer**, détient les implémentations concrètes qui sont clées pour l'interprétation du code et la gestion de la mémoire applicative.  
-  👉 La licence GPLv3 de cette librairie est stratégique : l'accord de licence contributeurs (CLA) prévoit une clause de _dual-licensing_ qui permet spécifiquement à __9562-7303 Québec inc._ de publier cette librairie sous une licence propriétaire ou commerciale qui permettrait de charger cette librairie dans un processus sous licence MIT, sans briser GPLv3.
-
-- **RDCore.SDK** (`RDCore.SDK.dll`) sera à terme tout RD-VBA mis en boîte : cette librairie modélise, encapsule et expose l'entièreté du système de typage et les sémantiques statiques du langage dans une seule librairie, complètement documentée.
-  👉 Cette librairie est sous licence **MIT**
-
-- **RDCore.Tests** implémente la couverture de tests du SDK / _coeur de langage_.
-  👉 À terme, on vise une couverture entre 80%-90% pour les sémantiques
-
-
-- **RDCore.CLI** construit `rdc.exe`, une application console qui implémente un **client LSP** léger qui consomme le SDK.
-
-...et de librairies :
-
-
-Le terme _coeur de langage_ ("language core") réfère à un sous-ensemble d'espaces de noms dans la librairie SDK qui ensemble, définissent RD-VBA en tant que langage, le SDK en lui-même étant plus large que le seul coeur de langage. La librairie SDK définit également tout dont que n'importe quelle extension **RDCore** a besoin pour partir du bon pied et focuser sur ce qui l'intéresse.
-
-
-![RDCore solution projects](./assets/RDCore-solution.png)
+<p align="center">
+<img alt="Logo™ 9562-7303 Québec inc." src="./assets/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
+<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/>
+<em>"Rubberduck" est utilisé pour fins de référence au projet open-source legacy <strong>utilisé publiquement ainsi depuis 2015</strong> et sans lien ni affiliation avec tout tiers détenteur d'une marque semblable dans quelque juridiction que ce soit. "RDCore" et "VIVAT CUCUMIS" sont des marques de commerce revendiquées par 9562-7303 Québec inc. (en attente)
+</small>
+</p>

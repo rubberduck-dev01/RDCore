@@ -4,7 +4,10 @@ using RDCore.CLI.Themes.Model;
 
 namespace RDCore.CLI.App.Commands;
 
-internal record class ShowSplashCommand : CLICommand
+internal readonly record struct SplashArgs(
+    bool Show = true);
+
+internal record class ShowSplashCommand : CLICommand<SplashArgs>
 {
     private readonly IConsoleMessageWriter _writer = default!;
     private readonly IAppThemeService _themes;
@@ -14,8 +17,13 @@ internal record class ShowSplashCommand : CLICommand
         _themes = themes;
     }
 
-    public override void Execute()
+    public override void Execute(SplashArgs args)
     {
+        if (!args.Show)
+        {
+            return;
+        }
+
         var adjustedBackground = string.Join(Environment.NewLine, Resources.RDCoreSplash_Background
             .Split(Environment.NewLine)
             .Select(line => $"{new string(' ', 15)}{line}"));

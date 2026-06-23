@@ -1,8 +1,9 @@
-# Démarrage
+# Getting Started
+> ℹ️ This documentation may be incomplete at this time.
 
-##### ([English](./getting-started.en.md))
+\[[EN](./getting-started.html)\] | \[[FR](./getting-started.fr.html)\]
 
-Il suffit de quelques lignes dans votre point d'entrée pour que votre application soit prise en charge :
+It only takes a few lines in your entry point to make your application a RDCore app:
 
 ```csharp
 public class Program
@@ -15,9 +16,9 @@ public class Program
 }
 ```
 
-## Hôte
+## Host
 
-Avant de pouvoir écrire ces lignes, il faudra définir votre _hôte_ en héritant de `RDCoreLanguageClientHost` si vous construisez un _client_ :
+Before you can write these lines, you must define a _host_ by inheriting `RDCoreLanguageClientHost` if you're writing a _client_ :
 
 ```csharp
 internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsoleClientApp>()
@@ -34,7 +35,7 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 }
 ```
 
-...ou alors en héritant de `RDCoreLanguageServerHost` si vous construisez plutôt un _serveur_ :
+...or by inheriting `VBCoreLanguageServerHost` if you're building a _server_ app instead:
 
 ```csharp
 internal class CoreDiagnosticsAppHost() : RDCoreLanguageServerHost<CoreDiagnosticsApp>()
@@ -47,9 +48,9 @@ internal class CoreDiagnosticsAppHost() : RDCoreLanguageServerHost<CoreDiagnosti
 
 ## Application
 
-Dans les deux cas, le rôle de l'hôte est de fournir les services au `IServiceCollection` de sorte que l'application puisse être instanciée en lui injectant tous les services dont elle a besoin.
+In both cases, the role of the host is to supply services to the `IServiceCollection` such that the application can be instantiated with injected services.
 
-Ensuite pour un client on hérite l'application LSP de `RDCoreClientApp` :
+Then for a client you would inherit `RDCoreClientApp` :
 
 ```csharp
 internal class RDCoreConsoleClientApp(
@@ -83,9 +84,9 @@ internal class RDCoreConsoleClientApp(
 }
 ```
 
-...et pour un serveur on hérite l'application LSP de `RDCoreServerApp` :
+...and for a server app we instead inherit the LSP app from `RDCoreServerApp`:
 
-```
+```csharp
 internal class CoreDiagnosticsApp : RDCoreServerApp
 {
     public CoreDiagnosticsApp(
@@ -114,25 +115,20 @@ internal class CoreDiagnosticsApp : RDCoreServerApp
 }
 ```
 
-Dans tous les cas, le rôle de ce niveau d'abstraction est de configurer les _capacités_ (LSP) de l'application et les _handlers_ pour la prise en charge de requêtes et notifications LSP.
+In any case, the role of this abstraction layer is to configure the _capabilities_ (LSP) of the application, along with the _handlers_ that will be handling the LSP requests and notifications.
 
+## Client or Server?
 
-## Client ou Serveur?
-
-- Une application _client_ est généralement une application de type IDE.
-- Une application _serveur_ peut être un serveur de langage satellite ou une extension (plug-in) de la plateforme.
+- A _client_ application is typically an IDE application.
+- A _server_ application could be a satellite language server, or a platform extension (plug-in).
 - 🌐[LSP 3.17 Specifications](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/)
 
----
-V I V A T 🩷 C U C U M I S ™  
-[Accueil](./index.md) | ℹ️[Introduction](./introduction.md) | 🔍[Documentation](/api) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+
+> 🧩 **RDCore Platform Extensions** need a _manifest_ to enable their _discovery_ by the _environment host_; the schema of this manifest is defined by [ExtensionInfo](./api/RDCore.SDK.Extensibility.ExtensionInfo.html); the _environment host_ may provide developer tooling to facilitate the creation of an extension manifest for a given extension.
+
+
 
 ---
+ [Home](./index.html) | ℹ️[Introduction](./introduction.html) | [RD-VBAL](./specs/rd-vbal.html) | [Documentation](/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
 
-<p align="center">
-<img alt="Logo™ 9562-7303 Québec inc." src="images/vector-ducky.svg" style="width:200px; margin-top:72px;" /><br/>
-<small>© Copyright <strong>9562-7303 Québec inc.</strong> (2026)<br/>
-<em>"Rubberduck" est utilisé pour fins de référence au projet open-source legacy <strong>utilisé publiquement ainsi depuis 2015</strong> et sans lien ni affiliation avec tout tiers détenteur d'une marque semblable dans quelque juridiction que ce soit. "RDCore" et "VIVAT CUCUMIS" sont des marques de commerce revendiquées par 9562-7303 Québec inc. (en attente)<br/>
-"Rubberduck" is used as a reference to the legacy open-source project <strong>the same way it has been used publicly since 2015</strong> and without any links or affiliation with any third-party trademark holders of a similar trademark in any jurdisdiction. "RDCore" and "VIVAT CUCUMIS" are trademarks claimed by 9562-7303 Québec inc. (pending)
-</small>
-</p>
+---
