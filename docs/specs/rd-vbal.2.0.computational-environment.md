@@ -23,11 +23,12 @@ A **RD-VBA** _environment host_ may configure language-level _restrictions_ or _
 - `VB6` largely refers to the same language definition, without the restrictions around attribute semantics and with a limited set of additional semantics;
 - `VBX` refers to _extended RD-VBA_; an _environment host_ that signals support for this language code may support semantics that would be _illegal_ in **VB6** or **VBA**;
 - `VBS` refers to a _diminished_ language specification that removes `Option Explicit` and _declared types_, forcing the use of _duck-typing_ using implicit `Variant` declarations;
-- `BASIC` refers to a _diminished_ language specification that removes _procedure scopes_, forcing the use of `REM` for comments (this makes _annotations_ unavailable), _line numbers_, and `GoSub`/`Return` control flow; `Do...Loop` and `Do...While` constructs are undefined, forcing the use of `While...Wend` constructs.
+- `BASIC` refers to a _diminished_ language specification that removes _procedure scopes_, forcing the use of `REM` for comments (this makes _annotations_ unavailable), _line numbers_ and `GoSub`/`Return` for control flow; `Do...Loop` and `Do...While` constructs are undefined, forcing the use of `While...Wend` constructs; etc.
 
 This list is _prioritized_ but not intended to be exhaustive; additional _dialects_ may be supported by different **RD-VBA** _hosts_.
 
-> 🎯 The scope of the **RDCore** _language core_ implementation minimally covers **VBA**, then **VB6**, then **VBX**, and so on.
+> 🎯 The _scope_ of the **RDCore SDK** minimally covers **VBA**, _then_ **VB6**, _then_ **VBX**, and so on.  
+> 👉 The LSP paradigm shift _alone_ brings RD-VBA much closer to how VB6 works already;   
 
 
 ## In this section

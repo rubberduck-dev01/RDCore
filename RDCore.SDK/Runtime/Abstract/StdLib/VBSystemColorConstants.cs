@@ -1,6 +1,4 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-
-namespace RDCore.SDK.Runtime.Abstract.StdLib;
+﻿namespace RDCore.SDK.Runtime.Abstract.StdLib;
 
 /// <summary>
 /// <strong>MS-VBAL 6.1.2.12 SystemColorConstants</strong>

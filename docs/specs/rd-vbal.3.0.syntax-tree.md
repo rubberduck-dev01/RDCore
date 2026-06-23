@@ -116,52 +116,27 @@ The node types _directly_ derived from `BoundNode` are as follows:
 - [BoundExpression](../_site/api/RDCore.SDK.Model.AST.Abstract.BoundExpression.html)
 - [BoundStatement](../_site/api/RDCore.SDK.Model.AST.Abstract.BoundStatement.html)
 
-#### Directives
 
-_Directives_ are **non-executable statements** that influence the semantics of the module they're located in. 
+## 3.0.3 Binding Contexts
 
-These include `Option` statements:
+**MS-VBAL§5.6.4** breaks down _expression binding contexts_ (for resolving _name lookups_) as follows:
+- _Default binding context_ used by most expressions;
+- _Type binding context_ used by expressions that expect to reference a _type_ or _class name_;
+- _Procedure pointer binding context_ used by expressions that expect to return a _pointer to a procedure_;
+- _Conditional compilation binding context_ used by expressions within _conditional compilation_ statements.
 
-|Directive|Description
-|---|---|
-|`Option Explicit`|Implicit declarations become compile-time errors|
-|`Option Base`|Determines the base (0 or 1) of implicitly-sized arrays|
-|`Option Private Module`|Determines the _accessibility_ of a module|
-|`Option Strict`|RD-VBA _language core_ extension making _implicit late-binding_ compile-time errors|
-
-Directives also include `Def<Type>` _implicit definition_ statements:
-
-|Directive|Description
-|---|---|
-|`DefBool`|Configures implicit definitions for [VBBooleanType](../_site/api/RDCore.SDK.Model.Types.VBBooleanType.html)|
-|`DefByte`|Configures implicit definitions for [VBByteType](../_site/api/RDCore.SDK.Model.Types.VBByteType.html)|
-|`DefInt`|Configures implicit definitions for [VBIntegerType](../_site/api/RDCore.SDK.Model.Types.VBIntegerType.html)|
-|`DefLng`|Configures implicit definitions for [VBLongType](../_site/api/RDCore.SDK.Model.Types.VBLongType.html)|
-|`DefLngLng`|Configures implicit definitions for [VBLongLongType](../_site/api/RDCore.SDK.Model.Types.VBLongLongType.html) in 64-bit environments|
-|`DefLngPtr`|Configures implicit definitions for [VBLongPtrType_x86](../_site/api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html) (32-bit) or [VBLongPtrType_x86](../_site/api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html) (64-bit)|
-|`DefCur`|Configures implicit definitions for [VBCurrencyType](../_site/api/RDCore.SDK.Model.Types.VBCurrencyType.html)|
-|`DefSng`|Configures implicit definitions for [VBSingleType](../_site/api/RDCore.SDK.Model.Types.VBSingleType.html)|
-|`DefDbl`|Configures implicit definitions for [VBDoubleType](../_site/api/RDCore.SDK.Model.Types.VBDoubleType.html)|
-|`DefDate`|Configures implicit definitions for [VBDateType](../_site/api/RDCore.SDK.Model.Types.VBDateType.html)|
-|`DefStr`|Configures implicit definitions for [VBStringType](../_site/api/RDCore.SDK.Model.Types.VBStringType.html)|
-|`DefObj`|Configures implicit definitions for [VBObjectType](../_site/api/RDCore.SDK.Model.Types.VBObjectType.html)|
-|`DefVar`|Configures implicit definitions for [VBVariantType](../_site/api/RDCore.SDK.Model.Types.VBVariantType.html)|
-
-Other directives include `Implements` and `Attribute` statements:
-
-|Directive|Description
-|---|---|
-|`Implements`|Specifies that the (class) module _implements_ an _interface class_.|
-|`Attribute`|Specifies flags and modifiers that alter the semantics of a module or member.|
+The **RDCore** interpretation is reflected in its modelization as follows:
+- 🎯 _name lookups_ become an _explicit evaluation step_ involving specific AST nodes such as `VBSimpleNameExpression`;
+- 🎯 Evaluation returns an [_evaluation result record_](../_site/api/RDCore.SDK.Runtime.Shared.RuntimeSemanticsEvaluationResult.html) describing and encapsulating the result, or runtime error metadata.
 
 
 ## In this section
 
-- [**RD-VBAL 3.1** Attributes and Directives](./rd-vbal.3.1.attributes-directives.md)
-- [**RD-VBAL 3.2** Literals](./rd-vbal.3.2.literals.md)
-- [**RD-VBAL 3.3** Operators](./rd-vbal.3.3.0.operators.md)
-- [**RD-VBAL 3.4** Statements](./rd-vbal.3.4.0.statements.md)
-- [**RD-VBAL 3.5** Instructions](./rd-vbal.3.5.0.instructions.md)
+- [**RD-VBAL§3.1** Attributes and Directives](./rd-vbal.3.1.attributes-directives.md)
+- [**RD-VBAL§3.2** Literals](./rd-vbal.3.2.literals.md)
+- [**RD-VBAL§3.3** Operators](./rd-vbal.3.3.0.operators.md)
+- [**RD-VBAL§3.4** Statements](./rd-vbal.3.4.0.statements.md)
+- [**RD-VBAL§3.5** Instructions](./rd-vbal.3.5.0.instructions.md)
 
 
 ---

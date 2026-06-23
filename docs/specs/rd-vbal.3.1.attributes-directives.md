@@ -130,7 +130,7 @@ Determines whether the _environment host_ declares a global _auto-object_ instan
 
 This attribute holds a short _documentation string_ that IDE tooling can then use to supply helpful tooltips.
 
-> 👉 Surfacing attributes does not necessarily make `@Description` annotations obsolete, because showing and editing attributes may or may not be actually supported by the LSP client, although technically there's more code involved in _hiding_ them than in just leaving them alone.
+> 👉 Surfacing attributes does not necessarily make `@Description` annotations obsolete, because hiding `Attribute` directives may or may not be a capability that is supported by a LSP client.
 
 
 

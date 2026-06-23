@@ -6,14 +6,23 @@
 
 ## Table of Contents
 
-### 1.0 [Introduction](./rd-vbal.1.introduction.md)
-#### 1.1 [Philosophy](rd-vbal.1.1.philosophy.md)
-### 2.0 [RD-VBA Computational Environment](./rd-vbal.2.computational-environment.md)
-#### 2.1. [Implicit Storage](./rd-vbal.2.1.implicit-storage.md)
-#### 2.2. [Project Structure](./rd-vbal.2.2.rdproj-structure.md)
-#### 2.3. [Application Host](./rd-vbal.2.3.application-host.md)
-#### 2.4. [Static Types](./rd-vbal.2.4.static-types.md)
-#### 2.5. [Runtime Values](./rd-vbal.2.5.runtime-values.md)
+- 1. [Introduction](./rd-vbal.1.introduction.md)
+  - 1.1. [Philosophy](rd-vbal.1.1.philosophy.md)
+- 2. [RD-VBA Computational Environment](./rd-vbal.2.computational-environment.md)
+  - 2.1. [Implicit Storage](./rd-vbal.2.1.implicit-storage.md)
+  - 2.2. [Project Structure](./rd-vbal.2.2.rdproj-structure.md)
+  - 2.3. [Application Host](./rd-vbal.2.3.application-host.md)
+  - 2.4. [Static Types](./rd-vbal.2.4.static-types.md)
+  - 2.5. [Runtime Values](./rd-vbal.2.5.runtime-values.md)
+- 3. [Abstract Syntax Tree](./rd-vbal.3.0.syntax-tree.md)
+  - 3.1. [Directives and Attributes](./rd-vbal.3.1.attributes-directives.md)
+  - 3.2. [Literal Expressions](./rd-vbal.3.2.literals.md)
+  - 3.3. [Operators](./rd-vbal.3.3.0.operators.md)
+  - 3.4. [Statements](./rd-vbal.3.4.0.statements.md)
+  - 3.5. [Instructions](./rd-vbal.3.5.0.instructions.md)
+- 4. [Program Structure](./rd-vbal.4.0.program-structure.md)
+- 5. [Implicit Type Coercions](./rd-vbal.5.0.type-coercions.md)
+- 6. [Standard Library](./rd-vbal.6.0.standard-library.md)
 
 ---
 
