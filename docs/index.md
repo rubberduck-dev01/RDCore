@@ -32,7 +32,7 @@
 - 🎯 **Integral implementation** of the MS-VBAL specification (work in progress)
 - 🎯 Implement an **independent runtime library** that brings the language to life completely without MS-VBA (work in progress)
 - 🎯 Publish an official **RD-VBA specification** (work in progress)
-- 🎯 Implementat a _Language Server ecosystem_ (LSP) and **analytics platform** for RD-VBA (work in progress)
+- 🎯 Implement a _Language Server ecosystem_ (LSP) and **analytics platform** for RD-VBA (work in progress)
 
 ## Documentation
 
@@ -43,6 +43,6 @@ Except the SDK specifications (RD-VBAL), all content that is not generated direc
 Happy reading!
 
 ---
- ℹ️[Introduction](./introduction.html) | 🧩[Getting Started](./getting-started.html) | 🎯[RD-VBAL](./specs/rd-vbal.html) | [SDK](/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) | 🌐[rubberduckvba.ca](https://rubberduckvba.ca)
+[ACCUEIL](./index.fr.md) • HOME | ℹ️ [BIENVENUE](introduction.fr.md) • [WELCOME](./introduction.html) | 🧩 [BÂTISSONS](getting-started.fr.md) • [BUILD](./getting-started.html) | [**RD-VBAL**](./specs/rd-vbal.html) | [SDK](/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) | 🌐 [rubberduckvba.ca](https://rubberduckvba.ca)
 
 ---
