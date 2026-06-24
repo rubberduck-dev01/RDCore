@@ -42,7 +42,7 @@ Examples of **invalid** _language core_ extensions include:
 - Building on MS-VBAL explicitly specifying every `Variant` input in the _standard library_ as _expressions to be evaluated_ to introduce _deferred execution semantics_ to the language (i.e. leveraging meta-types to introduce new semantics);
   - This would effectively make _functions_ a first-class RD-VBA _runtime entity_ that can be passed around as _values_ - this should not be done without a careful and thorough consideration of the implications on the rest of the semantic model.
 
-This however, does not make them invalid extensions in the _RDCore ecosystem_: each and every single one of these could be great [_platform-level_ extensions](#112-platform-extensions).
+This however, does not make them invalid extensions in the _RDCore ecosystem_: each and every single one of these could be great [_platform-level_ extensions](#111-platform-extensions).
 
 
 ### 1.1.3 Core Semantic Flags

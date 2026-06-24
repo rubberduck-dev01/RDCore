@@ -8,7 +8,7 @@ Static semantics always yield a [StaticSemanticsEvaluationResult](../api/RDCore.
 - a `Success` result encapsulating a [VBType](../api/RDCore.SDK.Model.Types.Abstract.VBType.html);
 - an `Error` result encapsulating a [VBCompileErrorInfo](../api/RDCore.SDK.Model.Errors.VBCompileErrorInfo.html).
 
-> 👉 In most error cases, the compile-time error metadata returned is for a [TypeMismatch](../api/RDCore.SDK.Model.Errors.VBCompileErrorId.html#TypeMismatch) error.
+> 👉 In most error cases, the compile-time error metadata returned is for a [TypeMismatch](../api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) error.
 
 
 ## 5.0.2 Runtime Semantics
