@@ -25,5 +25,5 @@ It would be aligned with the specification to implement this "expression" not as
 > In other words, we can get this one "for free" by having the runtime inject an implicit `Me` (`ByVal`) parameter to all _instance member calls_, pointed at the _current object_.
 
 
-> ⏮️ [**RD-VBAL §3.1** Attributes and Directives](./rd-vbal.3.2.attributes-directives.html) | ⏭️ [**RD-VBAL §3.3** Operators](./rd-vbal.3.3.operators.html)
+> ⏮️ [**RD-VBAL §3.1** Attributes and Directives](rd-vbal.3.2.attributes-directives.html) | ⏭️ [**RD-VBAL §3.3** Operators](rd-vbal.3.3.operators.html)
 

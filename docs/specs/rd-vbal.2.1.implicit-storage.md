@@ -35,5 +35,5 @@ The _application host_ (`rdc.exe`) is responsible for binding the configuration 
 > This feature has the full power and flexibility of a .NET managed `IConfigurationBuilder` underneath: future extensions could harmonize configuration settings and environment variables, fully deprecating the corresponding legacy APIs as _obsolete_ (_semantic flags_ can then be issued at usage sites, with _code actions_ to update the workspace source code).
 
 
-> ⏮️ [**RD-VBAL §2.0** Computational Environment](./rd-vbal.2.0.computational-environment.html) | ⏭️ [**RD-VBAL §2.2** RDPROJ Structure](./rd-vbal.2.2.rdproj-structure.html)
+> ⏮️ [**RD-VBAL §2.0** Computational Environment](rd-vbal.2.0.computational-environment.html) | ⏭️ [**RD-VBAL §2.2** RDPROJ Structure](rd-vbal.2.2.rdproj-structure.html)
 

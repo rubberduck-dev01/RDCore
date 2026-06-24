@@ -306,5 +306,5 @@ All of the above define a deferred `ByVal` parameter that is _passed by value_; 
 - Given any number of `VBArrayValue` or any mixed-bag heterogenous call site arguments, the data type is `Variant`. This case may not be materializable and should issue _semantic flags_ as appropriate to signal it to any listening language-level extensions.
 
 
-> ⏮️ [**RD-VBAL §2.3** Application Host](./rd-vbal.2.3.application-host.html) | ⏭️ [**RD-VBAL§2.5** Runtime Values](./rd-vbal.2.5.runtime-values.html)
+> ⏮️ [**RD-VBAL §2.3** Application Host](rd-vbal.2.3.application-host.html) | ⏭️ [**RD-VBAL§2.5** Runtime Values](rd-vbal.2.5.runtime-values.html)
 

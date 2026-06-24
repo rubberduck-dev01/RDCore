@@ -58,6 +58,4 @@ The `Analyze` method then yields a [_builder_](../api/RDCore.SDK.Semantics.Build
 **RDCore** implements the MS-VBAL type coercion rules _verbatim_ through _pattern-matching_ against its type system.
 
 
-
-> ⏮️ [**RD-VBAL §4.0** Program Structure](./rd-vbal.4.0.program-structure.html) | ⏭️ [**RD-VBAL §6.0** Standard Library](./rd-vbal.6.0.standard-library.html)
-
+> ⏮️ [**RD-VBAL §4.0** Program Structure](rd-vbal.4.0.program-structure.html) | ⏭️ [**RD-VBAL §6.0** Standard Library](rd-vbal.6.0.standard-library.html)

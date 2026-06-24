@@ -25,7 +25,7 @@ The implementation of the platform's _language core_ is a **work in progress**. 
 ---
 
 ## In this section
-- [**RD-VBAL§1.1** Philosophy](./rd-vbal.1.1.philosophy.html)
+- [**RD-VBAL§1.1** Philosophy](rd-vbal.1.1.philosophy.html)
 
-> ⏭️ [**RD-VBAL §2.0** Computational Environment](./rd-vbal.2.0.computational-environment.html)  
+> ⏭️ [**RD-VBAL §2.0** Computational Environment](rd-vbal.2.0.computational-environment.html)  
 
