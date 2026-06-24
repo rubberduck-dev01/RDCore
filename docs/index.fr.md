@@ -38,7 +38,7 @@
 
 La documentation de la section **SDK** de ce site est générée à partir des commentaires (xmldoc) directement dans le code source, et n'est donc **disponible qu'en anglais** afin d'en maximiser la portée et d'en réduire l'importante empreinte.
 
-À l'exception de la spécification du SDK (RD-VBAL), tout le contenu non directement issu du code source est toutefois disponible en français.
+À l'exception de la spécification/documentation de la plateforme de langage et de son SDK (**RD-VBAL**), tout contenu non directement issu du code source est disponible en français.
 
 Bonne lecture!
 
