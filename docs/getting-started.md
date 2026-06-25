@@ -1,5 +1,5 @@
 # Let's Build RDCore 
-<sup>\[EN\] • \[[FR](getting-started.fr.html)\] | _Ce document est disponible en français_</sup>
+<sup>_Ce document est disponible en [français](getting-started.fr.html)_</sup>
 
 > [!IMPORTANT]
 > ❌ External contributions are **presently closed**.  

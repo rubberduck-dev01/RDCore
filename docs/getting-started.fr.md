@@ -1,5 +1,5 @@
 # Bâtissons RDCore 
-<sup>\[[EN](getting-started.html)\] • \[FR\] | _This document is available in English_</sup>
+<sup>_This document is available in [English(getting-started.html)]_</sup>
 
 > [!IMPORTANT]
 > ❌ Les contributions externes sont **présentement fermées**.  
