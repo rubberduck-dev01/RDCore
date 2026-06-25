@@ -49,11 +49,10 @@ This section intends to exhaustively document all supported RDCore platform capa
 ---
 
 ## In this section
-- [**RD-VBAL §2.1** Implicit Storage](./rd-vbal.2.1.implicit-storage.html)
-- [**RD-VBAL §2.2** Project Structure](./rd-vbal.2.2.rdproj-structure.html)
-- [**RD-VBAL §2.3** Application Host](./rd-vbal.2.3.application-host.html)
-- [**RD-VBAL §2.4** Static Types](./rd-vbal.2.4.static-types.html)
-- [**RD-VBAL §2.5** Runtime Values](./rd-vbal.2.5.runtime-values.html)
+- [**RD-VBAL §2.1** Implicit Storage](rd-vbal.2.1.implicit-storage.html)
+- [**RD-VBAL §2.2** Project Structure](rd-vbal.2.2.rdproj-structure.html)
+- [**RD-VBAL §2.3** Application Host](rd-vbal.2.3.application-host.html)
+- [**RD-VBAL §2.4** Static Types](rd-vbal.2.4.static-types.html)
+- [**RD-VBAL §2.5** Runtime Values](rd-vbal.2.5.runtime-values.html)
 
-> ⏮️ [**RD-VBAL §1.0** Introduction](./rd-vbal.1.0.introduction.html) | ⏭️ [**RD-VBAL §3.0** Syntax Tree](./rd-vbal.3.0.syntax-tree.html)  
-
+> ⏮️ [**RD-VBAL §1.0** Introduction](rd-vbal.1.0.introduction.html) | ⏭️ [**RD-VBAL §3.0** Syntax Tree](rd-vbal.3.0.syntax-tree.html)  

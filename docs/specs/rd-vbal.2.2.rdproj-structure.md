@@ -179,5 +179,5 @@ Describes additional(non-source) files contained in a _workspace folder_ but not
 | Name | The _identifier name_ (token) used in workspace source code to reference this module. |
 
 
-> ⏮️ [**RD-VBAL§2.1** Computational Environment](./rd-vbal.2.1.implicit-storage.html) | ⏭️ [**RD-VBAL§2.3** Application Host](./rd-vbal.2.3.application-host.html)
+> ⏮️ [**RD-VBAL§2.1** Computational Environment](rd-vbal.2.1.implicit-storage.html) | ⏭️ [**RD-VBAL§2.3** Application Host](rd-vbal.2.3.application-host.html)
 

@@ -1,6 +1,5 @@
 # CONTRIBUER
-
-[FR] | [EN](#contributing)
+<sup>_[English version](#contributing) follows_</sup>
 
 👋 **Merci pour votre intérêt!** 
 
@@ -17,14 +16,14 @@
 Ce dernier point constituant en toute transparence **l'intérêt commercial** motivant la publication et la réalisation de ce projet.
 
 
-### Je voudrais contribuer, mais au nom de ma compagnie ou de mon employeur
+### Je voudrais contribuer, mais _au nom de ma compagnie ou de mon employeur_
 
 - ⏳ **Envisageable sans problème** dès la publication d'une _CLA Corporative_, dont la parution est prévue à cet effet en même temps que celle de la CLA personnelle.
 
 
 ### Du coup, pas de contributions d'_agents IA_?
 
-- ❌ **Exact. Aucune contribution** d'agents IA n'est acceptée dans _ce référentiel_.
+- ❌ **Exact. Aucune contribution** d'agents IA 🤖 n'est acceptée dans _ce référentiel_.
 
 L'usage d'outils de type _Copilot_ est toutefois **fortement encouragée** pour:
 
@@ -40,9 +39,8 @@ L'usage d'outils de type _Copilot_ est toutefois **fortement encouragée** pour:
 
 ---
 
-# CONTRIBUTING
-
-[FR](#contribuer) | [EN]
+# CONTRIBUTING 
+<sup>_[Version française](#contribuer) ci-haut_</sup>
 
 👋 **Thank you for your interest!** 
 
@@ -60,14 +58,14 @@ L'usage d'outils de type _Copilot_ est toutefois **fortement encouragée** pour:
 This last point transparently constituting the **commercial interest** motivating the publication and implementation of this project.
 
 
-### I would like to contribute, but in the name of my company or employer
+### I would like to contribute, but _in the name of my company or employer_
 
 - ⏳ **Will be possible**, under a slightly different _Corporate Contributor License Agreement_ (CLA) that should be published at the same time as the _personal CLA_ document.
 
 
 ### Wait so no _AI Agent_ contributions then?
 
-- ❌ **Exactly. No AI agent contribution** is accepted in _this repository_.
+- ❌ **Exactly. No AI agent contribution** 🤖 is accepted in _this repository_.
 
 The use of _Copilot_ type tools is however **warmly recommended** for:
 
@@ -83,7 +81,7 @@ The use of _Copilot_ type tools is however **warmly recommended** for:
 
 <hr/>
 <p align='left' style='margin-left: 32px;'>
-<a href='https://rubberduck-vba.github.io/rdcore/index.fr.html'>ACCUEIL</a> • <a href='https://rubberduck-vba.github.io/rdcore/index.html'>HOME</a>  | ℹ️ <a href='https://rubberduck-vba.github.io/rdcore/introduction.fr.html'>BIENVENUE</a> • <a href='https://rubberduck-vba.github.io/rdcore/introduction.html'>WELCOME</a>  | 🧩 <a href='https://rubberduck-vba.github.io/rdcore/getting-started.fr.html'>BÂTISSONS</a> • <a href='https://rubberduck-vba.github.io/rdcore/getting-started.html'>BUILD</a>  | <a href='https://rubberduck-vba.github.io/rdcore/specs/rd-vbal.html'><strong>RD-VBAL</strong></a>  |  <a href='https://rubberduck-vba.github.io/rdcore/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html'>SDK</a>  | 🌐 <a href='https://rubberduckvba.ca'>rubberduckvba.ca</a>
+<a href='https://rubberduck-vba.github.io/RDCore/index.fr.html'>ACCUEIL</a> • <a href='https://rubberduck-vba.github.io/RDCore/index.html'>HOME</a>  | ℹ️ <a href='https://rubberduck-vba.github.io/RDCore/introduction.fr.html'>BIENVENUE</a> • <a href='https://rubberduck-vba.github.io/RDCore/introduction.html'>WELCOME</a>  | 🧩 <a href='https://rubberduck-vba.github.io/RDCore/getting-started.fr.html'>BÂTISSONS</a> • <a href='https://rubberduck-vba.github.io/RDCore/getting-started.html'>BUILD</a>  | <a href='https://rubberduck-vba.github.io/RDCore/specs/rd-vbal.html'><strong>RD-VBAL</strong></a>  |  <a href='https://rubberduck-vba.github.io/RDCore/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html'>SDK</a>  | 🌐 <a href='https://rubberduckvba.ca'>rubberduckvba.ca</a>
 </p>
 <hr/>
 <p align='center'><img alt='Logo™ 9562-7303 Québec inc.' src='./assets/vector-ducky.svg' style='width:200px; align:center;' /></p>

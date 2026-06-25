@@ -61,7 +61,7 @@ An implementation of `IVirtualHeap` should:
 - Maintain an internal _memory map_ mapping a `VBTypedValue` to a _memory address_ (offset);
 - Maintain an internal _raw address map_ mapping a _memory address_ (offset) to a `Uri`.
 
-[ScopeKind](/api/RDCore.SDK.Model.Symbols.Abstract.ScopeKind.html) defines the _allocation scopes_.
+[ScopeKind](../api/RDCore.SDK.Model.Symbols.Abstract.ScopeKind.html) defines the _allocation scopes_.
 
 The _current memory address_ pointer should be incremented by a _host-defined_ `IntPtrSize` that represents the size of a pointer in the current environment (32 or 64 bits).
 
@@ -71,7 +71,7 @@ The correctly-scoped allocation of all symbols upon their definition should then
 3. If a name refers to a symbol defined in the _workspace heap_, then the resolved symbol is workspace-scoped;
 4. If a name refers to a symbol defined in the _global heap_, then the resolved symbol is globally-scoped.
 
-- If multiple symbols match a specified name before reaching the _global_ scope, then the name is ambiguous and an appropriate [compile-time error](/api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) should be issued, in this case **VBC009303** _Duplicate declaration_.
+- If multiple symbols match a specified name before reaching the _global_ scope, then the name is ambiguous and an appropriate [compile-time error](../api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) should be issued, in this case **VBC009303** _Duplicate declaration_.
 - If multiple symbols match a specified name within the _global_ scope, then the name is disambiguated using the _reference priority order_ of the _referenced library_ a matching symbol is defined in. This priotity is determined by the order in which project references appear in the `.rdproj` file of a _workspace folder_.
 
 > [!NOTE]
@@ -89,5 +89,5 @@ At any point in time, a _VBA host environment_ may be in either one of the follo
 > 👉 The exact behavior of the _host environment_ on error is _implementation-defined_: depending on the _workspace application_ configuration, a failing workspace application may terminate the host process with an _error code_, or enter _break mode_ and offer to _debug_ at that location.
 
 
-> ⏮️ [**RD-VBAL §2.2** RDPROJ Structure](./rd-vbal.2.2.rdproj-structu.html) | ⏭️ [**RD-VBAL §2.4** Static Types](./rd-vbal.2.4.static-types.html)
+> ⏮️ [**RD-VBAL §2.2** RDPROJ Structure](rd-vbal.2.2.rdproj-structure.html) | ⏭️ [**RD-VBAL §2.4** Static Types](rd-vbal.2.4.static-types.html)
 

@@ -1,4 +1,11 @@
 # 3.3.0 Operator Expressions
+> [!NOTE]
+> This section is incomplete at this time. Planned pages:
+>  - [**RD-VBAL §3.3.1** Unary Operators]<!-- (./rd-vbal.3.3.1.unary-operators.html) -->
+>  - [**RD-VBAL §3.3.2** Arithmetic Operators]<!--(./rd-vbal.3.3.2.arithmetic-operators.html)-->
+>  - [**RD-VBAL §3.3.3** Logical (Bitwise) Operators]<!--(./rd-vbal.3.3.3.logical-operators.html)-->
+>  - [**RD-VBAL §3.3.4** Relational (Comparison) Operators]<!--(./rd-vbal.3.3.4.relational-operators.html)--> 
+
 
 An _operator_ consists of a _bound expression node_ that yields a deterministic _result_ given one or more _operand_ inputs.
 
@@ -33,5 +40,5 @@ Each layer of this inheritance hierarchy refines its members with more specializ
 - [**RD-VBAL §3.3.4** Relational (Comparison) Operators](./rd-vbal.3.3.4.relational-operators.html) 
 -->
 
-> ⏮️ [**RD-VBAL §3.2** Literals](./rd-vbal.3.2.literals.html) | ⏭️ [**RD-VBAL §4.0** Program Structure](./rd-vbal.4.0.program-structure.html)
+> ⏮️ [**RD-VBAL §3.2** Literals](rd-vbal.3.2.0.literals.html) | ⏭️ [**RD-VBAL §4.0** Program Structure](rd-vbal.4.0.program-structure.html)
 

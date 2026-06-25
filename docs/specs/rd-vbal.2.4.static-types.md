@@ -19,22 +19,22 @@ All representations of a _data type_ inherit the `VBType` class, often indirectl
 In RD-VBA, a type is an _intrinsic type_ if MS-VBAL mentions it, irrespective of its specified semantics or modelization.
 
 The non-numeric _intrinsic types_ are:
-- [VBArrayType](../api/RDCore.SDK.Model.Types.VBArrayType.html);
-- [VBFixedSizeArrayType](../api/RDCore.SDK.Model.Types.VBFixedSizeArrayType.html);
-- [VBResizableArrayType](../api/RDCore.SDK.Model.Types.VBResizableArrayType.html);
-- [VBResizableByteArrayType](../api/RDCore.SDK.Model.Types.VBResizableByteArrayType.html);
-- [VBBooleanType](../api/RDCore.SDK.Model.Types.VBBooleanType.html);
-- [VBDateType](../api/RDCore.SDK.Model.Types.VBDateType.html);
-- [VBEmptyType](../api/RDCore.SDK.Model.Types.VBEmptyType.html);
-- [VBErrorType](../api/RDCore.SDK.Model.Types.VBErrorType.html);
-- [VBLongPtr_x64](../api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html);
-- [VBLongPtr_x86](../api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html);
-- [VBMissingType](../api/RDCore.SDK.Model.Types.VBMissingType.html);
-- [VBNullType](../api/RDCore.SDK.Model.Types.VBNullType.html);
-- [VBObjectType](../api/RDCore.SDK.Model.Types.VBObjectType.html);
-- [VBStringType](../api/RDCore.SDK.Model.Types.VBStringType.html);
-- [VBFixedStringType](../api/RDCore.SDK.Model.Types.VBFixedStringType.html);
-- [VBVariantType](../api/RDCore.SDK.Model.Types.VBVariantType.html).
+- [VBArrayType](../api/RDCore.SDK.Model.Types.VBArrayType.html)
+- [VBFixedSizeArrayType](../api/RDCore.SDK.Model.Types.VBFixedSizeArrayType.html)
+- [VBResizableArrayType](../api/RDCore.SDK.Model.Types.VBResizableArrayType.html)
+- [VBResizableByteArrayType](../api/RDCore.SDK.Model.Types.VBResizableByteArrayType.html)
+- [VBBooleanType](../api/RDCore.SDK.Model.Types.VBBooleanType.html)
+- [VBDateType](../api/RDCore.SDK.Model.Types.VBDateType.html)
+- [VBEmptyType](../api/RDCore.SDK.Model.Types.VBEmptyType.html)
+- [VBErrorType](../api/RDCore.SDK.Model.Types.VBErrorType.html)
+- [VBLongPtr_x64](../api/RDCore.SDK.Model.Types.VBLongPtrType_x64.html)
+- [VBLongPtr_x86](../api/RDCore.SDK.Model.Types.VBLongPtrType_x86.html)
+- [VBMissingType](../api/RDCore.SDK.Model.Types.VBMissingType.html)
+- [VBNullType](../api/RDCore.SDK.Model.Types.VBNullType.html)
+- [VBObjectType](../api/RDCore.SDK.Model.Types.VBObjectType.html)
+- [VBStringType](../api/RDCore.SDK.Model.Types.VBStringType.html)
+- [VBFixedStringType](../api/RDCore.SDK.Model.Types.VBFixedStringType.html)
+- [VBVariantType](../api/RDCore.SDK.Model.Types.VBVariantType.html)
 
 ## 2.4.1.1 VBNumericType
 
@@ -124,7 +124,7 @@ A subclass of [VBClassType](../api/RDCore.SDK.Model.Types.VBClassType.html) that
 > `For Each...Next` enumeration is intended to be used with _collections containing objects_. Performance-related _diagnostics_ should be issued when a `VBCollectionType` is being _accessed by index_ within the body of a `For...Next` loop.
 
 > [!NOTE]
-> The VBA language specification (MS-VBAL) sometimes refers to the _elements_ (or _items_) of a collection as "data members". This term sometimes appears in error messages (see [VBR00461](../api/RDCore.SDK.Model.Errors.VBRuntimeErrorId.html#MethodOrDataMemberNotFound)), but is **objectively confusing terminology** that RD-VBAL is discarding: in RD-VBA a "member" is always a _direct child symbol of a module, user-defined type, or enum_. Regardless of the message content, RD-VBA must still raise the MS-VBA equivalent error code in the relevant contexts.
+> The VBA language specification (MS-VBAL) sometimes refers to the _elements_ (or _items_) of a collection as "data members". This term sometimes appears in error messages (see [VBR00461](../api/RDCore.SDK.Model.Errors.VBRuntimeErrorId.html) `MethodOrDataMemberNotFound`), but is **objectively confusing terminology** that RD-VBAL is discarding: in RD-VBA a "member" is always a _direct child symbol of a module, user-defined type, or enum_. Regardless of the message content, RD-VBA must still raise the MS-VBA equivalent error code in the relevant contexts.
 
 ### 2.4.2.4 VBProjectType
 
@@ -154,7 +154,7 @@ This type of project can be introduced into the _RD-VBA environment_ by the _hos
 A special data type that represents an _unresolved type_. This is the **fallback data type** used when type resolution semantics fail to identity a valid data type for a given value.
 
 > [!WARNING]
-> Unknown types represent a **compile-time binding failure** and should raise error [RDC009311](../api/RDCore.SDK.Model.Errors.VBCompileErrorId.html#UserDefinedTypeNotDefined) "User-defined type not defined".
+> Unknown types represent a **compile-time binding failure** and should raise error [RDC009311](../api/RDCore.SDK.Model.Errors.VBCompileErrorId.html) `UserDefinedTypeNotDefined` (which is arguably a confusing wording; _verbose_ messages should help clarify the meaning).
 
 ### 2.4.2.6 VBVoidType
 
@@ -306,5 +306,5 @@ All of the above define a deferred `ByVal` parameter that is _passed by value_; 
 - Given any number of `VBArrayValue` or any mixed-bag heterogenous call site arguments, the data type is `Variant`. This case may not be materializable and should issue _semantic flags_ as appropriate to signal it to any listening language-level extensions.
 
 
-> ⏮️ [**RD-VBAL §2.3** Application Host](./rd-vbal.2.3.application-host.html) | ⏭️ [**RD-VBAL§2.5** Runtime Values](./rd-vbal.2.5.runtime-values.html)
+> ⏮️ [**RD-VBAL §2.3** Application Host](rd-vbal.2.3.application-host.html) | ⏭️ [**RD-VBAL§2.5** Runtime Values](rd-vbal.2.5.runtime-values.html)
 

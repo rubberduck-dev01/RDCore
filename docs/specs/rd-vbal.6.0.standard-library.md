@@ -55,5 +55,5 @@ The SDK defines all the interfaces for the _internal representation_ of each mod
   - [SubMatchesClass](../api/RDCore.SDK.Runtime.Abstract.StdLib.IStdSubMatchesClass.html)
 
 
-> ⏮️ [**RD-VBAL §5.0** Semantics](./rd-vbal.5.0.semantics.html)
+> ⏮️ [**RD-VBAL §5.0** Semantics](rd-vbal.5.0.semantics.html)
 

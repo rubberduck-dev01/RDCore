@@ -1,4 +1,9 @@
 # [RD-VBAL]: VBA Language Platform Specification
+
+> [!NOTE]
+> Cette section n'est disponible qu'en anglais.    
+> _This section is only available in English_.
+
 ---
 
 ## Table of Contents
@@ -13,7 +18,7 @@
   - 2.5. [Runtime Values](rd-vbal.2.5.runtime-values.html)
 - 3. [Abstract Syntax Tree](rd-vbal.3.0.syntax-tree.html)
   - 3.1. [Attributes and Directives](rd-vbal.3.1.attributes-directives.html)
-  - 3.2. [Literal Expressions](rd-vbal.3.2.literals.html)
+  - 3.2. [Literal Expressions](rd-vbal.3.2.0.literals.html)
   - 3.3. [Operators](rd-vbal.3.3.0.operators.html)
   - 3.4. [Statements]🚧
   - 3.5. [Instructions]🚧
@@ -21,9 +26,9 @@
 - 5. [Semantics](rd-vbal.5.0.semantics.html)
 - 6. [Standard Library](rd-vbal.6.0.standard-library.html)
 
-> [!NOTE]
-> **RD-VBA** is an implementation of the **MS-VBAL specification** that is independent from its historical **MS-VBA** runtime host. **RD-VBAL** is the name of the specification/documentation of the _language server platform_, which _includes_ the **RD-VBA** _language core_ but is wider than the sole language specification.
-> **The formalization of _RD-VBAL_ is a work in progress**.  
+**RD-VBA** is an implementation of the **MS-VBAL specification** that is independent from its historical **MS-VBA** runtime host. **RD-VBAL** is the name of the specification/documentation of the _language server platform_, which _includes_ the **RD-VBA** _language core_ but is wider than the sole language specification.
+
+🎯 **The formalization of _RD-VBAL_ is a work in progress**.  
 
 This platform specification presents a similar _technical prose_ style as its inspirational _Open Spec_ source material.
 
