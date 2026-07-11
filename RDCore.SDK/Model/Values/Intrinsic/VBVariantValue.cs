@@ -19,8 +19,6 @@ public record class VBVariantValue(VBTypedValue TypedValue, Symbol Symbol)
 
     public override int Size => sizeof(long); // the size of VBVariantInteropValue.ValuePtr... probably not what MS-VBA would report
 
-    public override object BoxedValue => Value;
-
     public VBVariantValue WithValue(VBTypedValue value)
     {
         return this with

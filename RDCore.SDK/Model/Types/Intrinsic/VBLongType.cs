@@ -22,23 +22,23 @@ public record class VBLongType() : VBNumericType<int>(VBTypeNames.VBLong), IInte
     public static VBLongType TypeInfo => _instance.Value;
 
     private static readonly Lazy<VBLongValue> _minValue = new(() 
-        => new VBLongValue(GlobalSymbols.ExtensionSymbols.VBLongMinValue) { ManagedValue = int.MinValue }, LazyThreadSafetyMode.PublicationOnly);
+        => new VBLongValue(GlobalSymbols.ExtensionSymbols.VBLongMinValue) { ManagedValue = Values.ManagedValue.Int32MinValue }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the minimum representable value for this data type.
     /// </summary>
     public static VBLongValue MinValue => _minValue.Value;
-    public override double ManagedMinValue => _minValue.Value.ManagedValue;
+    public override double ManagedMinValue => _minValue.Value.ManagedValue.Int32;
 
     private static readonly Lazy<VBLongValue> _maxValue = new(()
-        => new VBLongValue(GlobalSymbols.ExtensionSymbols.VBLongMaxValue) { ManagedValue = int.MaxValue }, LazyThreadSafetyMode.PublicationOnly);
+        => new VBLongValue(GlobalSymbols.ExtensionSymbols.VBLongMaxValue) { ManagedValue = Values.ManagedValue.Int32MaxValue }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the maximum representable value for this data type.
     /// </summary>
     public static VBLongValue MaxValue => _maxValue.Value;
-    public override double ManagedMaxValue => _maxValue.Value.ManagedValue;
+    public override double ManagedMaxValue => _maxValue.Value.ManagedValue.Int32;
 
     private static readonly Lazy<VBLongValue> _zero = new(()
-        => new VBLongValue(GlobalSymbols.ExtensionSymbols.VBLongZeroValue) { ManagedValue = 0 }, LazyThreadSafetyMode.PublicationOnly);
+        => new VBLongValue(GlobalSymbols.ExtensionSymbols.VBLongZeroValue) { ManagedValue = Values.ManagedValue.Int32ZeroValue }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the value <c>0</c> (zero) representation of this data type.
     /// </summary>

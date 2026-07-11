@@ -70,11 +70,9 @@ public abstract record class VBTypedValue(VBType TypeInfo, Symbol ResolvedSymbol
     public abstract int Size { get; }
 
     /// <summary>
-    /// Gets the <em>boxed</em> (<c>object</c>) underlying managed value.
+    /// Gets the underlying managed value.
     /// </summary>
-    /// <remarks>
-    /// 👉 This member is provided as a <em>non-generic</em> convenience for contexts where the type is unknown.
-    /// Use the generic <c>ITypedValue&lt;T&gt;</c> whenever possible instead.
-    /// </remarks>
-    public abstract object BoxedValue { get; }
+    public ManagedValue ManagedValue { get; init; }
+
+    public VBTypedValue WithValue(ManagedValue value) => this with { ManagedValue = value };
 }

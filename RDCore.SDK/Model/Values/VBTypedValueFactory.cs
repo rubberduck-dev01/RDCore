@@ -4,6 +4,7 @@ using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Model.Values.Intrinsic;
 using RDCore.SDK.Model.Values.Meta;
+using System.Data;
 
 namespace RDCore.SDK.Model.Values;
 
@@ -35,7 +36,7 @@ public static class VBTypedValueFactory
     /// <param name="symbol">The symbol to be associated with the new value.</param>
     /// <param name="dateTimeValue">The underying (managed) <c>DateTime</c> value being wrapped.</param>
     public static VBDateValue CreateValue(Symbol symbol, DateTime dateTimeValue)
-        => new(symbol) { Value = dateTimeValue };
+        => new(symbol) { ManagedValue = new() { Double = dateTimeValue.ToOADate() } };
 
     /// <summary>
     /// Creates a new <c>VBBooleanValue</c> with the specified value for the specified symbol.
@@ -43,21 +44,23 @@ public static class VBTypedValueFactory
     /// <param name="symbol">The symbol to be associated with the new value.</param>
     /// <param name="boolValue">The underying (managed) <c>bool</c> value being wrapped.</param>
     public static VBBooleanValue CreateValue(Symbol symbol, bool boolValue)
-        => new(symbol) { Value = boolValue };
+        => new(symbol) { ManagedValue = new() { Boolean = boolValue } };
     /// <summary>
     /// Creates a new <c>VBBooleanValue</c> with the specified value for the specified symbol.
     /// </summary>
     /// <param name="symbol">The symbol to be associated with the new value.</param>
     /// <param name="boolValue">The underying (managed) <c>bool</c> value being wrapped.</param>
     public static VBBooleanValue CreateBooleanValue(Symbol symbol, double numericValue)
-        => new(symbol) { Value = numericValue != 0 };
+        => new(symbol) { ManagedValue = new() { Boolean = numericValue != 0 } };
 
     public static VBBooleanValue CreateBooleanValue(Symbol symbol, VBBooleanValue value)
-        => new(symbol) { Value = value.Value == true };
+        => new(symbol) { ManagedValue = new() { Boolean = value.Value == true } };
     public static VBBooleanValue CreateBooleanValue(Symbol symbol, bool value)
-        => new(symbol) { Value = value == true };
+        => new(symbol) { ManagedValue = new() { Boolean = value == true } };
 
 
+    public static VBTypedValue CreateValue(VBType type, Symbol symbol, ManagedValue value)
+        => CreateValue(type, symbol)!.WithValue(value);
 
     /// <summary>
     /// Creates a new <c>VBNumericValue</c> of the specified type, with the specified value, for the specified symbol.
@@ -109,10 +112,10 @@ public static class VBTypedValueFactory
     /// intended for let-coercion semantics and may eventually need to be moved.
     /// </remarks>
     public static VBTypedValue CreateValue(VBTypeDescValue typeDesc, Symbol symbol, VBDateValue source)
-        => CreateValue(typeDesc.Target, symbol, source.SerialValue);
+        => CreateValue(typeDesc.Target, symbol, source.ManagedValue);
 
     public static VBTypedValue CreateValue(Symbol symbol, VBDateValue value)
-        => CreateValue(VBDateType.TypeInfo, symbol, value.SerialValue);
+        => CreateValue(VBDateType.TypeInfo, symbol, value.ManagedValue);
 
     /// <summary>
     /// Creates a new <c>VBStringValue</c> with the specified value, for the specified symbol.

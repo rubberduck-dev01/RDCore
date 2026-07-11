@@ -43,27 +43,26 @@ public record class VBStringValue : VBTypedValue, IVBTypedValue<VBStringValue, s
     public const string NaN = "1.#IND";
 
 
-    private static readonly Lazy<VBStringValue> _vbNullString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBNullString), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBStringValue> _vbNullString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBNullString) { ManagedValue = Values.ManagedValue.NullRefValue }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the <em>static value</em> associated with <see cref="GlobalSymbols.StaticSymbols.VBNullString"/>.
     /// </summary>
     public static VBStringValue VBNullString => _vbNullString.Value;
 
-    private static readonly Lazy<VBStringValue> _zeroString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBEmptyString) { Value = string.Empty }, LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBStringValue> _zeroString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBEmptyString) { ManagedValue = Values.ManagedValue.EmptyStringRefValue }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the <em>static value</em> associated with <see cref="GlobalSymbols.StaticSymbols.VBEmptyString"/>.
     /// </summary>
     public static VBStringValue ZeroLengthString => _zeroString.Value;
 
-    public string Value { get; init; } = default!;
+    public string Value => (string)ManagedValue.Ref;
     public virtual int Length => Value?.Length ?? 0;
     public override int Size => Value is null ? 0 : 2 * Length + 2;
 
-    public override object BoxedValue => Value;
 
-    public virtual VBStringValue WithValue(string? value) => this with { Value = value ?? string.Empty };
+    public virtual VBStringValue WithValue(string? value) => this with { ManagedValue = new() { Ref = value ?? string.Empty } };
 
-    public override string ToString() => Value ?? Tokens.vbNullString;
+    public override string ToString() => Value ?? VBNullString.Value;
 
     public bool Equals(IVBTypedValue<VBStringValue, string>? other) => Value == other?.Value;
     public override int GetHashCode() => Value.GetHashCode();

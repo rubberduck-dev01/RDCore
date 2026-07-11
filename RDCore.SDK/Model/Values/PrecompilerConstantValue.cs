@@ -16,6 +16,6 @@ public sealed record class PrecompilerConstantValue : VBIntegerValue
     public PrecompilerConstantValue(Symbol symbol, int managedValue)
         : base(symbol)
     {
-        ManagedValue = managedValue;
+        ManagedValue = new ManagedValue { Int32 = managedValue };
     }
 }
