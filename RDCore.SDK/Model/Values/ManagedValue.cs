@@ -19,8 +19,8 @@ public struct ManagedValue
     [FieldOffset(0)] public System.Single Single;
     [FieldOffset(0)] public System.Double Double;
     [FieldOffset(0)] public System.Decimal Decimal;
-    [FieldOffset(0)] public System.Object Ref;
     [FieldOffset(0)] public VBVariantInteropValue Variant;
+    [FieldOffset(0)] public VBReferenceInteropValue Ref;
 
     public static ManagedValue BooleanFalse { get; } = new() { Boolean = false };
     public static ManagedValue BooleanTrue { get; } = new() { Boolean = true };
@@ -45,6 +45,6 @@ public struct ManagedValue
     public static ManagedValue DecimalMinValue { get; } = new() { Decimal = decimal.MinValue };
     public static ManagedValue DecimalMaxValue { get; } = new() { Decimal = decimal.MaxValue };
     public static ManagedValue DecimalZeroValue { get; } = new() { Decimal = 0 };
-    public static ManagedValue NullRefValue { get; } = new() { Ref = null! };
-    public static ManagedValue EmptyStringRefValue { get; } = new() { Ref = string.Empty };
+    public static ManagedValue NullRefValue { get; } = new() { Ref = new(typeof(object), Symbols.Abstract.ScopeKind.Unallocated, null!) };
+    public static ManagedValue EmptyStringRefValue { get; } = new() { Ref = new(typeof(string), Symbols.Abstract.ScopeKind.Unallocated, string.Empty) };
 }

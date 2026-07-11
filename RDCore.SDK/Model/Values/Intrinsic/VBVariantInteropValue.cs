@@ -20,3 +20,5 @@ public enum VBVariantValueType
 /// <param name="ValueAlloc">The allocation scope of the value.</param>
 /// <param name="ValuePtr">A pointer to the value in the specified memory space.</param>
 public readonly record struct VBVariantInteropValue(VBVariantValueType ValueType, ScopeKind ValueAlloc, long ValuePtr);
+
+public readonly record struct VBReferenceInteropValue(Type ManagedType, ScopeKind ValueAlloc, object Value);

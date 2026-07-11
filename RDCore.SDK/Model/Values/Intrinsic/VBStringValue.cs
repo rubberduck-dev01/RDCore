@@ -55,12 +55,12 @@ public record class VBStringValue : VBTypedValue, IVBTypedValue<VBStringValue, s
     /// </summary>
     public static VBStringValue ZeroLengthString => _zeroString.Value;
 
-    public string Value => (string)ManagedValue.Ref;
+    public string Value => (string)ManagedValue.Ref.Value;
     public virtual int Length => Value?.Length ?? 0;
     public override int Size => Value is null ? 0 : 2 * Length + 2;
 
 
-    public virtual VBStringValue WithValue(string? value) => this with { ManagedValue = new() { Ref = value ?? string.Empty } };
+    public virtual VBStringValue WithValue(string? value) => this with { ManagedValue = new() { Ref = new(typeof(string), ResolvedSymbol.ScopeKind, value ?? string.Empty) } };
 
     public override string ToString() => Value ?? VBNullString.Value;
 
