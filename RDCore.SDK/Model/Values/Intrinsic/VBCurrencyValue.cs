@@ -9,11 +9,11 @@ namespace RDCore.SDK.Model.Values.Intrinsic;
 /// </summary>
 /// <param name="Symbol">The <see cref="Symbol"/> associated with this value.</param>
 public sealed record class VBCurrencyValue(Symbol Symbol) 
-    : VBNumericTypedValue(VBCurrencyType.TypeInfo, Symbol), IVBTypedValue<VBCurrencyValue, decimal>, INumericValue<VBCurrencyValue>
+    : VBNumericTypedValue(VBCurrencyType.TypeInfo, Symbol), IVBTypedValue<VBCurrencyValue, ManagedCurrency>, INumericValue<VBCurrencyValue>
 {
-    public decimal Value => ManagedValue.Decimal;
+    public ManagedCurrency Value => ManagedValue.Currency;
     public override int Size => sizeof(Decimal);
 
-    public bool Equals(IVBTypedValue<VBCurrencyValue, decimal>? other) => Value == other?.Value;
+    public bool Equals(IVBTypedValue<VBCurrencyValue, ManagedCurrency>? other) => Value.StoredValue == other?.Value.StoredValue;
     public override int GetHashCode() => Value.GetHashCode();
 }
