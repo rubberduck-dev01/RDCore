@@ -8,7 +8,7 @@ public record class VBIntegerValue(Symbol Symbol) : VBNumericTypedValue(VBIntege
     IVBTypedValue<VBIntegerValue, short>,
     INumericValue<VBIntegerValue>
 {
-    public short Value => ManagedValue.Int16;
+    public short Value => ManagedValue.InteropValue!.Value.Int16;
     public override int Size { get; } = sizeof(short);
 
     public bool Equals(IVBTypedValue<VBIntegerValue, short>? other) => Value == other?.Value;

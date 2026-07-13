@@ -12,7 +12,7 @@ public sealed record class VBLongLongValue(Symbol Symbol) : VBNumericTypedValue(
     IVBTypedValue<VBLongLongValue, long>, 
     INumericValue<VBLongLongValue>
 {
-    public long Value => ManagedValue.Int64;
+    public long Value => ManagedValue.InteropValue!.Value.Int64;
     public override int Size => sizeof(long);
 
     public bool Equals(IVBTypedValue<VBLongLongValue, long>? other) => Value == other?.Value;

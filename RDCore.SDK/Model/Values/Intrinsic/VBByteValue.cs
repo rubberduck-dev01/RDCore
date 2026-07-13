@@ -11,7 +11,7 @@ namespace RDCore.SDK.Model.Values.Intrinsic;
 public sealed record class VBByteValue(Symbol Symbol) 
     : VBNumericTypedValue(VBByteType.TypeInfo, Symbol), IVBTypedValue<VBByteValue, byte>, INumericValue<VBByteValue>
 {
-    public byte Value => ManagedValue.Byte;
+    public byte Value => ManagedValue.InteropValue!.Value.Byte;
     public override int Size { get; } = sizeof(byte);
 
     public bool Equals(IVBTypedValue<VBByteValue, byte>? other) => Value == other?.Value;

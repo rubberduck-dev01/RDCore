@@ -1,6 +1,7 @@
 ﻿using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Types.Meta;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Model.Values.Meta;
 using System.Globalization;
 namespace RDCore.SDK.Model.Values.Abstract;
@@ -70,9 +71,9 @@ public abstract record class VBTypedValue(VBType TypeInfo, Symbol ResolvedSymbol
     public abstract int Size { get; }
 
     /// <summary>
-    /// Gets the underlying managed value.
+    /// Gets a wrapper for the underlying managed value.
     /// </summary>
-    public ManagedValue ManagedValue { get; init; }
+    public ManagedInteropWrapper ManagedValue { get; init; }
 
-    public VBTypedValue WithValue(ManagedValue value) => this with { ManagedValue = value };
+    public VBTypedValue WithValue(ManagedInteropWrapper value) => this with { ManagedValue = value };
 }

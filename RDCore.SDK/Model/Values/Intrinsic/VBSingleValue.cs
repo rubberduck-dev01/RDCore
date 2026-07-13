@@ -12,7 +12,7 @@ public sealed record class VBSingleValue(Symbol Symbol) : VBNumericTypedValue(VB
     IVBTypedValue<VBSingleValue, float>,
     INumericValue<VBSingleValue>
 {
-    public float Value => ManagedValue.Single;
+    public float Value => ManagedValue.InteropValue!.Value.Single;
     public override int Size => sizeof(float);
     public bool Equals(IVBTypedValue<VBSingleValue, float>? other) => Value == other?.Value;
     public override int GetHashCode() => Value.GetHashCode();

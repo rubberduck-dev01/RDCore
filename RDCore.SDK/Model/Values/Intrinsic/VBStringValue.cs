@@ -2,6 +2,7 @@
 using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 
 namespace RDCore.SDK.Model.Values.Intrinsic;
 
@@ -43,24 +44,24 @@ public record class VBStringValue : VBTypedValue, IVBTypedValue<VBStringValue, s
     public const string NaN = "1.#IND";
 
 
-    private static readonly Lazy<VBStringValue> _vbNullString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBNullString) { ManagedValue = Values.ManagedValue.NullRefValue }, LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBStringValue> _vbNullString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBNullString) { ManagedValue = new(ManagedInteropReference.NullRef) }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the <em>static value</em> associated with <see cref="GlobalSymbols.StaticSymbols.VBNullString"/>.
     /// </summary>
     public static VBStringValue VBNullString => _vbNullString.Value;
 
-    private static readonly Lazy<VBStringValue> _zeroString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBEmptyString) { ManagedValue = Values.ManagedValue.EmptyStringRefValue }, LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBStringValue> _zeroString = new(() => new VBStringValue(GlobalSymbols.StaticSymbols.VBEmptyString) { ManagedValue = new(ManagedInteropReference.EmptyStringRef) }, LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the <em>static value</em> associated with <see cref="GlobalSymbols.StaticSymbols.VBEmptyString"/>.
     /// </summary>
     public static VBStringValue ZeroLengthString => _zeroString.Value;
 
-    public string Value => (string)ManagedValue.Ref.Value;
+    public string Value => (string?)ManagedValue.InteropReference?.Value ?? string.Empty;
     public virtual int Length => Value?.Length ?? 0;
     public override int Size => Value is null ? 0 : 2 * Length + 2;
 
 
-    public virtual VBStringValue WithValue(string? value) => this with { ManagedValue = new() { Ref = new(typeof(string), ResolvedSymbol.ScopeKind, value ?? string.Empty) } };
+    public virtual VBStringValue WithValue(string? value) => this with { ManagedValue = new(new ManagedInteropReference(typeof(string), ResolvedSymbol.ScopeKind, value ?? string.Empty)) };
 
     public override string ToString() => Value ?? VBNullString.Value;
 

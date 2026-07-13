@@ -11,7 +11,7 @@ namespace RDCore.SDK.Model.Values.Intrinsic;
 public sealed record class VBDecimalValue(Symbol Symbol) 
     : VBNumericTypedValue(VBDecimalType.TypeInfo, Symbol), IVBTypedValue<VBDecimalValue, decimal>, INumericValue<VBDecimalValue>
 {
-    public decimal Value => ManagedValue.Decimal;
+    public decimal Value => ManagedValue.InteropValue!.Value.Decimal!.Value.StoredValue;
     public override int Size => sizeof(Decimal);
 
     public bool Equals(IVBTypedValue<VBDecimalValue, decimal>? other) => Value == other?.Value;

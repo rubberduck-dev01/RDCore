@@ -1,7 +1,7 @@
 ﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
 using RDCore.SDK.Model.Symbols;
 using RDCore.SDK.Model.Types.Abstract;
-using RDCore.SDK.Model.Values;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Model.Values.Intrinsic;
 
 namespace RDCore.SDK.Model.Types;
@@ -21,22 +21,22 @@ public sealed record class VBByteType() : VBNumericType<byte>(VBTypeNames.VBByte
     /// </summary>
     public static VBByteType TypeInfo => _instance.Value;
 
-    private static readonly Lazy<VBByteValue> _defaultValue = new(() => (VBByteValue)new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteZeroValue).WithValue(ManagedValue.ByteZeroValue), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBByteValue> _defaultValue = new(() => (VBByteValue)new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteZeroValue).WithValue(ManagedInteropValue.ByteZeroValue), LazyThreadSafetyMode.PublicationOnly);
     public override VBByteValue DefaultValue => _defaultValue.Value;
 
-    private static readonly Lazy<VBByteValue> _minValue = new(() => (VBByteValue)new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteMinValue).WithValue(ManagedValue.ByteMinValue), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBByteValue> _minValue = new(() => (VBByteValue)new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteMinValue).WithValue(ManagedInteropValue.ByteMinValue), LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the minimum representable value for this data type.
     /// </summary>
     public static VBByteValue MinValue => _minValue.Value;
-    public override double ManagedMinValue => _minValue.Value.ManagedValue.Byte;
+    public override double ManagedMinValue => _minValue.Value.ManagedValue.InteropValue!.Value.Byte;
 
-    private static readonly Lazy<VBByteValue> _maxValue = new(() => (VBByteValue)new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteMaxValue).WithValue(ManagedValue.ByteMaxValue), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBByteValue> _maxValue = new(() => (VBByteValue)new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteMaxValue).WithValue(ManagedInteropValue.ByteMaxValue), LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the maximum representable value for this data type.
     /// </summary>
     public static VBByteValue MaxValue { get; } = _maxValue.Value;
-    public override double ManagedMaxValue => _maxValue.Value.ManagedValue.Byte;
+    public override double ManagedMaxValue => _maxValue.Value.ManagedValue.InteropValue!.Value.Byte;
 
     private static readonly Lazy<VBByteValue> _zero = new(() => new VBByteValue(GlobalSymbols.ExtensionSymbols.VBByteZeroValue), LazyThreadSafetyMode.PublicationOnly);
     /// <summary>

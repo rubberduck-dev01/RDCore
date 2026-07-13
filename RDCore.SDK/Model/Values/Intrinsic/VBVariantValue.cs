@@ -1,6 +1,7 @@
 ﻿using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 
 namespace RDCore.SDK.Model.Values.Intrinsic;
 
@@ -8,14 +9,14 @@ namespace RDCore.SDK.Model.Values.Intrinsic;
 /// Represents a <c>Variant</c> value.
 /// </summary>
 /// <remarks>
-/// 👉 The <em>managed type</em> of this value is a <see cref="VBVariantInteropValue"/>
+/// 👉 The <em>managed type</em> of this value is a <see cref="ManagedInteropVariant"/>
 /// </remarks>
 /// <param name="TypedValue">The wrapped typed value (may be another <c>Variant</c>).</param>
 /// <param name="Symbol">The symbol associated with this value.</param>
 public record class VBVariantValue(VBTypedValue TypedValue, Symbol Symbol)
-    : VBTypedValue(TypedValue.TypeInfo, Symbol), IVBTypedValue<VBVariantValue, VBVariantInteropValue>
+    : VBTypedValue(TypedValue.TypeInfo, Symbol), IVBTypedValue<VBVariantValue, ManagedInteropVariant>
 {
-    public VBVariantInteropValue Value { get; init; } = new(VBVariantValueType.Empty, ScopeKind.Unallocated, 0);
+    public ManagedInteropVariant Value { get; init; } = new(VBVariantValueType.Empty, ScopeKind.Unallocated, 0);
 
     public override int Size => sizeof(long); // the size of VBVariantInteropValue.ValuePtr... probably not what MS-VBA would report
 
@@ -24,11 +25,11 @@ public record class VBVariantValue(VBTypedValue TypedValue, Symbol Symbol)
         return this with
         {
             TypedValue = value,
-            Value = new VBVariantInteropValue(VBVariantValueType.Dispatch, value.ResolvedSymbol.ScopeKind, value.RawAddress),
+            Value = new ManagedInteropVariant(VBVariantValueType.Dispatch, value.ResolvedSymbol.ScopeKind, value.RawAddress),
             TypeInfo = VBVariantType.TypeInfo with { SubType = value.TypeInfo }
         };
     }
 
-    public bool Equals(IVBTypedValue<VBVariantValue, VBVariantInteropValue>? other) => Value == other?.Value;
+    public bool Equals(IVBTypedValue<VBVariantValue, ManagedInteropVariant>? other) => Value == other?.Value;
     public override int GetHashCode() => Value.GetHashCode();
 }

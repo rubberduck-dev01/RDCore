@@ -2,8 +2,8 @@
 using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Model.Values.Intrinsic;
-using System.Collections;
 
 namespace RDCore.SDK.Model.Values.Abstract;
 
@@ -31,15 +31,16 @@ public abstract record class VBNumericTypedValue(VBType TypeInfo, Symbol Symbol)
     {
         return this switch
         {
-            PrecompilerConstantValue constValue => constValue with { ManagedValue = new ManagedValue(Convert.ToInt16(value)) },
-            VBByteValue byteValue => byteValue with { ManagedValue = new ManagedValue(Convert.ToByte(value)) },
-            VBIntegerValue integerValue => integerValue with { ManagedValue = new ManagedValue(Convert.ToInt16(value)) },
-            VBLongValue longValue => longValue with { ManagedValue = new ManagedValue(Convert.ToInt32(value)) },
-            VBLongLongValue longLongValue => longLongValue with { ManagedValue = new ManagedValue(Convert.ToInt64(value)) },
-            VBSingleValue singleValue => singleValue with { ManagedValue = new ManagedValue(Convert.ToSingle(value)) },
-            VBDoubleValue doubleValue => doubleValue with { ManagedValue = new ManagedValue(Convert.ToDouble(value)) },
-            VBCurrencyValue currencyValue => currencyValue with { ManagedValue = new ManagedValue(new ManagedCurrency(Convert.ToDecimal(value))) },
-            //VBDecimalValue decimalValue => decimalValue with { ManagedValue = new ManagedValue { Decimal = Convert.ToDecimal(value) } },
+            PrecompilerConstantValue constValue => constValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToInt16(value))) },
+            VBByteValue byteValue => byteValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToByte(value))) },
+            VBIntegerValue integerValue => integerValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToInt16(value))) },
+            VBLongValue longValue => longValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToInt32(value))) },
+            VBLongLongValue longLongValue => longLongValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToInt64(value))) },
+            VBSingleValue singleValue => singleValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToSingle(value))) },
+            VBDoubleValue doubleValue => doubleValue with { ManagedValue = new(new ManagedInteropValue(Convert.ToDouble(value))) },
+            VBCurrencyValue currencyValue => currencyValue with { ManagedValue = new(new ManagedInteropValue(new ManagedCurrencyInteropValue(Convert.ToDecimal(value)))) },
+            VBDecimalValue decimalValue => decimalValue with { ManagedValue = new(new ManagedInteropValue(new ManagedDecimalInteropValue(Convert.ToDecimal(value)))) },
+
             _ => throw new NotSupportedException(),
         };
     }

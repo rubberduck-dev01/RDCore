@@ -2,6 +2,7 @@
 using RDCore.SDK.Model.Symbols;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Model.Values.Intrinsic;
 
 namespace RDCore.SDK.Model.Types;
@@ -29,16 +30,16 @@ public sealed record class VBDecimalType() : VBNumericType<decimal>(VBTypeNames.
     /// Gets the minimum representable value for this data type.
     /// </summary>
     public static VBDecimalValue MinValue => _minValue.Value;
-    public override double ManagedMinValue => Convert.ToDouble(_minValue.Value.ManagedValue.Decimal);
+    public override double ManagedMinValue => Convert.ToDouble(_minValue.Value.ManagedValue.InteropValue!.Value.Decimal);
 
     private static readonly Lazy<VBDecimalValue> _maxValue = new(() => (VBDecimalValue)new VBDecimalValue(GlobalSymbols.ExtensionSymbols.VBDecimalMaxValue).WithValue(long.MaxValue * Math.Pow(10, -4)), LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the maximum representable value for this data type.
     /// </summary>
     public static VBDecimalValue MaxValue => _maxValue.Value;
-    public override double ManagedMaxValue => Convert.ToDouble(_maxValue.Value.ManagedValue.Decimal);
+    public override double ManagedMaxValue => Convert.ToDouble(_maxValue.Value.ManagedValue.InteropValue!.Value.Decimal);
 
-    private static readonly Lazy<VBDecimalValue> _zero = new(() => (VBDecimalValue)new VBDecimalValue(GlobalSymbols.ExtensionSymbols.VBDecimalZeroValue).WithValue(Values.ManagedValue.DecimalZeroValue), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<VBDecimalValue> _zero = new(() => (VBDecimalValue)new VBDecimalValue(GlobalSymbols.ExtensionSymbols.VBDecimalZeroValue).WithValue(ManagedInteropValue.DecimalZeroValue), LazyThreadSafetyMode.PublicationOnly);
     /// <summary>
     /// Gets the value <c>0</c> (zero) representation of this data type.
     /// </summary>

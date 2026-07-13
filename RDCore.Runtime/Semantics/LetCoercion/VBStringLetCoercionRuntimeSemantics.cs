@@ -145,11 +145,11 @@ public record class VBStringLetCoercionRuntimeSemantics(
     }
 
     private static LetCoercionResult CoerceToVBBoolean(VBNumericTypedValue value, Symbol resultSymbol, LetCoercionStackFrame frame)
-        => LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue(resultSymbol, value.ManagedValue.Double != 0), [frame]);
+        => LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue(resultSymbol, value.ManagedValue.InteropValue!.Value.Double != 0), [frame]);
 
     private static LetCoercionResult CoerceToVBString(VBNumericTypedValue value, Symbol resultSymbol, CultureInfo cultureInfo)
     {
-        var numericValue = value.ManagedValue;
+        var numericValue = value.ManagedValue.InteropValue!.Value;
         if (numericValue.Double == 0)
         {
             return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(resultSymbol, VBStringValue.Zero));

@@ -11,7 +11,7 @@ namespace RDCore.SDK.Model.Values.Intrinsic;
 public sealed record class VBDoubleValue(Symbol Symbol) : VBNumericTypedValue(VBDoubleType.TypeInfo, Symbol),
     IVBTypedValue<VBDoubleValue, double>, INumericValue<VBDoubleValue>
 {
-    public double Value => ManagedValue.Double;
+    public double Value => ManagedValue.InteropValue!.Value.Double;
     public override int Size => 8;
 
     public bool Equals(IVBTypedValue<VBDoubleValue, double>? other) => Value == other?.Value;
