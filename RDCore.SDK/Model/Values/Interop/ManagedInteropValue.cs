@@ -18,11 +18,8 @@ public enum ManagedInteropValueKind
 }
 
 /// <summary>
-/// The managed (.net) representation of a runtime value.
+/// A managed value representing an intrinsic value.
 /// </summary>
-/// <remarks>
-/// This <em>union</em> defines all its fields at offset 0.
-/// </remarks>
 [StructLayout(LayoutKind.Explicit)]
 public readonly struct ManagedInteropValue
 {
