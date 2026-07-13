@@ -9,11 +9,6 @@ namespace RDCore.SDK.Model.Values.Abstract;
 public interface INumericValue
 {
     /// <summary>
-    /// Gets a managed (.net) internal representation the numeric value. This is always a <c>double</c>.
-    /// </summary>
-    //double ManagedValue { get; }
-
-    /// <summary>
     /// Gets a copy of this value, with the specified underlying value.
     /// </summary>
     /// <remarks>
