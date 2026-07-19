@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 namespace RDCore.SDK.Model.AST.Statements;
 
 /// <summary>
-/// 
+/// An executable statement node that represents a procedure (or function) call.
 /// </summary>
 /// <param name="SemanticId">A semantic <c>Uri</c> uniquely identifying this specific node.</param>
 /// <param name="Location">The document location (<c>Uri</c>+<c>Range</c>) of the bound expression.</param>
