@@ -1,4 +1,5 @@
 ﻿using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Runtime.Abstract.Execution;
 
 namespace RDCore.SDK.Model.Values.Bindings;
@@ -8,17 +9,18 @@ namespace RDCore.SDK.Model.Values.Bindings;
 /// </summary>
 public record class ReferenceBindingHandle : IBindingHandle
 {
-    private  VBTypedValue _value;
-    public ReferenceBindingHandle(VBTypedValue value)
+    private ManagedInteropReference _value;
+    public ReferenceBindingHandle(ManagedInteropReference value)
     {
         _value = value;
     }
 
     public BindingCapabilities BindingCapabilities => BindingCapabilities.GetValue | BindingCapabilities.SetValue;
 
-    public VBTypedValue GetValue(IVBExecutionContext context) => _value;
+    public IManagedInteropValue GetValue(IVBExecutionContext context) => _value;
 
-    public void SetValue(IVBExecutionContext context, VBTypedValue value) => _value = value;
+    public void SetValue(IVBExecutionContext context, IManagedInteropValue value) => _value = value is ManagedInteropReference reference
+        ? reference : throw new ArgumentException($"Expected {nameof(ManagedInteropReference)} value", nameof(value));
 
-    public VBTypedValue Invoke(IVBExecutionContext context, VBTypedValue[] args) => throw new NotSupportedException();
+    public IManagedInteropValue Invoke(IVBExecutionContext context, IManagedInteropValue[] args) => throw new NotSupportedException();
 }

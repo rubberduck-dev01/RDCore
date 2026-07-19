@@ -1,4 +1,5 @@
 ﻿using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Model.Values.Meta;
 using RDCore.SDK.Runtime.Abstract.Execution;
 
@@ -19,11 +20,11 @@ public enum BindingCapabilities
     /// </summary>
     GetMember = 1 << 0,
     /// <summary>
-    /// Signals a binding's capability to yield a <see cref="VBTypedValue"/>.
+    /// Signals a binding's capability to yield a <see cref="IManagedInteropValue"/>.
     /// </summary>
     GetValue = 1 << 1,
     /// <summary>
-    /// Signals a binding's capability to accept a <see cref="VBTypedValue"/>.
+    /// Signals a binding's capability to accept a <see cref="IManagedInteropValue"/>.
     /// </summary>
     SetValue = 1 << 2,
     /// <summary>
@@ -31,7 +32,7 @@ public enum BindingCapabilities
     /// </summary>
     Invoke = 1 << 3,
     /// <summary>
-    /// Signals a binding's capability to yield an indexed <see cref="VBTypedValue"/>.
+    /// Signals a binding's capability to yield an indexed <see cref="IManagedInteropValue"/>.
     /// </summary>
     GetIndex = 1 << 4,
     /// <summary>
@@ -52,7 +53,7 @@ public interface IBindingHandle
     /// 👉 Verify that the binding supports <see cref="BindingCapabilities.GetValue"/>.
     /// </remarks>
     /// <exception cref="NotSupportedException"></exception>
-    VBTypedValue GetValue(IVBExecutionContext context);
+    IManagedInteropValue GetValue(IVBExecutionContext context);
     /// <summary>
     /// Sets the value associated to this handle.
     /// </summary>
@@ -60,7 +61,7 @@ public interface IBindingHandle
     /// 👉 Verify that the binding supports <see cref="BindingCapabilities.SetValue"/>.
     /// </remarks>
     /// <exception cref="NotSupportedException"></exception>
-    void SetValue(IVBExecutionContext context, VBTypedValue value);
+    void SetValue(IVBExecutionContext context, IManagedInteropValue value);
     /// <summary>
     /// Invokes the callable entity associated to this handle.
     /// </summary>
@@ -68,7 +69,7 @@ public interface IBindingHandle
     /// 👉 Verify that the binding supports <see cref="BindingCapabilities.SetValue"/>.
     /// </remarks>
     /// <exception cref="NotSupportedException"></exception>
-    VBTypedValue Invoke(IVBExecutionContext context, VBTypedValue[] args);
+    IManagedInteropValue Invoke(IVBExecutionContext context, IManagedInteropValue[] args);
 
     /// <summary>
     /// Indicates the valid members of this binding.
