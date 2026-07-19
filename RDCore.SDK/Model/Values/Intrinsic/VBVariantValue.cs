@@ -25,7 +25,7 @@ public record class VBVariantValue(VBTypedValue TypedValue, Symbol Symbol)
         return this with
         {
             TypedValue = value,
-            Value = new ManagedInteropVariant(VBVariantValueType.Dispatch, value.ResolvedSymbol.ScopeKind, value.RawAddress),
+            //Value = new ManagedInteropVariant(VBVariantValueType.Dispatch, value.ResolvedSymbol.ScopeKind),
             TypeInfo = VBVariantType.TypeInfo with { SubType = value.TypeInfo }
         };
     }

@@ -1,12 +1,12 @@
 ﻿using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Model.Values.Meta;
 using RDCore.SDK.Runtime.Abstract.Execution;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RDCore.SDK.Model.Values.Bindings;
 
+/// <summary>
+/// Signals the capabilities of a given binding handle.
+/// </summary>
 [Flags]
 public enum BindingCapabilities
 {
@@ -22,7 +22,9 @@ public enum BindingCapabilities
     /// Signals a binding's capability to yield a <see cref="VBTypedValue"/>.
     /// </summary>
     GetValue = 1 << 1,
+    /// <summary>
     /// Signals a binding's capability to accept a <see cref="VBTypedValue"/>.
+    /// </summary>
     SetValue = 1 << 2,
     /// <summary>
     /// Signals a binding's capability to invoke a callable entity.
