@@ -1,8 +1,8 @@
 ﻿using Antlr4.Runtime.Misc;
 using RDCore.Parsing.Syntax;
 using RDCore.SDK.Model;
-using RDCore.SDK.Model.AST;
 using RDCore.SDK.Model.AST.Abstract;
+using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Directives;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Source;
@@ -12,16 +12,16 @@ using System.Collections.Immutable;
 
 namespace RDCore.Parsing.AST;
 
+public record class ParserEventInfo(BoundNode Node);
+
 internal class ModuleParseTreeListener(VBModuleSymbol moduleSymbol) : VBAParserBaseListener
 {
     private readonly VBModuleSymbol _root = moduleSymbol;
     private readonly Stack<Uri> _uriStack = new([moduleSymbol.Uri]);
 
     private readonly Stack<List<BoundNode>> _children = new([[]]);
-    private readonly List<Symbol> _symbols = [];
 
     public ModuleNode CreateModuleTree() => new(_root.Uri, [.. _children.Pop()]);
-    public ImmutableArray<Symbol> GetSymbols() => [.. _symbols];
 
     private Uri GetUriWithFragmentFor(string name) => new($"{_root.Uri.AbsolutePath}#{name.ToLowerInvariant()}");
 
