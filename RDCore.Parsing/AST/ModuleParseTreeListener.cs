@@ -1,9 +1,5 @@
-﻿using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Misc;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+﻿using Antlr4.Runtime.Misc;
 using RDCore.Parsing.Syntax;
-using RDCore.SDK.Extensibility;
 using RDCore.SDK.Model;
 using RDCore.SDK.Model.AST;
 using RDCore.SDK.Model.AST.Abstract;
@@ -12,15 +8,7 @@ using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Source;
 using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Symbols.Unbound;
-using RDCore.SDK.Model.Symbols.VBProject;
-using RDCore.SDK.Model.Types;
-using RDCore.SDK.Semantics.Context;
-using RDCore.SDK.Semantics.Flags;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Text;
 
 namespace RDCore.Parsing.AST;
 
@@ -54,6 +42,11 @@ internal class ModuleParseTreeListener(VBModuleSymbol moduleSymbol) : VBAParserB
     {
         _children.Peek().Add(
             new ImplementsDirectiveNode(GetUriWithFragmentFor(name), location, expression));
+    }
+
+    private void OnDeclareStatement(string name, SourceLocation location, string? alias, string library, string? visibility, bool isPtrSafe, string token, BoundExpression? asType = null)
+    {
+        //_children.Peek().Add();
     }
 
     public override void ExitOptionBaseStmt([NotNull] VBAParser.OptionBaseStmtContext context)
@@ -121,10 +114,20 @@ internal class ModuleParseTreeListener(VBModuleSymbol moduleSymbol) : VBAParserB
     #region declarations
     public override void ExitDeclareStmt([NotNull] VBAParser.DeclareStmtContext context)
     {
-        base.ExitDeclareStmt(context);
+        var name = context.identifier().GetText();
+        var visibility = context.visibility().GetText();
+        var token = context.FUNCTION() is not null ? Tokens.Function : Tokens.Sub;
+        var isPtrSafe = context.PTRSAFE() is not null;
+        var literals = context.STRINGLITERAL();
+        var lib = literals[0].GetText();
+        var alias = literals.Length > 1 ? literals[1].GetText() : null;
+
+        var location = context.GetSourceLocation(_root.Uri);
+        OnDeclareStatement(name, location, alias, lib, visibility, isPtrSafe, token);
     }
     public override void ExitEventStmt([NotNull] VBAParser.EventStmtContext context)
     {
+        var name = context.identifier().GetText();
         base.ExitEventStmt(context);
     }
     public override void ExitUdtDeclaration([NotNull] VBAParser.UdtDeclarationContext context)
