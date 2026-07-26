@@ -4,6 +4,7 @@ using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values;
 using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Interop;
 using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
 using RDCore.SDK.Semantics.Builders;
@@ -25,18 +26,18 @@ public sealed record class VBBooleanLetCoercionRuntimeSemantics(
         {
             IFixedPointNumericType or IFloatingPointNumericType when frame.DestinationTypeDesc.Target is IIntegralNumericType and VBNumericType numericDestinationType
                 => ValidateDestinationTypeRange(expression, frame, out var error) 
-                    ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(numericDestinationType, expression.ResultSymbol, ((VBNumericTypedValue)frame.SourceValue).ManagedValue.InteropValue!))
+                    ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(numericDestinationType, (double)frame.SourceValue.ManagedValue.InteropValue!.BoxedValue))
                     : LetCoercionResult.Error(error),
 
             IIntegralNumericType when frame.DestinationTypeDesc.Target is IFixedPointNumericType or IFloatingPointNumericType
                 => ValidateDestinationTypeRange(expression, frame, out var error)
-                    ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc.Target, expression.ResultSymbol, ((VBNumericTypedValue)frame.SourceValue).ManagedValue.InteropValue!))
+                    ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc.Target, (double)frame.SourceValue.ManagedValue.InteropValue!.BoxedValue))
                     : LetCoercionResult.Error(error),
 
             // NOTE: MS-VBAL specifies this block first, but the pattern-matching would make the other blocks unreacheable.
             VBNumericTypedValue numericSourceValue when frame.DestinationTypeDesc.Target is VBNumericType numericDestinationType
                 => ValidateDestinationTypeRange(expression, frame, out var error)
-                    ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(numericDestinationType, expression.ResultSymbol, numericSourceValue.ManagedValue.InteropValue!))
+                    ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(numericDestinationType, (double)numericSourceValue.ManagedValue.InteropValue!.BoxedValue))
                     : LetCoercionResult.Error(error),
 
             _ => LetCoercionResult.NotApplicable(frame)

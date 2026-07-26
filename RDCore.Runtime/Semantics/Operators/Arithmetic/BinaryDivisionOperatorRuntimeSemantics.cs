@@ -87,11 +87,11 @@ public record class BinaryDivisionOperatorRuntimeSemantics(
                     : OnDivisionByZero(expression, Exceptions.VBDivisionOp_DivisionByZero);
             }
 
-            return EvaluateBinaryExpressionResult((VBNumericType)frame.EffectiveType, expression.ResultSymbol, lhsNumeric, rhsNumeric);
+            return EvaluateBinaryExpressionResult((VBNumericType)frame.EffectiveType, lhsNumeric, rhsNumeric);
         }
         else if (frame.EffectiveType is VBNullType)
         {
-            return EvaluateNullBinaryExpressionResult(expression.ResultSymbol);
+            return EvaluateNullBinaryExpressionResult();
         }
 
         return RuntimeSemanticsEvaluationResult.InternalError();

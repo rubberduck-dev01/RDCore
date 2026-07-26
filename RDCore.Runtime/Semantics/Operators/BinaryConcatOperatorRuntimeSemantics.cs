@@ -98,10 +98,9 @@ public record class BinaryConcatOperatorRuntimeSemantics(
         frame.EffectiveType switch
         {
             VBStringType => RuntimeSemanticsEvaluationResult.Success(
-                VBTypedValueFactory.CreateStringValue(expression.ResultSymbol,
-                    $"{((VBStringValue)frame[InputIndex.BinaryLeftOperand]).Value}{((VBStringValue)frame[InputIndex.BinaryRightOperand]).Value}")),
+                VBTypedValueFactory.CreateStringValue($"{((VBStringValue)frame[InputIndex.BinaryLeftOperand]).Value}{((VBStringValue)frame[InputIndex.BinaryRightOperand]).Value}")),
 
-            VBNullType => EvaluateNullBinaryExpressionResult(expression.ResultSymbol),
+            VBNullType => EvaluateNullBinaryExpressionResult(),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError(),
         };

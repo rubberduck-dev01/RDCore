@@ -30,24 +30,24 @@ public record class VBDateLetCoercionRuntimeSemantics(
             VBDateValue sourceDateValue when frame.DestinationTypeDesc.Target is VBDateType 
                 // result is a copy of the source date (no implicit DateSerial semantic flag should be issued here)
                 => LetCoercionResult.Success(
-                    VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc, expression.ResultSymbol, sourceDateValue)),
+                    VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc, sourceDateValue)),
 
             VBDateValue sourceDateValue when frame.DestinationTypeDesc.Target is VBNumericType or VBBooleanType 
                 // result is the standard Double representation (DateSerial), let-coerced to the destination type
-                => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc, expression.ResultSymbol, 
+                => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc, 
                     ((VBNumericTypedValue)Provider.EvaluateLetCoercionSemantics(resolver, expression, 
                         frame with { 
                             // we must first create the VBDoubleValue for the managed SerialValue:
-                            SourceValue = VBTypedValueFactory.CreateValue(VBDoubleType.TypeInfo, sourceDateValue.Symbol, sourceDateValue.ManagedValue.InteropValue!) 
+                            SourceValue = VBTypedValueFactory.CreateValue(VBDoubleType.TypeInfo, (double)sourceDateValue.ManagedValue.InteropValue!.BoxedValue) 
                         }).Result!).ManagedValue.InteropValue!)),
 
             VBNumericTypedValue or VBBooleanValue when frame.DestinationTypeDesc.Target is VBDateType
                 // result is the source value let-coerced to Double, then the Double is interpreted as a standard SerialValue.
-                => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc, expression.ResultSymbol, 
+                => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(frame.DestinationTypeDesc, 
                     ((VBDoubleValue)Provider.EvaluateLetCoercionSemantics(resolver, expression,
                         // we must first create the VBDoubleValue for the managed SerialValue:
                         frame with { 
-                            DestinationTypeDesc = VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo, frame.SourceValue.ResolvedSymbol) 
+                            DestinationTypeDesc = VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo) 
                         }).Result!).ManagedValue.InteropValue!)),
 
             _ => LetCoercionResult.NotApplicable(frame)

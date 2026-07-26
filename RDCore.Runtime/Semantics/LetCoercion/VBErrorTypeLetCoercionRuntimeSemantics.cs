@@ -31,14 +31,13 @@ public record class VBErrorTypeLetCoercionRuntimeSemantics(
             VBNumericTypedValue or VBBooleanValue or VBDateValue or VBStringValue or VBArrayValue or VBUserDefinedTypeValue =>
                 LetCoercionProvider.EvaluateLetCoercionSemantics(resolver, expression, new(
                     NodeUri: expression.SemanticId,
-                    OperatorSymbol: expression.Symbol,
                     OperandIndex: frame.OperandIndex,
                     SourceValue: frame.SourceValue,
-                    DestinationTypeDesc: VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo, expression.ResultSymbol)
+                    DestinationTypeDesc: VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo)
                 )).Result is VBDoubleValue coerced
                     && (double)coerced.ManagedValue.InteropValue!.BoxedValue > VBErrorType.MinimumStdErrorValue 
                     && (double)coerced.ManagedValue.InteropValue!.BoxedValue < VBErrorType.MaximumStdErrorValue
-                        ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(VBErrorType.TypeInfo, expression.ResultSymbol, coerced.ManagedValue.InteropValue))
+                        ? LetCoercionResult.Success(VBTypedValueFactory.CreateValue(VBErrorType.TypeInfo, (double)coerced.ManagedValue.InteropValue!.BoxedValue))
                         : LetCoercionResult.Error(OnLetCoercionTypeMismatch(expression, frame), frame),
 
             _ => LetCoercionResult.NotApplicable(frame)

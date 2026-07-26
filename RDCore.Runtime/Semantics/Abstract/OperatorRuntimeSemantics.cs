@@ -78,7 +78,7 @@ where TFlags : struct, Enum
         var frame = new OperatorEvaluationFrame
         {
             NodeUri = expression.SemanticId,
-            OperatorSymbol = expression.Symbol,
+            //OperatorSymbol = expression.Symbol,
             Operands = [.. operands],
             EffectiveType = VBUnknownType.TypeInfo,
         };
@@ -166,7 +166,7 @@ where TFlags : struct, Enum
         params VBTypedValue[] inputs)
     {
         var expression = (VBOperatorExpression<TContext, TFlags>)node;
-        var frame = new OperatorEvaluationFrame(expression.SemanticId, expression.Symbol, [.. inputs], VBUnknownType.TypeInfo);
+        var frame = new OperatorEvaluationFrame(expression.SemanticId, [.. inputs], VBUnknownType.TypeInfo);
         return Evaluate((ISymbolResolver)runtime, context, expression, frame);
     }
 
@@ -276,7 +276,7 @@ where TFlags : struct, Enum
                     NodeUri = expression.SemanticId,
                     OperandIndex = operandIndex,
                     SourceValue = operand,
-                    DestinationTypeDesc = VBTypedValueFactory.DescribeType(frame.EffectiveType, expression.ResultSymbol),
+                    DestinationTypeDesc = VBTypedValueFactory.DescribeType(frame.EffectiveType),
                 });
     }
 
@@ -306,7 +306,7 @@ where TFlags : struct, Enum
                 NodeUri = expression.SemanticId,
                 OperandIndex = operandIndex,
                 SourceValue = operand,
-                DestinationTypeDesc = VBTypedValueFactory.DescribeType(frame.EffectiveType, expression.ResultSymbol),
+                DestinationTypeDesc = VBTypedValueFactory.DescribeType(frame.EffectiveType),
             });
     }
 }

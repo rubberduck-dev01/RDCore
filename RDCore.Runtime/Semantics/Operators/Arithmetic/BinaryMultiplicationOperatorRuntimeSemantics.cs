@@ -59,9 +59,9 @@ public record class BinaryMultiplicationOperatorRuntimeSemantics(
             VBNumericType numericEffectiveType
                 when frame[InputIndex.BinaryLeftOperand] is VBNumericTypedValue lhsNumeric
                   && frame[InputIndex.BinaryRightOperand] is VBNumericTypedValue rhsNumeric
-                    => EvaluateBinaryExpressionResult(numericEffectiveType, expression.ResultSymbol, lhsNumeric, rhsNumeric),
+                    => EvaluateBinaryExpressionResult(numericEffectiveType, lhsNumeric, rhsNumeric),
 
-            VBNullType => EvaluateNullBinaryExpressionResult(expression.ResultSymbol),
+            VBNullType => EvaluateNullBinaryExpressionResult(),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError()
         };

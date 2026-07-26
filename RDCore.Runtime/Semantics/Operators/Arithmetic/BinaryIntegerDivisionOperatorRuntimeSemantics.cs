@@ -80,7 +80,7 @@ public record class BinaryIntegerDivisionOperatorRuntimeSemantics(
                 }
 
                 return RuntimeSemanticsEvaluationResult.Success(
-                    VBTypedValueFactory.CreateValue((VBNumericType)frame.EffectiveType, expression.ResultSymbol, 
+                    VBTypedValueFactory.CreateValue((VBNumericType)frame.EffectiveType, 
                         EvaluateManagedNumericOp(
                             (double)lhsValue.ManagedValue.InteropValue!.BoxedValue, 
                             (double)rhsValue.ManagedValue.InteropValue!.BoxedValue)));
@@ -88,7 +88,7 @@ public record class BinaryIntegerDivisionOperatorRuntimeSemantics(
         }
         else if (frame.EffectiveType is VBNullType)
         {
-            return EvaluateNullBinaryExpressionResult(expression.ResultSymbol);
+            return EvaluateNullBinaryExpressionResult();
         }
 
         return RuntimeSemanticsEvaluationResult.InternalError();

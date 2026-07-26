@@ -48,12 +48,12 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
         switch (frame.EffectiveType)
         {
             case VBNumericType numericEffectiveType:
-                return EvaluateBinaryExpressionResult(numericEffectiveType, expression.ResultSymbol,
+                return EvaluateBinaryExpressionResult(numericEffectiveType,
                     (VBNumericTypedValue)frame[InputIndex.BinaryLeftOperand],
                     (VBNumericTypedValue)frame[InputIndex.BinaryRightOperand]);
 
             case VBDateType dateEffectiveType:
-                return EvaluateBinaryExpressionResult(dateEffectiveType, expression.ResultSymbol,
+                return EvaluateBinaryExpressionResult(dateEffectiveType,
                     (VBNumericTypedValue)frame[InputIndex.BinaryLeftOperand],
                     (VBNumericTypedValue)frame[InputIndex.BinaryRightOperand]);
 
@@ -66,19 +66,19 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
                 var leftCoercion = LetCoercionProvider.EvaluateLetCoercionSemantics(
                     resolver: runtime.Memory, 
                     expression: expression, 
-                    frame: new(expression.SemanticId, expression.Symbol, InputIndex.BinaryLeftOperand, leftOperand, 
-                        VBTypedValueFactory.DescribeType(stringEffectiveType, leftOperand.ResolvedSymbol)));
+                    frame: new(expression.SemanticId, InputIndex.BinaryLeftOperand, leftOperand, 
+                        VBTypedValueFactory.DescribeType(stringEffectiveType)));
 
                 var rightOperand = frame[InputIndex.BinaryRightOperand];
                 var rightCoercion = LetCoercionProvider.EvaluateLetCoercionSemantics(
                     resolver: runtime.Memory,
                     expression: expression,
-                    frame: new(expression.SemanticId, expression.Symbol, InputIndex.BinaryRightOperand, rightOperand,
-                        VBTypedValueFactory.DescribeType(stringEffectiveType, rightOperand.ResolvedSymbol)));
+                    frame: new(expression.SemanticId, InputIndex.BinaryRightOperand, rightOperand,
+                        VBTypedValueFactory.DescribeType(stringEffectiveType)));
 
                 if (leftCoercion.IsSuccess && rightCoercion.IsSuccess)
                 {
-                    return EvaluateBinaryExpressionResult(expression.ResultSymbol, (VBStringValue)leftCoercion.Result!,
+                    return EvaluateBinaryExpressionResult((VBStringValue)leftCoercion.Result!,
                         (VBStringValue)rightCoercion.Result!);
                 }
                 else if (leftCoercion.ErrorInfo is not null || rightCoercion.ErrorInfo is not null)
@@ -88,12 +88,12 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
                 break;
 
             case VBNullType:
-                return EvaluateNullBinaryExpressionResult(expression.ResultSymbol);
+                return EvaluateNullBinaryExpressionResult();
         }
 
         return RuntimeSemanticsEvaluationResult.InternalError();
     }
 
-    private static RuntimeSemanticsEvaluationResult EvaluateBinaryExpressionResult(Symbol symbol, VBStringValue lhs, VBStringValue rhs)
-        => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateStringValue(symbol, $"{lhs.Value}{rhs.Value}"));
+    private static RuntimeSemanticsEvaluationResult EvaluateBinaryExpressionResult(VBStringValue lhs, VBStringValue rhs)
+        => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateStringValue($"{lhs.Value}{rhs.Value}"));
 }

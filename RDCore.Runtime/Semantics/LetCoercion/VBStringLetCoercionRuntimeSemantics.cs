@@ -29,15 +29,15 @@ public record class VBStringLetCoercionRuntimeSemantics(
         VBOperatorExpression<TContext, TFlags> expression, 
         LetCoercionStackFrame frame)
     {
-        var cultureInfo = VBTypedValue.CultureInfo;
+        var cultureInfo = CultureInfo.InvariantCulture;
         return frame.SourceValue switch
         {
             VBStringValue stringSourceValue when frame.DestinationTypeDesc.Target is VBStringType
                 // result is a copy of the source string.
-                => LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(expression.ResultSymbol, stringSourceValue.Value)),
+                => LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(stringSourceValue.Value)),
 
             VBNumericTypedValue numericSourceValue when frame.DestinationTypeDesc.Target is VBStringType
-                => CoerceToVBString(numericSourceValue, expression.ResultSymbol, cultureInfo),
+                => CoerceToVBString(numericSourceValue, cultureInfo),
 
             VBStringValue stringSourceValue when frame.DestinationTypeDesc.Target is VBBooleanType
                 => CoerceToVBBoolean(resolver, expression, frame, stringSourceValue),
@@ -47,14 +47,15 @@ public record class VBStringLetCoercionRuntimeSemantics(
 
             VBBooleanValue booleanSourceValue when frame.DestinationTypeDesc.Target is VBStringType
                 => LetCoercionResult.Success(
-                    VBTypedValueFactory.CreateStringValue(expression.ResultSymbol, (bool)booleanSourceValue.Value ? Tokens.True : Tokens.False)),
+                    VBTypedValueFactory.CreateStringValue((bool)booleanSourceValue.Value 
+                        ? Tokens.True 
+                        : Tokens.False)),
 
             VBDateValue dateSourceValue when frame.DestinationTypeDesc.Target is VBStringType
                 => LetCoercionResult.Success(
-                    VBTypedValueFactory.CreateStringValue(expression.ResultSymbol, 
-                        dateSourceValue == VBDateType.Zero 
-                            ? dateSourceValue.Value.ToLongTimeString()
-                            : dateSourceValue.Value.ToShortDateString())),
+                    VBTypedValueFactory.CreateStringValue(dateSourceValue == VBDateType.Zero 
+                        ? dateSourceValue.Value.ToLongTimeString()
+                        : dateSourceValue.Value.ToShortDateString())),
 
             _ => LetCoercionResult.NotApplicable(frame)
         };
@@ -80,7 +81,7 @@ public record class VBStringLetCoercionRuntimeSemantics(
     {
         if (DateTime.TryParse(stringSourceValue.Value, cultureInfo, out var dateValue))
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateValue(expression.ResultSymbol, dateValue));
+            return LetCoercionResult.Success(VBTypedValueFactory.CreateValue(dateValue));
         }
 
         if (Decimal.TryParse(stringSourceValue.Value, cultureInfo, out var decimalValue))
@@ -89,7 +90,7 @@ public record class VBStringLetCoercionRuntimeSemantics(
             {
                 var doubleCoercion = LetCoerceDouble(resolver, expression, frame);
                 return doubleCoercion.IsSuccess
-                    ? CoerceToVBBoolean(((VBDoubleValue)doubleCoercion.Result!), expression.ResultSymbol, frame)
+                    ? CoerceToVBBoolean((VBDoubleValue)doubleCoercion.Result!, frame)
                     : doubleCoercion;
             }
             else
@@ -112,19 +113,19 @@ public record class VBStringLetCoercionRuntimeSemantics(
         if (string.Equals(value.Value, Tokens.True, StringComparison.InvariantCultureIgnoreCase)
             || string.Equals(value.Value, $"#TRUE#", StringComparison.InvariantCulture))
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, VBBooleanValue.True), [frame]);
+            return LetCoercionResult.Success(VBBooleanValue.True, [frame]);
         }
 
         if (string.Equals(value.Value, Tokens.False, StringComparison.InvariantCultureIgnoreCase)
             || string.Equals(value.Value, $"#FALSE#", StringComparison.InvariantCulture))
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, VBBooleanValue.False), [frame]);
+            return LetCoercionResult.Success(VBBooleanValue.False, [frame]);
         }
 
         // otherwise the result is let-coerced to Double, which is let-coerced to Boolean.
         var doubleCoercion = LetCoerceDouble(resolver, expression, frame);
         return doubleCoercion.IsSuccess
-            ? CoerceToVBBoolean(((VBDoubleValue)doubleCoercion.Result!), expression.ResultSymbol, frame)
+            ? CoerceToVBBoolean(((VBDoubleValue)doubleCoercion.Result!), frame)
             : doubleCoercion;
     }
 
@@ -139,32 +140,32 @@ public record class VBStringLetCoercionRuntimeSemantics(
         var letCoercionFrame = currentFrame with
         {
             SourceValue = currentFrame.SourceValue,
-            DestinationTypeDesc = VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo, expression.ResultSymbol)
+            DestinationTypeDesc = VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo)
         };
         return LetCoercionProvider.EvaluateLetCoercionSemantics(resolver, expression, letCoercionFrame);
     }
 
-    private static LetCoercionResult CoerceToVBBoolean(VBNumericTypedValue value, Symbol resultSymbol, LetCoercionStackFrame frame)
-        => LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue(resultSymbol, (double)value.ManagedValue.InteropValue!.BoxedValue != 0), [frame]);
+    private static LetCoercionResult CoerceToVBBoolean(VBNumericTypedValue value, LetCoercionStackFrame frame)
+        => LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue((double)value.ManagedValue.InteropValue!.BoxedValue != 0), [frame]);
 
-    private static LetCoercionResult CoerceToVBString(VBNumericTypedValue value, Symbol resultSymbol, CultureInfo cultureInfo)
+    private static LetCoercionResult CoerceToVBString(VBNumericTypedValue value, CultureInfo cultureInfo)
     {
         var numericValue = (double)value.ManagedValue.InteropValue!.BoxedValue;
         if (numericValue == 0)
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(resultSymbol, VBStringValue.Zero));
+            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(VBStringValue.Zero));
         }
         else if (double.IsPositiveInfinity(numericValue))
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(resultSymbol, VBStringValue.PositiveInfinity));
+            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(VBStringValue.PositiveInfinity));
         }
         else if (double.IsNegativeInfinity(numericValue))
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(resultSymbol, VBStringValue.NegativeInfinity));
+            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(VBStringValue.NegativeInfinity));
         }
         else if (double.IsNaN(numericValue))
         {
-            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(resultSymbol, VBStringValue.NaN));
+            return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(VBStringValue.NaN));
         }
 
         var isNegative = numericValue < 0;
@@ -201,7 +202,7 @@ public record class VBStringLetCoercionRuntimeSemantics(
             stringValue = $"{sign}{stringValue}";
         }
 
-        return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(resultSymbol, stringValue));
+        return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(stringValue));
     }
 
     private static string ToVBScientificNotation(double value, int significantIntegerDigits, string decimalSeparator, CultureInfo cultureInfo)

@@ -77,10 +77,9 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
     {
         var coercionResult = LetCoercionProvider.EvaluateLetCoercionSemantics((ISymbolResolver)runtime, expression, 
             new(NodeUri: expression.SemanticId, 
-                OperatorSymbol: expression.Symbol, 
                 OperandIndex: InputIndex.BinaryLeftOperand, 
                 SourceValue: frame[InputIndex.BinaryLeftOperand], 
-                DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame[InputIndex.BinaryRightOperand].GetTargetType(), expression.ResultSymbol)));
+                DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame[InputIndex.BinaryRightOperand].GetTargetType())));
 
         return coercionResult.IsSuccess 
             ? RuntimeSemanticsEvaluationResult.Success(coercionResult.Result!)
