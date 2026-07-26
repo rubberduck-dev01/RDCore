@@ -49,12 +49,11 @@ public record class TypeDefDirectiveNode(Uri SemanticId, SourceLocation Location
 /// </summary>
 /// <param name="SemanticId">A semantic <c>Uri</c> uniquely identifying this specific node.</param>
 /// <param name="Location">The <c>Location</c> of the directive.</param>
-/// <param name="InterfaceClassType">The identifier name of the implemented interface.</param>
-public record class ImplementsDirectiveNode(Uri SemanticId, SourceLocation Location, BoundExpression NameExpression)
-    : BoundDirective(SemanticId, Location)
+public record class ImplementsDirectiveNode(Uri SemanticId, SourceLocation Location, BoundExpression? NameExpression = null)
+    : BoundDirective(SemanticId, Location, NameExpression is null ? [] : [NameExpression])
 {
     /// <summary>
     /// Gets an expression resolving the identifier name of the implemented interface.
     /// </summary>
-    public BoundExpression NameExpression { get; } = NameExpression;
+    public BoundExpression NameExpression => Children.OfType<BoundExpression>().Single();
 }
