@@ -48,21 +48,19 @@ public abstract record class UnaryArithmeticOperatorRuntimeSemantics(
     /// Evaluates the runtime semantics of a unary arithmetic operator and returns a value of the effective numeric data type.
     /// </summary>
     /// <param name="effectiveType">The <em>effective data type</em> of the operation.</param>
-    /// <param name="symbol">The unary operator expression symbol.</param>
     /// <param name="operand">The unary operand being evaluated.</param>
     /// <returns><c>null</c> if no return value can be evaluated, which would throw a <em>type mismatch</em> error.</returns>
-    protected virtual VBTypedValue EvaluateRuntimeSemantics(VBNumericType effectiveType, Symbol symbol, VBNumericTypedValue operand) 
-        => VBTypedValueFactory.CreateValue(effectiveType, symbol, EvaluateNumericOp((double)operand.ManagedValue.InteropValue!.BoxedValue));
+    protected virtual VBTypedValue EvaluateRuntimeSemantics(VBNumericType effectiveType, VBNumericTypedValue operand) 
+        => VBTypedValueFactory.CreateValue(effectiveType, EvaluateNumericOp((double)operand.ManagedValue.InteropValue!.BoxedValue));
 
     /// <summary>
     /// Evaluates the runtime semantics of a unary arithmetic operator
     /// </summary>
     /// <param name="effectiveType">The <em>effective data type</em> of the operation.</param>
-    /// <param name="symbol">The unary operator expression symbol.</param>
     /// <param name="operand">The unary operand being evaluated.</param>
     /// <returns><c>null</c> if no return value can be evaluated, which would throw a <em>type mismatch</em> error.</returns>
-    protected virtual VBTypedValue EvaluateRuntimeSemantics(VBDateType effectiveType, Symbol symbol, VBNumericTypedValue operand) 
-        => VBTypedValueFactory.CreateValue(effectiveType, symbol, EvaluateNumericOp((double)operand.ManagedValue.InteropValue!.BoxedValue));
+    protected virtual VBTypedValue EvaluateRuntimeSemantics(VBDateType effectiveType, VBNumericTypedValue operand) 
+        => VBTypedValueFactory.CreateValue(effectiveType, EvaluateNumericOp((double)operand.ManagedValue.InteropValue!.BoxedValue));
 
     /// <summary>
     /// Evaluates the numeric result of a unary arithmetic operation.

@@ -35,4 +35,5 @@ public abstract class VBABaseParserRuleContext : ParserRuleContext
     /// would only be safe to surface in the context of a full-document parse.
     /// </remarks>
     public SourceRange SourceRange => _anchoredRange;
+    public SourceLocation GetSourceLocation(Uri documentUri) => new(documentUri, SourceRange);
 }

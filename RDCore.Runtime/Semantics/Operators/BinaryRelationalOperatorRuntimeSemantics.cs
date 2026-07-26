@@ -210,17 +210,17 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
         if (frame.EffectiveType is VBByteType or VBIntegerType or VBLongType or VBLongLongType)
         {
             var result = ComparisonOp((long)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue, (long)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!.BoxedValue);
-            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, result));
+            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
         else if (frame.EffectiveType is VBCurrencyType)
         {
             var result = ComparisonOp(((ManagedCurrencyInteropValue)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue).Value, ((ManagedCurrencyInteropValue)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!).Value);
-            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, result));
+            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
         else if (frame.EffectiveType is VBDecimalType)
         {
             var result = ComparisonOp(((ManagedDecimalInteropValue)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue).ManagedValue, ((ManagedDecimalInteropValue)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!).ManagedValue);
-            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, result));
+            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
         else if (frame.EffectiveType is VBSingleType or VBDoubleType)
         {
@@ -232,7 +232,7 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
             }
 
             var result = ComparisonOp((double)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue, (double)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!.BoxedValue);
-            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, result));
+            return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
 
         else if (frame.EffectiveType is VBNullType)

@@ -32,10 +32,10 @@ public record class UnaryNotOperatorRuntimeSemantics(
         frame.EffectiveType switch
         {
             VBNumericType numericEffectiveType when frame.EffectiveType is IIntegralNumericType && frame[InputIndex.UnaryOperand] is VBNumericTypedValue numericOperand 
-                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(numericEffectiveType, expression.ResultSymbol, numericOperand)),
+                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(numericEffectiveType, numericOperand)),
 
             VBNullType nullEffectiveType when frame[InputIndex.UnaryOperand] is VBNullValue nullOperand 
-                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(nullEffectiveType, expression.ResultSymbol, nullOperand)),
+                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(nullEffectiveType, nullOperand)),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError(),
         };

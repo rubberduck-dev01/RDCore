@@ -52,7 +52,7 @@ public record class BinaryExponentOperatorRuntimeSemantics(
             if ((double)lhsValue.ManagedValue.InteropValue!.BoxedValue == 0 && (double)rhsValue.ManagedValue.InteropValue!.BoxedValue == 0)
             {
                 return RuntimeSemanticsEvaluationResult.Success(
-                    VBTypedValueFactory.CreateValue(frame.EffectiveType, expression.ResultSymbol, VBDoubleType.One.Value));
+                    VBTypedValueFactory.CreateValue(frame.EffectiveType, VBDoubleType.One.Value));
             }
 
             if ((double)lhsValue.ManagedValue.InteropValue.BoxedValue == 0 && (double)rhsValue.ManagedValue.InteropValue!.BoxedValue < 0)
@@ -62,12 +62,12 @@ public record class BinaryExponentOperatorRuntimeSemantics(
             }
 
             return RuntimeSemanticsEvaluationResult.Success(
-                VBTypedValueFactory.CreateValue(frame.EffectiveType, expression.ResultSymbol, 
+                VBTypedValueFactory.CreateValue(frame.EffectiveType, 
                 EvaluateManagedNumericOp((double)lhsValue.ManagedValue.InteropValue.BoxedValue, (double)rhsValue.ManagedValue.InteropValue!.BoxedValue)));
         }
         else if (frame.EffectiveType is VBNullType)
         {
-            return EvaluateNullBinaryExpressionResult(expression.ResultSymbol);
+            return EvaluateNullBinaryExpressionResult();
         }
 
         return RuntimeSemanticsEvaluationResult.InternalError();

@@ -34,15 +34,15 @@ public record class BinarySubtractionOperatorRuntimeSematics(
         VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
         OperatorEvaluationFrame frame) => frame.EffectiveType switch
         {
-            VBNumericType numericEffectiveType => EvaluateBinaryExpressionResult(numericEffectiveType, expression.ResultSymbol,
+            VBNumericType numericEffectiveType => EvaluateBinaryExpressionResult(numericEffectiveType,
                 (VBNumericTypedValue)frame[InputIndex.BinaryLeftOperand],
                 (VBNumericTypedValue)frame[InputIndex.BinaryRightOperand]),
 
-            VBDateType dateEffectiveType => EvaluateBinaryExpressionResult(dateEffectiveType, expression.ResultSymbol,
+            VBDateType dateEffectiveType => EvaluateBinaryExpressionResult(dateEffectiveType,
                 (VBNumericTypedValue)frame[InputIndex.BinaryLeftOperand],
                 (VBNumericTypedValue)frame[InputIndex.BinaryRightOperand]),
 
-            VBNullType => EvaluateNullBinaryExpressionResult(expression.ResultSymbol),
+            VBNullType => EvaluateNullBinaryExpressionResult(),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError()
         };

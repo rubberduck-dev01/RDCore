@@ -42,14 +42,14 @@ public sealed record class BinaryModuloOperatorRuntimeSemantics(
             }
 
             return RuntimeSemanticsEvaluationResult.Success(
-                VBTypedValueFactory.CreateValue((VBNumericType)frame.EffectiveType, expression.ResultSymbol,
+                VBTypedValueFactory.CreateValue((VBNumericType)frame.EffectiveType,
                 EvaluateManagedNumericOp(
                     (double)lhsNumeric.ManagedValue.InteropValue!.BoxedValue, 
                     (double)rhsNumeric.ManagedValue.InteropValue!.BoxedValue)));
         }
         else if (frame.EffectiveType is VBNullType)
         {
-            return EvaluateNullBinaryExpressionResult(expression.ResultSymbol);
+            return EvaluateNullBinaryExpressionResult();
         }
 
         return RuntimeSemanticsEvaluationResult.InternalError();

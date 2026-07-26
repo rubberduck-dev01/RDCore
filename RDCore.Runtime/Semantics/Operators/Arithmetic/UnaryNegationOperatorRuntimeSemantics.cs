@@ -72,14 +72,14 @@ public sealed record class UnaryNegationOperatorRuntimeSemantics(
             */
 
             VBNumericType numericEffectiveType when frame[InputIndex.UnaryOperand] is VBNumericTypedValue numericOperand =>
-                RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(numericEffectiveType, expression.ResultSymbol, numericOperand)!),
+                RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(numericEffectiveType, numericOperand)!),
 
             // per specifications a VBDateValue operand was let-coerced into a VBDoubleValue by this point:
             VBDateType dateEffectiveType when frame[InputIndex.UnaryOperand] is VBNumericTypedValue numericOperand =>
-                RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(dateEffectiveType, expression.ResultSymbol, numericOperand)!),
+                RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(dateEffectiveType, numericOperand)!),
 
             VBNullType nullEffectiveType when frame[InputIndex.UnaryOperand] is VBNullValue
-                => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(nullEffectiveType, expression.ResultSymbol)!),
+                => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(nullEffectiveType)!),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError(),
         };

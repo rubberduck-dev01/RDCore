@@ -33,9 +33,9 @@ public record class BinaryXorLogicalOperatorRuntimeSemantics(
         return lhs switch
         {
             VBTypedValue when lhs.TypeInfo is IIntegralNumericType && rhs is VBNullValue 
-                => EvaluateNullBinaryExpressionResult(expression.ResultSymbol),
+                => EvaluateNullBinaryExpressionResult(),
             VBNullValue when rhs.TypeInfo is IIntegralNumericType
-                => EvaluateNullBinaryExpressionResult(expression.ResultSymbol),
+                => EvaluateNullBinaryExpressionResult(),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError()
         };

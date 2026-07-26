@@ -26,7 +26,6 @@ namespace RDCore.Runtime.Execution.Frames
         public VBTypedValue this[int index] => Inputs[index];
 
         Uri IStackFrame.NodeUri => NodeUri;
-        StaticSymbol IStackFrame.StaticSymbol => StatementSymbol;
         ImmutableArray<VBTypedValue> IStackFrame.Inputs => Inputs;
 
         VBTypedValue IStackFrame<TInputs>.this[TInputs value] => Inputs[Convert.ToInt32(value)];

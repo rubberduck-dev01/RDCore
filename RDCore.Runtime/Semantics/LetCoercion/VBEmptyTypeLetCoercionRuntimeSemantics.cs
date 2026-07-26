@@ -6,6 +6,7 @@ using RDCore.SDK.Model.Types.Complex;
 using RDCore.SDK.Model.Values;
 using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Model.Values.Intrinsic;
+using RDCore.SDK.Model.Values.Meta;
 using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
 using RDCore.SDK.Semantics;
@@ -25,17 +26,15 @@ public record class VBEmptyTypeLetCoercionRuntimeSemantics(IVerboseMessageBuilde
         frame.DestinationTypeDesc.Target switch
         {
             VBNumericType numericType => LetCoercionResult.Success(
-                VBTypedValueFactory.CreateValue(numericType, expression.ResultSymbol, ((VBNumericTypedValue)frame.SourceValue).ManagedValue.InteropValue!)),
+                VBTypedValueFactory.CreateValue(new VBTypeDescValue(numericType), ((VBNumericTypedValue)frame.SourceValue).ManagedValue.InteropValue!)),
         
-            VBBooleanType => LetCoercionResult.Success(
-                VBTypedValueFactory.CreateBooleanValue(expression.ResultSymbol, VBBooleanValue.False)),
+            VBBooleanType => LetCoercionResult.Success(VBBooleanValue.False),
 
-            VBDateType => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(expression.ResultSymbol, VBDateType.Zero)),
+            VBDateType => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(new VBTypeDescValue(VBDateType.TypeInfo), VBDateType.Zero.ManagedValue.InteropValue!)),
             VBFixedStringType fixedStringDestinationType => LetCoercionResult.Success(
-                VBTypedValueFactory.CreateValue(fixedStringDestinationType, expression.ResultSymbol)!),
+                VBTypedValueFactory.CreateValue(fixedStringDestinationType)!),
 
-            VBStringType => LetCoercionResult.Success(
-                VBTypedValueFactory.CreateStringValue(expression.ResultSymbol, VBStringValue.ZeroLengthString)),
+            VBStringType => LetCoercionResult.Success(VBStringValue.ZeroLengthString),
         
             // 🧩 what would be the implications of let-coercing Empty to Nothing?
             VBObjectType or VBClassType => LetCoercionResult.Error(OnLetCoercionObjectRequired(expression, frame)),

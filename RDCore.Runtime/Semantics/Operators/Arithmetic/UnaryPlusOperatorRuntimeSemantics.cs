@@ -51,14 +51,14 @@ public sealed record class UnaryPlusOperatorRuntimeSemantics(
         OperatorEvaluationFrame frame) => frame.EffectiveType switch
         {
             VBNumericType numericEffectiveType when frame[InputIndex.UnaryOperand] is VBNumericTypedValue numericOperand 
-                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(numericEffectiveType, expression.ResultSymbol, numericOperand)!),
+                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(numericEffectiveType, numericOperand)!),
         
             // per specifications a VBDateValue operand was let-coerced into a VBDoubleValue during validation stage:
             VBDateType dateEffectiveType when frame[InputIndex.UnaryOperand] is VBNumericTypedValue numericOperand 
-                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(dateEffectiveType, expression.ResultSymbol, numericOperand)!),
+                => RuntimeSemanticsEvaluationResult.Success(EvaluateRuntimeSemantics(dateEffectiveType, numericOperand)!),
 
             VBNullType nullEffectiveType when frame[InputIndex.UnaryOperand] is VBNullValue
-                => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(nullEffectiveType, expression.ResultSymbol)!),
+                => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(nullEffectiveType)!),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError(),
         };

@@ -2,7 +2,6 @@
 using RDCore.Runtime.Semantics.LetCoercion;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Expressions;
-using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values;
@@ -70,18 +69,16 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
         {
             var lhsCoercion = LetCoercionSemanticsProvider.EvaluateLetCoercionSemantics(runtime.Memory, expression, new(
                 NodeUri: expression.SemanticId, 
-                OperatorSymbol: expression.Symbol, 
                 OperandIndex: InputIndex.BinaryLeftOperand, 
                 SourceValue: lhs, 
-                DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame.EffectiveType, expression.ResultSymbol)));
+                DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame.EffectiveType)));
             var lhsValue = lhsCoercion.Result as VBNumericTypedValue;
 
             var rhsCoercion = LetCoercionSemanticsProvider.EvaluateLetCoercionSemantics(runtime.Memory, expression, new(
                 NodeUri: expression.SemanticId,
-                OperatorSymbol: expression.Symbol,
                 OperandIndex: InputIndex.BinaryRightOperand,
                 SourceValue: rhs,
-                DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame.EffectiveType, expression.ResultSymbol)));
+                DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame.EffectiveType)));
             var rhsValue = rhsCoercion.Result as VBNumericTypedValue;
 
             if (lhsCoercion.ErrorInfo is not null || rhsCoercion.ErrorInfo is not null)
@@ -92,13 +89,13 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
             if (lhsValue is VBDoubleValue lhsDouble && rhsValue is VBDoubleValue rhsDouble)
             {
                 return RuntimeSemanticsEvaluationResult.Success(
-                    VBTypedValueFactory.CreateValue(VBIntegerType.TypeInfo, expression.Symbol,
+                    VBTypedValueFactory.CreateValue(VBIntegerType.TypeInfo, 
                         EvaluateBitwiseOp(Convert.ToInt32(lhsDouble.ManagedValue.InteropValue!.BoxedValue), Convert.ToInt32(rhsDouble.ManagedValue.InteropValue!.BoxedValue))));
             }
         }
         else if (lhs is VBNullValue && rhs is VBNullValue)
         {
-            return EvaluateNullBinaryExpressionResult(expression.ResultSymbol);
+            return EvaluateNullBinaryExpressionResult();
         }
 
         return EvaluateSemanticallly(runtime, expression, frame);
@@ -120,23 +117,21 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     /// Evaluates the runtime semantics of a binary logical operator and returns a value of the effective numeric data type.
     /// </summary>
     /// <param name="effectiveType">The <em>effective data type</em> of the operation.</param>
-    /// <param name="symbol">The unary operator expression symbol.</param>
     /// <param name="lhs">The left-hand side (LHS) numeric binary expression operand.</param>
     /// <param name="rhs">The right-hand side (RHS) numeric binary expression operand.</param>
     /// <returns><c>null</c> if no return value can be evaluated, which would throw a <em>type mismatch</em> error.</returns>
-    protected virtual VBTypedValue? EvaluateRuntimeSemantics(VBNumericType effectiveType, Symbol symbol, VBNumericTypedValue lhs, VBNumericTypedValue rhs) =>
-        VBTypedValueFactory.CreateValue(effectiveType, symbol, EvaluateBitwiseOp((int)lhs.ManagedValue.InteropValue!.BoxedValue, (int)rhs.ManagedValue.InteropValue!.BoxedValue));
+    protected virtual VBTypedValue? EvaluateRuntimeSemantics(VBNumericType effectiveType, VBNumericTypedValue lhs, VBNumericTypedValue rhs) =>
+        VBTypedValueFactory.CreateValue(effectiveType, EvaluateBitwiseOp((int)lhs.ManagedValue.InteropValue!.BoxedValue, (int)rhs.ManagedValue.InteropValue!.BoxedValue));
 
     /// <summary>
     /// Evaluates the runtime semantics of a binary logical operator
     /// </summary>
     /// <param name="effectiveType">The <em>effective data type</em> of the operation.</param>
-    /// <param name="symbol">The binary operator expression symbol.</param>
     /// <param name="lhs">The left-hand side (LHS) numeric binary expression operand.</param>
     /// <param name="rhs">The right-hand side (RHS) numeric binary expression operand.</param>
     /// <returns><c>null</c> if no return value can be evaluated, which would throw a <em>type mismatch</em> error.</returns>
-    protected virtual VBTypedValue? EvaluateRuntimeSemantics(VBDateType effectiveType, Symbol symbol, VBNumericTypedValue lhs, VBNumericTypedValue rhs) =>
-        VBTypedValueFactory.CreateValue(effectiveType, symbol, EvaluateBitwiseOp((int)lhs.ManagedValue.InteropValue!.BoxedValue, (int)rhs.ManagedValue.InteropValue!.BoxedValue));
+    protected virtual VBTypedValue? EvaluateRuntimeSemantics(VBDateType effectiveType, VBNumericTypedValue lhs, VBNumericTypedValue rhs) =>
+        VBTypedValueFactory.CreateValue(effectiveType, EvaluateBitwiseOp((int)lhs.ManagedValue.InteropValue!.BoxedValue, (int)rhs.ManagedValue.InteropValue!.BoxedValue));
 
     protected override ISemanticContextContributor<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> Analyze(
         ISymbolResolver resolver,

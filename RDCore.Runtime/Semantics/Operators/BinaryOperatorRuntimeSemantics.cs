@@ -77,6 +77,6 @@ where TFlags : struct, Enum
     /// <item>Otherwise, the result contains a <see cref="VBRuntimeErrorInfo"/> describing a specific run-time error.</item>
     /// </list>
     /// </returns>
-    protected virtual RuntimeSemanticsEvaluationResult EvaluateNullBinaryExpressionResult(Symbol symbol) 
-        => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateNullValue(symbol));
+    protected virtual RuntimeSemanticsEvaluationResult EvaluateNullBinaryExpressionResult() 
+        => RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateNullValue());
 }

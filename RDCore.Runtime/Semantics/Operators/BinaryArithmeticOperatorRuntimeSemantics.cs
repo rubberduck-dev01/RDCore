@@ -124,7 +124,6 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     /// Evaluates the <see cref="VBNumericType"/> runtime semantics of a <em>binary arithmetic operator</em> 
     /// </summary>
     /// <param name="effectiveType">The determined <em>effective data type</em> of the <em>arithmetic operation</em>.</param>
-    /// <param name="symbol">The <c>ResultSymbol</c> of the <em>binary arithmetic operator expression</em>.</param>
     /// <param name="lhs">The resolved <see cref="VBNumericTypedValue"/> of the left-hand side (LHS) <em>numeric binary expression</em> operand.</param>
     /// <param name="rhs">The resolved <see cref="VBNumericTypedValue"/> of the right-hand side (RHS) <em>numeric binary expression</em> operand.</param>
     /// <remarks>
@@ -142,10 +141,9 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     /// </returns>
     protected virtual RuntimeSemanticsEvaluationResult EvaluateBinaryExpressionResult(
         VBNumericType effectiveType, 
-        Symbol symbol, 
         VBNumericTypedValue lhs, VBNumericTypedValue rhs) 
         => RuntimeSemanticsEvaluationResult.Success(
-            VBTypedValueFactory.CreateValue(effectiveType, symbol, 
+            VBTypedValueFactory.CreateValue(effectiveType, 
                 EvaluateManagedNumericOp((double)lhs.ManagedValue.InteropValue!.BoxedValue, (double)rhs.ManagedValue.InteropValue!.BoxedValue)));
 
     /// <summary>
@@ -153,7 +151,6 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     /// 👉 <see cref="VBDateValue"/> operands have been <em>let-coerced</em> to <see cref="VBDoubleValue"/> values for evaluation.
     /// </summary>
     /// <param name="effectiveType">The <see cref="VBDateType"/> determined <em>effective data type</em> of the <em>arithmetic operation</em>.</param>
-    /// <param name="symbol">The <c>ResultSymbol</c> of the <em>binary arithmetic operator expression</em>.</param>
     /// <param name="lhs">The resolved <see cref="VBNumericTypedValue"/> of the left-hand side (LHS) <em>date binary expression</em> operand.</param>
     /// <param name="rhs">The resolved <see cref="VBNumericTypedValue"/> of the right-hand side (RHS) <em>date binary expression</em> operand.</param>
     /// <remarks>
@@ -171,10 +168,9 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     /// </returns>
     protected virtual RuntimeSemanticsEvaluationResult EvaluateBinaryExpressionResult(
         VBDateType effectiveType, 
-        Symbol symbol, 
         VBNumericTypedValue lhs, VBNumericTypedValue rhs) =>
         RuntimeSemanticsEvaluationResult.Success(
-            VBTypedValueFactory.CreateValue(effectiveType, symbol, 
+            VBTypedValueFactory.CreateValue(effectiveType, 
                 EvaluateManagedNumericOp((double)lhs.ManagedValue.InteropValue!.BoxedValue, (double)rhs.ManagedValue.InteropValue!.BoxedValue)));
 
     /// <summary>
