@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 using RDCore.Parsing.Syntax;
 using RDCore.SDK.Model;
 using RDCore.SDK.Model.AST.Abstract;
@@ -6,6 +7,7 @@ using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Directives;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Source;
+using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Model.Values.Intrinsic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -229,7 +231,112 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             }
         }
     }
-    
+    public override void ExitNumberLiteral([NotNull] VBAParser.NumberLiteralContext context)
+    {
+        if (!IsDeclarationPassExpression)
+        {
+            return;
+        }
+
+        var location = context.GetSourceLocation(_root.SemanticId);
+        VBTypedValue value = VBUnknownValue.DefaultValue;
+        if (context.INTEGERLITERAL() is ITerminalNode intNumeric)
+        {
+            var rawValue = Int64.Parse(intNumeric.Symbol.Text);
+            if (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
+            {
+                value = new VBIntegerValue(Convert.ToInt16(rawValue));
+            }
+            else if (rawValue <= Int32.MaxValue && rawValue >= Int32.MaxValue)
+            {
+                value = new VBLongValue(Convert.ToInt32(rawValue));
+            }
+            else
+            {
+                value = new VBDoubleValue(Convert.ToDouble(rawValue));
+            }
+        }
+        else if (context.FLOATLITERAL() is ITerminalNode floatNumeric)
+        {
+            var rawValue = Double.Parse(floatNumeric.Symbol.Text);
+            if (rawValue <= Single.MaxValue && rawValue >= Single.MinValue)
+            {
+                value = new VBSingleValue(Convert.ToSingle(rawValue));
+            }
+            else
+            {
+                value = new VBDoubleValue(rawValue);
+            }
+        }
+        else if (context.HEXLITERAL() is ITerminalNode hexNumeric)
+        {
+            var rawValue = Convert.ToInt64(hexNumeric.Symbol.Text[2..], fromBase: 16);
+            if (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
+            {
+                value = new VBIntegerValue(Convert.ToInt16(rawValue));
+            }
+            else if (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
+            {
+                value = new VBLongValue(Convert.ToInt32(rawValue));
+            }
+            else if (rawValue <= Int64.MaxValue && rawValue >= Int64.MinValue)
+            {
+                value = new VBLongLongValue(Convert.ToInt64(rawValue));
+            }
+            else
+            {
+                value = new VBDoubleValue(Convert.ToDouble(rawValue));
+            }
+        }
+        else if (context.OCTLITERAL() is ITerminalNode octNumeric)
+        {
+            var rawValue = Convert.ToInt64(octNumeric.Symbol.Text[2..], fromBase: 8);
+            if (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
+            {
+                value = new VBIntegerValue(Convert.ToInt16(rawValue));
+            }
+            else if (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
+            {
+                value = new VBLongValue(Convert.ToInt32(rawValue));
+            }
+            else if (rawValue <= Int64.MaxValue && rawValue >= Int64.MinValue)
+            {
+                value = new VBLongLongValue(Convert.ToInt64(rawValue));
+            }
+            else
+            {
+                value = new VBDoubleValue(Convert.ToDouble(rawValue));
+            }
+        }
+
+        OnBoundExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_numeric_{_expressionId}"), location, value));
+    }
+    public override void ExitLiteralExpression([NotNull] VBAParser.LiteralExpressionContext context)
+    {
+        if (!IsDeclarationPassExpression)
+        {
+            return;
+        }
+
+        var location = context.GetSourceLocation(_root.SemanticId);
+        if (context.DATELITERAL() is ITerminalNode dateLiteral)
+        {
+            if (DateTime.TryParse(dateLiteral.Symbol.Text.Trim('#'), out var rawValue))
+            {
+                OnBoundExpression(new VBLiteralExpression(
+                    GetUriWithFragmentFor($"__literal_date_{_expressionId}"), 
+                    location, 
+                    new VBDateValue(rawValue.ToOADate())));
+            }
+        }
+        else if (context.STRINGLITERAL() is ITerminalNode stringLiteral)
+        {
+            OnBoundExpression(new VBLiteralExpression(
+                GetUriWithFragmentFor($"__literal_string_{_expressionId}"), 
+                location,
+                new VBStringValue(stringLiteral.Symbol.Text[1..^1])));
+        }
+    }
 
     private int _parameterIndex = 0;
     public override void EnterArgList([NotNull] VBAParser.ArgListContext context)
