@@ -71,5 +71,5 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
     protected static VBRuntimeErrorInfo OnRuntimeError(VBRuntimeErrorId errorId, BoundNode node, string verbose)
-        => VBRuntimeErrorInfo.For(errorId, node.Location, verbose);
+        => VBRuntimeErrorInfo.For(errorId, node.SourceLocation, verbose);
 }
