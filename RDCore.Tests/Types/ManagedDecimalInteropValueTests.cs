@@ -1,4 +1,4 @@
-﻿using RDCore.SDK.Model.Values.Interop;
+﻿using RDCore.SDK.Model.Values.Runtime;
 
 namespace RDCore.Tests.Types;
 
@@ -16,7 +16,7 @@ public class ManagedDecimalInteropValueTests
     public void RepresentsDecimalValue(object value)
     {
         var expected = Convert.ToDecimal(value);
-        var runtimeValue = new ManagedDecimalInteropValue(expected);
+        var runtimeValue = new VBRuntimeDecimalValue(expected);
         Assert.AreEqual(expected, runtimeValue.ManagedValue);
     }
 
@@ -25,7 +25,7 @@ public class ManagedDecimalInteropValueTests
     public void RepresentsDecimalMinValue()
     {
         var expected = decimal.MinValue;
-        var runtimeValue = new ManagedDecimalInteropValue(expected);
+        var runtimeValue = new VBRuntimeDecimalValue(expected);
         Assert.AreEqual(expected, runtimeValue.ManagedValue);
     }
 
@@ -34,7 +34,7 @@ public class ManagedDecimalInteropValueTests
     public void RepresentsDecimalMaxValue()
     {
         var expected = decimal.MaxValue;
-        var runtimeValue = new ManagedDecimalInteropValue(expected);
+        var runtimeValue = new VBRuntimeDecimalValue(expected);
         Assert.AreEqual(expected, runtimeValue.ManagedValue);
     }
 }

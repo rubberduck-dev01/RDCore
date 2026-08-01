@@ -5,7 +5,7 @@ using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
-using RDCore.SDK.Model.Values.Interop;
+using RDCore.SDK.Model.Values.Runtime;
 using RDCore.SDK.Model.Values.Intrinsic;
 using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
@@ -60,7 +60,7 @@ public record class BinaryDivisionOperatorRuntimeSemantics(
         if (frame.EffectiveType is VBDecimalType)
         {
             var rhsNumeric = (VBNumericTypedValue)rhs;
-            if (((ManagedDecimalInteropValue)rhsNumeric.ManagedValue.InteropValue!).ManagedValue == 0)
+            if (((VBRuntimeDecimalValue)rhsNumeric.ManagedValue.RuntimeValue!).ManagedValue == 0)
             {
                 return OnDivisionByZero(expression, Exceptions.VBDivisionOp_DivisionByZero);
             }
@@ -69,7 +69,7 @@ public record class BinaryDivisionOperatorRuntimeSemantics(
         {
             var lhsNumeric = (VBNumericTypedValue)lhs;
             var rhsNumeric = (VBNumericTypedValue)rhs;
-            if ((double)rhsNumeric.ManagedValue.InteropValue!.BoxedValue == 0)
+            if ((double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue == 0)
             {
                 //if (lhsNumeric is VBDoubleValue && rhsNumeric is VBDoubleValue)
                 //{
@@ -82,7 +82,7 @@ public record class BinaryDivisionOperatorRuntimeSemantics(
                 //    // and then let-assignment semantics would know what to do.
                 //}
 
-                return (double)lhsNumeric.ManagedValue.InteropValue!.BoxedValue == 0 && !(lhs is VBSingleValue or VBDoubleValue or VBStringValue or VBDateValue && rhs is VBEmptyValue)
+                return (double)lhsNumeric.ManagedValue.RuntimeValue!.BoxedValue == 0 && !(lhs is VBSingleValue or VBDoubleValue or VBStringValue or VBDateValue && rhs is VBEmptyValue)
                     ? OnOverflow(expression, Exceptions.VBRuntimeError_ArithmeticOverflow)
                     : OnDivisionByZero(expression, Exceptions.VBDivisionOp_DivisionByZero);
             }
