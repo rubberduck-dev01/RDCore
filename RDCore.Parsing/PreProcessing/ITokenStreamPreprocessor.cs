@@ -4,5 +4,5 @@ namespace RDCore.Parsing.PreProcessing;
 
 public interface ITokenStreamPreprocessor
 {
-    CommonTokenStream? PreprocessTokenStream(Uri uri, CommonTokenStream tokenStream, CancellationToken token);
+    CommonTokenStream? PreprocessTokenStream(Uri uri, CommonTokenStream tokenStream);
 }

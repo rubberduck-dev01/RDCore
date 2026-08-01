@@ -19,13 +19,9 @@ internal sealed class VBAPreprocessor : ITokenStreamPreprocessor
         _parser = preprocessorParser;
     }
 
-    public CommonTokenStream? PreprocessTokenStream(Uri uri, CommonTokenStream tokenStream, CancellationToken token)
+    public CommonTokenStream? PreprocessTokenStream(Uri uri, CommonTokenStream tokenStream)
     {
-        token.ThrowIfCancellationRequested();
-
-        var tree = _parser.Parse(uri, tokenStream, token, out _);
-        token.ThrowIfCancellationRequested();
-
+        var tree = _parser.Parse(uri, tokenStream, out _);
         var charStream = tokenStream.TokenSource.InputStream;
         var symbolTable = new SymbolTable<string, IValue>();
         Dictionary<string, short> userCompilationArguments = [];

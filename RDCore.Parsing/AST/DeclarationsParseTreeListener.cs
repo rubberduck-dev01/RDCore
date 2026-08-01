@@ -25,7 +25,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     private NodeBuilder CurrentBuilder => _builderStack.Peek();
     private Uri GetUriWithFragmentFor(string name) => new($"{_root.SemanticId.AbsolutePath}#{name.ToLowerInvariant()}");
 
-    public BoundNode BuildModuleNode()
+    public ModuleNode BuildModuleNode()
     {
         Debug.Assert(_builderStack.Count == 1);
         return _root with { Children = [.. CurrentBuilder.GetChildren] };

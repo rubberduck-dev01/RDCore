@@ -14,7 +14,6 @@ public enum ParserMode
 public interface ITokenStreamParser
 {
     IParseTree Parse(Uri uri, CommonTokenStream tokenStream, 
-        CancellationToken token, 
         out IEnumerable<VBSyntaxErrorInfo> errors, 
         ParserMode parserMode = ParserMode.FallBackSllToLl, 
         IEnumerable<IParseTreeListener>? parseListeners = null);

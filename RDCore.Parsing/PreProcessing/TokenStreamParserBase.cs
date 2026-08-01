@@ -13,23 +13,23 @@ internal abstract class TokenStreamParserBase<TParser> : ITokenStreamParser
     protected IParseTree Parse(ITokenStream tokenStream, PredictionMode predictionMode, IEnumerable<IParseTreeListener>? parseListeners = null)
     {
         var parser = GetParser(tokenStream);
-        parser.Interpreter.PredictionMode = predictionMode;
+        //parser.Interpreter.PredictionMode = predictionMode;
         //if (errorListener != null)
         //{
         //    parser.AddErrorListener(errorListener);
         //}
-        if (parseListeners != null)
-        {
-            foreach (var listener in parseListeners)
-            {
-                parser.AddParseListener(listener);
-            }
-        }
+        //if (parseListeners != null)
+        //{
+        //    foreach (var listener in parseListeners)
+        //    {
+        //        parser.AddParseListener(listener);
+        //    }
+        //}
         return Parse(parser);
     }
     protected abstract TParser GetParser(ITokenStream tokenStream);
     protected abstract IParseTree Parse(TParser parser);
-    public IParseTree Parse(Uri uri, CommonTokenStream tokenStream, CancellationToken token, out IEnumerable<VBSyntaxErrorInfo> errors, ParserMode parserMode = ParserMode.FallBackSllToLl, IEnumerable<IParseTreeListener>? parseListeners = null)
+    public IParseTree Parse(Uri uri, CommonTokenStream tokenStream, out IEnumerable<VBSyntaxErrorInfo> errors, ParserMode parserMode = ParserMode.FallBackSllToLl, IEnumerable<IParseTreeListener>? parseListeners = null)
     {
         errors = [];
         return parserMode switch
