@@ -53,7 +53,7 @@ where TFlags : struct, Enum
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext conversionContext, 
         ISemanticFlagsAccumulator<TFlags> builder, 
-        BoundNode node, 
+        SyntaxNode node, 
         params VBTypedValue[] inputs)
         => Analyze(resolver, conversionContext, builder, (VBOperatorExpression<TContext, TFlags>)node, inputs);
 
@@ -109,7 +109,7 @@ where TFlags : struct, Enum
     /// <param name="evaluationResult">The result of the <em>evaluate result</em> (third/last) evaluation step.</param>
     /// <param name="semanticFlags">The <em>semantic flags</em> associated with this operation evaluation.</param>
     /// <returns></returns>
-    protected abstract OperatorAnalysisContext<TFlags> CreateAnalysisContext(BoundNode node, 
+    protected abstract OperatorAnalysisContext<TFlags> CreateAnalysisContext(SyntaxNode node, 
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
@@ -162,7 +162,7 @@ where TFlags : struct, Enum
     public sealed override RuntimeSemanticsEvaluationResult Evaluate(
         IVBExecutionContext runtime, 
         SemanticContext<TFlags> context, 
-        BoundNode node, 
+        SyntaxNode node, 
         params VBTypedValue[] inputs)
     {
         var expression = (VBOperatorExpression<TContext, TFlags>)node;

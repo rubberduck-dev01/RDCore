@@ -33,7 +33,7 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     protected abstract bool ComparisonOp(long lhs, long rhs);
 
     protected override OperatorAnalysisContext<ComparisonOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
@@ -248,6 +248,6 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     /// </summary>
     /// <param name="expression">The <em>binary arithmetic operator expression</em> whose <c>ResultSymbol</c> the error result will be attached to.</param>
     /// <param name="verbose">A detailed <c>Verbose</c> message about the error.</param>
-    protected static RuntimeSemanticsEvaluationResult OnObjectRequired(BoundExpression expression, string verbose)
+    protected static RuntimeSemanticsEvaluationResult OnObjectRequired(ExpressionNode expression, string verbose)
         => RuntimeSemanticsEvaluationResult.Error(OnRuntimeError(VBRuntimeErrorId.ObjectRequired, expression, verbose));
 }

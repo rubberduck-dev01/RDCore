@@ -7,7 +7,6 @@ using RDCore.Parsing.Syntax;
 using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.Errors;
 using RDCore.SDK.Model.Source;
-using System.Runtime.InteropServices;
 
 namespace RDCore.Parsing;
 
@@ -19,20 +18,22 @@ internal record class ModuleParseResult
         SyntaxError = VBSyntaxErrorInfo.For(VBCompileErrorId.SyntaxError, location, verbose) 
     };
 
-    ModuleNode? SyntaxTree { get; init; }
-    VBSyntaxErrorInfo? SyntaxError { get; init; }
+    public ModuleNode? SyntaxTree { get; init; }
+    public VBSyntaxErrorInfo? SyntaxError { get; init; }
+
+    public bool IsSuccess => SyntaxTree is not null && SyntaxError is null;
 }
 
 internal interface IModuleParser
 {
-    ModuleParseResult Parse(Uri uri, ModuleType moduleType, char[] content);
+    ModuleParseResult Parse(Uri uri, ModuleType moduleType, Stream content);
 }
 
 internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModuleParser
 {
-    public ModuleParseResult Parse(Uri uri, ModuleType moduleType, char[] content)
+    public ModuleParseResult Parse(Uri uri, ModuleType moduleType, Stream content)
     {
-        var input = new AntlrInputStream(content, content.Length);
+        var input = new AntlrInputStream(content);
         var lexer = new VBALexer(input);
         var rawTokenStream = new CommonTokenStream(lexer);
 
@@ -86,7 +87,7 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
     {
         var parser = new VBAParser(tokenStream);
         parser.Interpreter.PredictionMode = mode;
-
+        
         foreach (var listener in listeners)
         {
             parser.AddParseListener(listener);

@@ -21,7 +21,7 @@ internal class TimedExecutionPipeline(IExecutionPipeline<ExecutionResultInfo> pi
     /// <param name="context">The <em>runtime context</em> to evaluate the expression with.</param>
     /// <param name="expression">The <em>bound expression</em> node to evaluate.</param>
     /// <returns>A record encapsulating the <see cref="RuntimeSemanticsEvaluationResult"/> and a <see cref="TimeSpan"/> representing the amoutn of time elapsed during evaluation.</returns>
-    public TimedExecutionResultInfo Execute<TNode>(IVBExecutionContext context, TNode expression) where TNode : BoundExpression
+    public TimedExecutionResultInfo Execute<TNode>(IVBExecutionContext context, TNode expression) where TNode : ExpressionNode
     {
         var stopwatch = Stopwatch.StartNew();
         var result =_pipeline.Execute(context, expression);

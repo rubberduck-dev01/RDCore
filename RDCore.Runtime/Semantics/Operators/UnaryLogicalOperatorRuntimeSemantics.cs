@@ -32,7 +32,7 @@ public abstract record class UnaryLogicalOperatorRuntimeSemantics(
     protected abstract double EvaluateBitwiseOp(double operand);
 
     protected override OperatorAnalysisContext<LogicalOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,

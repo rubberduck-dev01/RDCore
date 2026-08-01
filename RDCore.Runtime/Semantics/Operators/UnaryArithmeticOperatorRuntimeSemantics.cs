@@ -37,7 +37,7 @@ public abstract record class UnaryArithmeticOperatorRuntimeSemantics(
     }
 
     protected override OperatorAnalysisContext<ArithmeticOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,

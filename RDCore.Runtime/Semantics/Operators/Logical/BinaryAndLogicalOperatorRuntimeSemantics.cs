@@ -30,7 +30,7 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
     protected override double EvaluateBitwiseOp(int lhs, int rhs) => lhs & rhs;
 
     protected override OperatorAnalysisContext<LogicalOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,

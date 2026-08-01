@@ -106,7 +106,7 @@ public abstract record class LetCoercionRuntimeSemantics<TStrategy> : ILetCoerci
     /// </summary>
     /// <param name="error">Any run-time error that needs to be thrown following this validation, if it failed.</param>
     /// <returns><c>true</c> if the specified <c>sourceValue</c> is within the range of the <c>destinationDeclaredType</c>; <c>false</c> otherwise.</returns>
-    protected bool ValidateDestinationTypeRange(BoundExpression expression, LetCoercionStackFrame frame, [MaybeNullWhen(true)][NotNullWhen(false)] out VBRuntimeErrorInfo? error)
+    protected bool ValidateDestinationTypeRange(ExpressionNode expression, LetCoercionStackFrame frame, [MaybeNullWhen(true)][NotNullWhen(false)] out VBRuntimeErrorInfo? error)
     {
         error = VBNumericType.IsWithinRange((double)frame.SourceValue.ManagedValue.RuntimeValue!.BoxedValue, (VBNumericType)frame.DestinationTypeDesc.Target) 
             ? null : OnLetCoercionOverflow(expression, frame);
@@ -117,28 +117,28 @@ public abstract record class LetCoercionRuntimeSemantics<TStrategy> : ILetCoerci
     /// <summary>
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
-    protected VBRuntimeErrorInfo OnLetCoercionTypeMismatch(BoundExpression expression, LetCoercionStackFrame frame) =>
+    protected VBRuntimeErrorInfo OnLetCoercionTypeMismatch(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.TypeMismatch, expression.Location,
             _formatterService.Format(Exceptions.LetCoercionRuntimeErrorExceptionTypeMismatch_Verbose, expression, [frame]));
 
     /// <summary>
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
-    protected VBRuntimeErrorInfo OnLetCoercionObjectRequired(BoundExpression expression, LetCoercionStackFrame frame) =>
+    protected VBRuntimeErrorInfo OnLetCoercionObjectRequired(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.ObjectRequired, expression.Location,
             _formatterService.Format(Exceptions.LetCoercionRuntimeErrorExceptionObjectRequired, expression, [frame]));
 
     /// <summary>
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
-    protected VBRuntimeErrorInfo OnLetCoercionOverflow(BoundExpression expression, LetCoercionStackFrame frame) =>
+    protected VBRuntimeErrorInfo OnLetCoercionOverflow(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.Overflow, expression.Location,
             _formatterService.Format(Exceptions.LetCoercionRuntimeErrorExceptionOverflow_Verbose, expression, [frame]));
 
     /// <summary>
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
-    protected VBRuntimeErrorInfo OnLetCoercionInvalidUseOfNull(BoundExpression expression, LetCoercionStackFrame frame) =>
+    protected VBRuntimeErrorInfo OnLetCoercionInvalidUseOfNull(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.InvalidUseOfNull, expression.Location,
             _formatterService.Format(Exceptions.LetCoercionRuntimeErrorExceptionInvalidUseOfNull_Verbose, expression, [frame]));
 }

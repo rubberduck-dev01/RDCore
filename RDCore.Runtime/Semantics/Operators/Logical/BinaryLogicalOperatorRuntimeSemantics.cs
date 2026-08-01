@@ -37,7 +37,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     protected virtual double EvaluateBitwiseOp(double lhs, double rhs) => EvaluateBitwiseOp(Convert.ToInt32(lhs), Convert.ToInt32(rhs));
 
     protected override OperatorAnalysisContext<LogicalOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node, 
+        SyntaxNode node, 
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult, 
         LetCoercionAnalysisContext coercionResult, 
         RuntimeSemanticsEvaluationResult evaluationResult, 

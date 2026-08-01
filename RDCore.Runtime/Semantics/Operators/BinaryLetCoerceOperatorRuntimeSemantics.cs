@@ -53,7 +53,7 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
         params VBTypedValue[] operands) => builder.AddFlags(ConversionSemanticFlags.Explicit);
 
     protected override OperatorAnalysisContext<ConversionSemanticFlags> CreateAnalysisContext(
-        BoundNode node, 
+        SyntaxNode node, 
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult, 
         LetCoercionAnalysisContext coercionResult, 
         RuntimeSemanticsEvaluationResult evaluationResult, 

@@ -36,7 +36,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         _builderStack.Push(new(GetParentUriFor($"{name}_{_expressionId}")));
         _expressionId++;
     }
-    private void OnExitParent(Func<NodeBuilder, BoundNode> provider)
+    private void OnExitParent(Func<NodeBuilder, SyntaxNode> provider)
         => CurrentBuilder.AddChild(provider(_builderStack.Pop()));
 
     private Uri GetParentUriFor(string name) => new($"{_root.SemanticId.AbsolutePath}/{name.ToLowerInvariant()}");
@@ -145,7 +145,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         _isPropertyWriterMember = isPropertyWriter;
         OnEnterParent(name);
     }
-    private void OnExitProcedure(Func<NodeBuilder, BoundNode> provider)
+    private void OnExitProcedure(Func<NodeBuilder, SyntaxNode> provider)
     {
         OnExitProcedure(provider);
         _isInsideProcedure = false;
@@ -180,7 +180,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
 
 
     private int _expressionId = 0;
-    private void OnBoundExpression(BoundExpression expression)
+    private void OnBoundExpression(ExpressionNode expression)
     {
         CurrentBuilder.AddChild(expression);
         _expressionId++;
