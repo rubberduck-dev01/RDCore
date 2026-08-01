@@ -17,6 +17,6 @@ public record class LiteralExpressionRuntimeSemantics : LiteralValueRuntimeSeman
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext conversionContext, 
         ISemanticFlagsAccumulator<ValueExpressionSemanticFlags> builder, 
-        BoundNode node, 
+        SyntaxNode node, 
         params VBTypedValue[] inputs) => builder;
 }

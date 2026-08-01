@@ -44,23 +44,23 @@ public record class BinaryImpLogicalOperatorRuntimeSemantics(
             && lhs is VBNumericTypedValue lhsIntegralNumeric && rhs is VBNumericTypedValue rhsIntegralNumeric)
         {
             return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(VBIntegerType.TypeInfo,
-                EvaluateBitwiseOp((double)lhsIntegralNumeric.ManagedValue.InteropValue!.BoxedValue, 
-                                  (double)rhsIntegralNumeric.ManagedValue.InteropValue!.BoxedValue)));
+                EvaluateBitwiseOp((double)lhsIntegralNumeric.ManagedValue.RuntimeValue!.BoxedValue, 
+                                  (double)rhsIntegralNumeric.ManagedValue.RuntimeValue!.BoxedValue)));
         }
         else if (lhs is VBNumericTypedValue lhsNumeric && rhs is VBNullValue)
         {
-            return (double)lhsNumeric.ManagedValue.InteropValue!.BoxedValue != (double)VBIntegerType.NegativeOne.ManagedValue.InteropValue!.BoxedValue
+            return (double)lhsNumeric.ManagedValue.RuntimeValue!.BoxedValue != (double)VBIntegerType.NegativeOne.ManagedValue.RuntimeValue!.BoxedValue
                 ? RuntimeSemanticsEvaluationResult.Success(
                     VBTypedValueFactory.CreateValue(VBIntegerType.TypeInfo, 
-                    EvaluateBitwiseOp((int)lhsNumeric.ManagedValue.InteropValue!.BoxedValue, (int)VBIntegerType.Zero.ManagedValue.InteropValue!.BoxedValue)))
+                    EvaluateBitwiseOp((int)lhsNumeric.ManagedValue.RuntimeValue!.BoxedValue, (int)VBIntegerType.Zero.ManagedValue.RuntimeValue!.BoxedValue)))
                 : EvaluateNullBinaryExpressionResult();
         }
-        else if (lhs is VBNullValue && rhs.TypeInfo is IIntegralNumericType && rhs is VBNumericTypedValue rhsNumeric && (double)rhsNumeric.ManagedValue.InteropValue!.BoxedValue != 0)
+        else if (lhs is VBNullValue && rhs.TypeInfo is IIntegralNumericType && rhs is VBNumericTypedValue rhsNumeric && (double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue != 0)
         {
             return RuntimeSemanticsEvaluationResult.Success(
-                VBTypedValueFactory.CreateValue(frame.EffectiveType, (double)rhsNumeric.ManagedValue.InteropValue!.BoxedValue));
+                VBTypedValueFactory.CreateValue(frame.EffectiveType, (double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue));
         }
-        else if (lhs is VBNullValue && rhs is VBNumericTypedValue rhsMaybeZero && (double)rhsMaybeZero.ManagedValue.InteropValue!.BoxedValue == 0)
+        else if (lhs is VBNullValue && rhs is VBNumericTypedValue rhsMaybeZero && (double)rhsMaybeZero.ManagedValue.RuntimeValue!.BoxedValue == 0)
         {
             return EvaluateNullBinaryExpressionResult();
         }

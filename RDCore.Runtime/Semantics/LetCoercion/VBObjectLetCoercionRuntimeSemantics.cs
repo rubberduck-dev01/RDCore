@@ -64,7 +64,7 @@ public record class VBObjectLetCoercionRuntimeSemantics(
     /// </summary>
     /// <param name="expression">The <em>binary arithmetic operator expression</em> whose <c>ResultSymbol</c> the error result will be attached to.</param>
     /// <param name="verbose">A detailed <c>Verbose</c> message about the error.</param>
-    protected static LetCoercionResult OnLetCoercionObjectVariableNotSet(BoundExpression expression, string verbose)
+    protected static LetCoercionResult OnLetCoercionObjectVariableNotSet(ExpressionNode expression, string verbose)
         => LetCoercionResult.Error(VBRuntimeErrorInfo.For(
             VBRuntimeErrorId.ObjectVariableOrWithBlockVariableNotSet, expression.Location, verbose));
 

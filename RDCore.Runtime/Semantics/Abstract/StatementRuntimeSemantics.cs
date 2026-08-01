@@ -11,7 +11,7 @@ public abstract record class StatementRuntimeSemantics<TContext, TFlags> : Runti
     where TContext : SemanticContext<TFlags>, new()
     where TFlags : struct, Enum
 {
-    public override RuntimeSemanticsEvaluationResult Evaluate(IVBExecutionContext runtime, SemanticContext<TFlags> context, BoundNode node, params VBTypedValue[] inputs)
+    public override RuntimeSemanticsEvaluationResult Evaluate(IVBExecutionContext runtime, SemanticContext<TFlags> context, SyntaxNode node, params VBTypedValue[] inputs)
     {
         throw new NotImplementedException();
     }
@@ -19,9 +19,9 @@ public abstract record class StatementRuntimeSemantics<TContext, TFlags> : Runti
     protected sealed override RuntimeSemanticsEvaluationResult EvaluateSemanticResult(
         ISymbolResolver resolver,
         SemanticContext<TFlags> context,
-        BoundNode node,
+        SyntaxNode node,
         VBType effectiveType,
-        params VBTypedValue[] inputs) => EvaluateSemanticResult((IVBExecutionContext)resolver, (BoundStatement)node, inputs);
+        params VBTypedValue[] inputs) => EvaluateSemanticResult((IVBExecutionContext)resolver, (StatementNode)node, inputs);
 
     /// <summary>
     /// Evaluates the specified <c>expression</c> in the specified execution context, using the specified inputs 
@@ -31,6 +31,6 @@ public abstract record class StatementRuntimeSemantics<TContext, TFlags> : Runti
     /// <param name="statement">The statement to be evaluated.</param>
     /// <param name="inputs">The inputs of the statement.</param>
     /// <returns>A <see cref="RuntimeSemanticsEvaluationResult"/> encapsulating the result this statement (including any runtime error diagnostics).</returns>
-    protected virtual RuntimeSemanticsEvaluationResult EvaluateSemanticResult(IVBExecutionContext runtime, BoundStatement statement, VBTypedValue[] inputs) 
+    protected virtual RuntimeSemanticsEvaluationResult EvaluateSemanticResult(IVBExecutionContext runtime, StatementNode statement, VBTypedValue[] inputs) 
         => RuntimeSemanticsEvaluationResult.InternalError(); // TODO
 }

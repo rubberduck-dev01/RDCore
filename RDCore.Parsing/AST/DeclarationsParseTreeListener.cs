@@ -25,7 +25,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     private NodeBuilder CurrentBuilder => _builderStack.Peek();
     private Uri GetUriWithFragmentFor(string name) => new($"{_root.SemanticId.AbsolutePath}#{name.ToLowerInvariant()}");
 
-    public BoundNode BuildModuleNode()
+    public ModuleNode BuildModuleNode()
     {
         Debug.Assert(_builderStack.Count == 1);
         return _root with { Children = [.. CurrentBuilder.GetChildren] };
@@ -36,7 +36,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         _builderStack.Push(new(GetParentUriFor($"{name}_{_expressionId}")));
         _expressionId++;
     }
-    private void OnExitParent(Func<NodeBuilder, BoundNode> provider)
+    private void OnExitParent(Func<NodeBuilder, SyntaxNode> provider)
         => CurrentBuilder.AddChild(provider(_builderStack.Pop()));
 
     private Uri GetParentUriFor(string name) => new($"{_root.SemanticId.AbsolutePath}/{name.ToLowerInvariant()}");
@@ -145,7 +145,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         _isPropertyWriterMember = isPropertyWriter;
         OnEnterParent(name);
     }
-    private void OnExitProcedure(Func<NodeBuilder, BoundNode> provider)
+    private void OnExitProcedure(Func<NodeBuilder, SyntaxNode> provider)
     {
         OnExitProcedure(provider);
         _isInsideProcedure = false;
@@ -180,7 +180,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
 
 
     private int _expressionId = 0;
-    private void OnBoundExpression(BoundExpression expression)
+    private void OnExpression(ExpressionNode expression)
     {
         CurrentBuilder.AddChild(expression);
         _expressionId++;
@@ -195,7 +195,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         var value = context.identifier().untypedIdentifier()?.GetText()
             ?? context.identifier().typedIdentifier().untypedIdentifier().GetText();
         var location = context.GetSourceLocation(_root.SemanticId);
-        OnBoundExpression(new VBSimpleNameExpression(GetUriWithFragmentFor($"__{value}_{_expressionId}"), location, value));
+        OnExpression(new VBSimpleNameExpression(GetUriWithFragmentFor($"__{value}_{_expressionId}"), location, value));
     }
     public override void ExitLiteralIdentifier([NotNull] VBAParser.LiteralIdentifierContext context)
     {
@@ -209,25 +209,25 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         {
             if (boolLiteralContext.FALSE() is not null)
             {
-                OnBoundExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_bool_{_expressionId}"), location, VBBooleanValue.False));
+                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_bool_{_expressionId}"), location, VBBooleanValue.False));
             }
             else if (boolLiteralContext.TRUE() is not null)
             {
-                OnBoundExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_bool_{_expressionId}"), location, VBBooleanValue.True));
+                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_bool_{_expressionId}"), location, VBBooleanValue.True));
             }
         }
         else if (context.objectLiteralIdentifier() is VBAParser.ObjectLiteralIdentifierContext objLiteralContext)
         {
             if (objLiteralContext.NOTHING() is not null)
             {
-                OnBoundExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_object_{_expressionId}"), location, VBObjectValue.Nothing));
+                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_object_{_expressionId}"), location, VBObjectValue.Nothing));
             }
         }
         else if (context.variantLiteralIdentifier() is VBAParser.VariantLiteralIdentifierContext variantLiteralContext)
         {
             if (variantLiteralContext.EMPTY() is not null)
             {
-                OnBoundExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_variant_{_expressionId}"), location, VBEmptyValue.Empty));
+                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_variant_{_expressionId}"), location, VBEmptyValue.Empty));
             }
         }
     }
@@ -247,7 +247,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             {
                 value = new VBIntegerValue(Convert.ToInt16(rawValue));
             }
-            else if (rawValue <= Int32.MaxValue && rawValue >= Int32.MaxValue)
+            else if (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
             {
                 value = new VBLongValue(Convert.ToInt32(rawValue));
             }
@@ -279,10 +279,6 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             {
                 value = new VBLongValue(Convert.ToInt32(rawValue));
             }
-            else if (rawValue <= Int64.MaxValue && rawValue >= Int64.MinValue)
-            {
-                value = new VBLongLongValue(Convert.ToInt64(rawValue));
-            }
             else
             {
                 value = new VBDoubleValue(Convert.ToDouble(rawValue));
@@ -299,17 +295,13 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             {
                 value = new VBLongValue(Convert.ToInt32(rawValue));
             }
-            else if (rawValue <= Int64.MaxValue && rawValue >= Int64.MinValue)
-            {
-                value = new VBLongLongValue(Convert.ToInt64(rawValue));
-            }
             else
             {
                 value = new VBDoubleValue(Convert.ToDouble(rawValue));
             }
         }
 
-        OnBoundExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_numeric_{_expressionId}"), location, value));
+        OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_numeric_{_expressionId}"), location, value));
     }
     public override void ExitLiteralExpression([NotNull] VBAParser.LiteralExpressionContext context)
     {
@@ -323,7 +315,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         {
             if (DateTime.TryParse(dateLiteral.Symbol.Text.Trim('#'), out var rawValue))
             {
-                OnBoundExpression(new VBLiteralExpression(
+                OnExpression(new VBLiteralExpression(
                     GetUriWithFragmentFor($"__literal_date_{_expressionId}"), 
                     location, 
                     new VBDateValue(rawValue.ToOADate())));
@@ -331,7 +323,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         }
         else if (context.STRINGLITERAL() is ITerminalNode stringLiteral)
         {
-            OnBoundExpression(new VBLiteralExpression(
+            OnExpression(new VBLiteralExpression(
                 GetUriWithFragmentFor($"__literal_string_{_expressionId}"), 
                 location,
                 new VBStringValue(stringLiteral.Symbol.Text[1..^1])));

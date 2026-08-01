@@ -34,7 +34,7 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext conversionContext, 
         ISemanticFlagsAccumulator<TFlags> builder, 
-        BoundNode node, 
+        SyntaxNode node, 
         params VBTypedValue[] inputs);
 
     /// <summary>
@@ -50,7 +50,7 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
     public abstract RuntimeSemanticsEvaluationResult Evaluate(
         IVBExecutionContext runtime, 
         SemanticContext<TFlags> context, 
-        BoundNode node, 
+        SyntaxNode node, 
         params VBTypedValue[] inputs);
 
     /// <summary>
@@ -64,12 +64,12 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
     /// <param name="node">The <em>bound node</em> to be evaluated.</param>
     /// <param name="effectiveType">The <em>effective type</em> of the operation.</param>
     /// <param name="inputs">The inputs of the expression.</param>
-    protected virtual RuntimeSemanticsEvaluationResult EvaluateSemanticResult(ISymbolResolver resolver, SemanticContext<TFlags> context, BoundNode node, VBType effectiveType, params VBTypedValue[] inputs) 
+    protected virtual RuntimeSemanticsEvaluationResult EvaluateSemanticResult(ISymbolResolver resolver, SemanticContext<TFlags> context, SyntaxNode node, VBType effectiveType, params VBTypedValue[] inputs) 
         => Evaluate((IVBExecutionContext)resolver, context, node, inputs);
 
     /// <summary>
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
-    protected static VBRuntimeErrorInfo OnRuntimeError(VBRuntimeErrorId errorId, BoundNode node, string verbose)
+    protected static VBRuntimeErrorInfo OnRuntimeError(VBRuntimeErrorId errorId, SyntaxNode node, string verbose)
         => VBRuntimeErrorInfo.For(errorId, node.SourceLocation, verbose);
 }

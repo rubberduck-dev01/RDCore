@@ -117,21 +117,21 @@ public class LetCoercionRuntimeSemanticsProvider(
     }
 
 
-    private VBRuntimeErrorInfo OnLetCoercionTypeMismatch(BoundExpression expression, LetCoercionStackFrame frame) =>
+    private VBRuntimeErrorInfo OnLetCoercionTypeMismatch(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.TypeMismatch, expression.Location,
             _formatterService.Format(Exceptions.LetCoercionRuntimeErrorExceptionTypeMismatch_Verbose, expression, [frame]));
 
-    private VBRuntimeErrorInfo OnLetCoercionNotApplicableInternalError(BoundExpression expression, LetCoercionStackFrame frame) =>
+    private VBRuntimeErrorInfo OnLetCoercionNotApplicableInternalError(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.InternalError, expression.Location,
             _formatterService.Format(Exceptions.VBRuntimeInternalError_LetCoercionStrategyWasNotApplicable, expression, [frame]));
 
-    private VBRuntimeErrorInfo OnLetCoercionStackCorruptionInternalError(BoundExpression expression, LetCoercionStackFrame frame) =>
+    private VBRuntimeErrorInfo OnLetCoercionStackCorruptionInternalError(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.InternalError, expression.Location,
             _formatterService.Format(Exceptions.VBRuntimeInternalError_LetCoercionStackCorruption
                 .Replace("${FRAMES}", _frameStack.Count.ToString())
                 .Replace("${HASH}", _frameHash.Count.ToString()), expression, [frame]));
 
-    private VBRuntimeErrorInfo OnRecursiveLetCoercionError(BoundExpression expression, LetCoercionStackFrame frame) =>
+    private VBRuntimeErrorInfo OnRecursiveLetCoercionError(ExpressionNode expression, LetCoercionStackFrame frame) =>
         VBRuntimeErrorInfo.For(VBRuntimeErrorId.OutOfStackSpace, expression.Location,
             _formatterService.Format(Exceptions.LetCoercionRuntimeErrorExceptionOutOfStackSpace_Verbose, expression, [frame]));
 

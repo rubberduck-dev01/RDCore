@@ -42,7 +42,7 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     protected abstract double EvaluateManagedNumericOp(double lhs, double rhs);
 
     protected sealed override OperatorAnalysisContext<ArithmeticOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
@@ -144,7 +144,7 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
         VBNumericTypedValue lhs, VBNumericTypedValue rhs) 
         => RuntimeSemanticsEvaluationResult.Success(
             VBTypedValueFactory.CreateValue(effectiveType, 
-                EvaluateManagedNumericOp((double)lhs.ManagedValue.InteropValue!.BoxedValue, (double)rhs.ManagedValue.InteropValue!.BoxedValue)));
+                EvaluateManagedNumericOp((double)lhs.ManagedValue.RuntimeValue!.BoxedValue, (double)rhs.ManagedValue.RuntimeValue!.BoxedValue)));
 
     /// <summary>
     /// Evaluates the <see cref="VBDateType"/> runtime semantics of a <em>binary arithmetic operator</em>.<br/>
@@ -171,28 +171,28 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
         VBNumericTypedValue lhs, VBNumericTypedValue rhs) =>
         RuntimeSemanticsEvaluationResult.Success(
             VBTypedValueFactory.CreateValue(effectiveType, 
-                EvaluateManagedNumericOp((double)lhs.ManagedValue.InteropValue!.BoxedValue, (double)rhs.ManagedValue.InteropValue!.BoxedValue)));
+                EvaluateManagedNumericOp((double)lhs.ManagedValue.RuntimeValue!.BoxedValue, (double)rhs.ManagedValue.RuntimeValue!.BoxedValue)));
 
     /// <summary>
     /// 💥 Creates and returns a new <see cref="RuntimeSemanticsEvaluationResult"/> with a <see cref="VBRuntimeErrorId.InvalidProcedureCallOrArgument"/> error.
     /// </summary>
     /// <param name="expression">The <em>binary arithmetic operator expression</em> whose <c>ResultSymbol</c> the error result will be attached to.</param>
     /// <param name="verbose">A detailed <c>Verbose</c> message about the error.</param>
-    protected static RuntimeSemanticsEvaluationResult OnInvalidProcedureCallOrArgument(BoundExpression expression, string verbose)
+    protected static RuntimeSemanticsEvaluationResult OnInvalidProcedureCallOrArgument(ExpressionNode expression, string verbose)
         => RuntimeSemanticsEvaluationResult.Error(OnRuntimeError(VBRuntimeErrorId.InvalidProcedureCallOrArgument, expression, verbose));
     /// <summary>
     /// 💥 Creates and returns a new <see cref="RuntimeSemanticsEvaluationResult"/> with a <see cref="VBRuntimeErrorId.DivisionByZero"/> error.
     /// </summary>
     /// <param name="expression">The <em>binary arithmetic operator expression</em> whose <c>ResultSymbol</c> the error result will be attached to.</param>
     /// <param name="verbose">A detailed <c>Verbose</c> message about the error.</param>
-    protected static RuntimeSemanticsEvaluationResult OnDivisionByZero(BoundExpression expression, string verbose)
+    protected static RuntimeSemanticsEvaluationResult OnDivisionByZero(ExpressionNode expression, string verbose)
         => RuntimeSemanticsEvaluationResult.Error(OnRuntimeError(VBRuntimeErrorId.DivisionByZero, expression, verbose));
     /// <summary>
     /// 💥 Creates and returns a new <see cref="RuntimeSemanticsEvaluationResult"/> with a <see cref="VBRuntimeErrorId.Overflow"/> error.
     /// </summary>
     /// <param name="expression">The <em>binary arithmetic operator expression</em> whose <c>ResultSymbol</c> the error result will be attached to.</param>
     /// <param name="verbose">A detailed <c>Verbose</c> message about the error.</param>
-    protected static RuntimeSemanticsEvaluationResult OnOverflow(BoundExpression expression, string verbose)
+    protected static RuntimeSemanticsEvaluationResult OnOverflow(ExpressionNode expression, string verbose)
         => RuntimeSemanticsEvaluationResult.Error(OnRuntimeError(VBRuntimeErrorId.Overflow, expression, verbose));
 
     protected override ISemanticContextContributor<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> Analyze(

@@ -30,7 +30,7 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
     protected override double EvaluateBitwiseOp(int lhs, int rhs) => lhs & rhs;
 
     protected override OperatorAnalysisContext<LogicalOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
@@ -52,7 +52,7 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
 
         if (lhs is VBNumericTypedValue lhsNumeric && rhs is VBNullValue)
         {
-            if ((double)lhsNumeric.ManagedValue.InteropValue!.BoxedValue == 0)
+            if ((double)lhsNumeric.ManagedValue.RuntimeValue!.BoxedValue == 0)
             {
                 return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(frame.EffectiveType, 0d));
             }
@@ -64,7 +64,7 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
     
         if (rhs is VBNumericTypedValue rhsNumeric && lhs is VBNullValue)
         {
-            if ((double)rhsNumeric.ManagedValue.InteropValue!.BoxedValue == 0)
+            if ((double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue == 0)
             {
                 return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateValue(frame.EffectiveType, 0d));
             }

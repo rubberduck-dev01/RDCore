@@ -9,10 +9,10 @@ namespace RDCore.Parsing.AST;
 internal class NodeBuilder(Uri rootUri, string? nodeId = null)
 {
     private readonly Uri _rootUri = rootUri;
-    private readonly List<BoundNode> _children = [];
+    private readonly List<SyntaxNode> _children = [];
 
-    public void AddChild(BoundNode node) => _children.Add(node);
-    public void UpdateLastChild(BoundNode node)
+    public void AddChild(SyntaxNode node) => _children.Add(node);
+    public void UpdateLastChild(SyntaxNode node)
     {
         if (node.GetType() != _children.Last().GetType())
         {
@@ -23,8 +23,8 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
         _children.Add(node);
     }
 
-    public IEnumerable<BoundNode> GetChildren => _children.AsEnumerable();
-    public BoundNode BuildAttributeDirective(VBAParser.AttributeStmtContext context)
+    public IEnumerable<SyntaxNode> GetChildren => _children.AsEnumerable();
+    public SyntaxNode BuildAttributeDirective(VBAParser.AttributeStmtContext context)
     {
         // name may be qualified
         var identifiers = context.attributeName().GetText().Split('.');
@@ -37,15 +37,15 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             _children[0],
             qualifier);
     }
-    public BoundNode BuildImplementsDirective(VBAParser.ImplementsStmtContext context)
+    public SyntaxNode BuildImplementsDirective(VBAParser.ImplementsStmtContext context)
     {
         var name = context.expression().GetText().Split('.').Last(); // MS-VBAL: <class-type-name> (may be qualified)
         return new ImplementsDirectiveNode(
             GetUriWithFragmentFor($"implements-{name}"), 
             context.GetSourceLocation(_rootUri), 
-            (BoundExpression)_children[0]);
+            (ExpressionNode)_children[0]);
     }
-    public BoundNode BuildExternalDeclaration(VBAParser.DeclareStmtContext context)
+    public SyntaxNode BuildExternalDeclaration(VBAParser.DeclareStmtContext context)
     {
         var name = context.identifier().untypedIdentifier()?.GetText()
             ?? context.identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -72,7 +72,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             alias, 
             modifier);
     }
-    public BoundNode BuildEventDeclaration(VBAParser.EventStmtContext context)
+    public SyntaxNode BuildEventDeclaration(VBAParser.EventStmtContext context)
     {
         var name = context.identifier().untypedIdentifier()?.GetText()
                 ?? context.identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -87,7 +87,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.Event, 
             modifier);
     }
-    public BoundNode BuildUserDefinedTypeDeclaration(VBAParser.UdtDeclarationContext context)
+    public SyntaxNode BuildUserDefinedTypeDeclaration(VBAParser.UdtDeclarationContext context)
     {
         var name = context.untypedIdentifier().GetText();
         var modifier = context.visibility()?.GetText() is string value
@@ -101,7 +101,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.UserDefinedType, 
             modifier);
     }
-    public BoundNode BuildEnumDeclaration(VBAParser.EnumerationStmtContext context)
+    public SyntaxNode BuildEnumDeclaration(VBAParser.EnumerationStmtContext context)
     {
         var name = context.identifier().untypedIdentifier()?.GetText()
             ?? context.identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -117,7 +117,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.Enum, 
             modifier);
     }
-    public BoundNode BuildParameterDeclaration(VBAParser.ArgContext context, bool isPropertyWriterMember = false, bool isLast = false)
+    public SyntaxNode BuildParameterDeclaration(VBAParser.ArgContext context, bool isPropertyWriterMember = false, bool isLast = false)
     {
         var name = context.unrestrictedIdentifier().identifier().untypedIdentifier()?.GetText()
             ?? context.unrestrictedIdentifier().identifier().typedIdentifier().GetText();
@@ -137,7 +137,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
                     context.PARAMARRAY() is not null,
                     [.. _children]);
     }
-    public BoundNode BuildPropertyGetDeclaration(VBAParser.PropertyGetStmtContext context)
+    public SyntaxNode BuildPropertyGetDeclaration(VBAParser.PropertyGetStmtContext context)
     {
         var name = context.functionName().identifier().untypedIdentifier()?.GetText()
             ?? context.functionName().identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -153,7 +153,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.PropertyGet, 
             modifier);
     }
-    public BoundNode BuildPropertyLetDeclaration(VBAParser.PropertyLetStmtContext context)
+    public SyntaxNode BuildPropertyLetDeclaration(VBAParser.PropertyLetStmtContext context)
     {
         var name = context.subroutineName().identifier().untypedIdentifier()?.GetText()
             ?? context.subroutineName().identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -169,7 +169,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.PropertyLet,
             modifier);
     }
-    public BoundNode BuildPropertySetDeclaration(VBAParser.PropertySetStmtContext context)
+    public SyntaxNode BuildPropertySetDeclaration(VBAParser.PropertySetStmtContext context)
     {
         var name = context.subroutineName().identifier().untypedIdentifier()?.GetText()
             ?? context.subroutineName().identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -185,7 +185,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.PropertySet,
             modifier);
     }
-    public BoundNode BuildProcedureDeclaration(VBAParser.SubStmtContext context)
+    public SyntaxNode BuildProcedureDeclaration(VBAParser.SubStmtContext context)
     {
         var name = context.subroutineName().identifier().untypedIdentifier()?.GetText()
             ?? context.subroutineName().identifier().typedIdentifier().untypedIdentifier().GetText();
@@ -201,7 +201,7 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.Procedure,
             modifier);
     }
-    public BoundNode BuildFunctionDeclaration(VBAParser.FunctionStmtContext context)
+    public SyntaxNode BuildFunctionDeclaration(VBAParser.FunctionStmtContext context)
     {
         var name = context.functionName().identifier().untypedIdentifier()?.GetText()
             ?? context.functionName().identifier().typedIdentifier().untypedIdentifier().GetText();

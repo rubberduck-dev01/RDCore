@@ -8,7 +8,7 @@ using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values;
 using RDCore.SDK.Model.Values.Abstract;
-using RDCore.SDK.Model.Values.Interop;
+using RDCore.SDK.Model.Values.Runtime;
 using RDCore.SDK.Model.Values.Intrinsic;
 using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
@@ -33,7 +33,7 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     protected abstract bool ComparisonOp(long lhs, long rhs);
 
     protected override OperatorAnalysisContext<ComparisonOperatorSemanticFlags> CreateAnalysisContext(
-        BoundNode node,
+        SyntaxNode node,
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult,
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
@@ -49,14 +49,14 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
         params VBTypedValue[] operands)
     {
         if (analysisContext.EffectiveTypeResult.Result is VBErrorType 
-            && analysisContext.EvaluationResult.Result!.ManagedValue.InteropValue!.BoxedValue is int errorCode
+            && analysisContext.EvaluationResult.Result!.ManagedValue.RuntimeValue!.BoxedValue is int errorCode
             && errorCode > 0 && errorCode < VBErrorType.MaximumStdErrorValue)
         {
             builder.AddFlags(ComparisonOperatorSemanticFlags.HasStandardErrorCodes);
         }
 
         if (operands.Any(operand => operand.TypeInfo is IFloatingPointNumericType && (
-        double.IsNaN((double)operand.ManagedValue.InteropValue!.BoxedValue) || float.IsNaN((float)operand.ManagedValue.InteropValue!.BoxedValue))))
+        double.IsNaN((double)operand.ManagedValue.RuntimeValue!.BoxedValue) || float.IsNaN((float)operand.ManagedValue.RuntimeValue!.BoxedValue))))
         {
             builder.AddFlags(ComparisonOperatorSemanticFlags.HasNaNOperand);
         }
@@ -209,29 +209,29 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
         
         if (frame.EffectiveType is VBByteType or VBIntegerType or VBLongType or VBLongLongType)
         {
-            var result = ComparisonOp((long)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue, (long)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!.BoxedValue);
+            var result = ComparisonOp((long)((VBNumericTypedValue)lhs).ManagedValue.RuntimeValue!.BoxedValue, (long)((VBNumericTypedValue)rhs).ManagedValue.RuntimeValue!.BoxedValue);
             return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
         else if (frame.EffectiveType is VBCurrencyType)
         {
-            var result = ComparisonOp(((ManagedCurrencyInteropValue)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue).Value, ((ManagedCurrencyInteropValue)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!).Value);
+            var result = ComparisonOp(((VBRuntimeCurrencyValue)((VBNumericTypedValue)lhs).ManagedValue.RuntimeValue!.BoxedValue).Value, ((VBRuntimeCurrencyValue)((VBNumericTypedValue)rhs).ManagedValue.RuntimeValue!).Value);
             return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
         else if (frame.EffectiveType is VBDecimalType)
         {
-            var result = ComparisonOp(((ManagedDecimalInteropValue)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue).ManagedValue, ((ManagedDecimalInteropValue)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!).ManagedValue);
+            var result = ComparisonOp(((VBRuntimeDecimalValue)((VBNumericTypedValue)lhs).ManagedValue.RuntimeValue!.BoxedValue).ManagedValue, ((VBRuntimeDecimalValue)((VBNumericTypedValue)rhs).ManagedValue.RuntimeValue!).ManagedValue);
             return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
         else if (frame.EffectiveType is VBSingleType or VBDoubleType)
         {
-            if (float.IsNaN((float)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue) || 
-                double.IsNaN((double)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue))
+            if (float.IsNaN((float)((VBNumericTypedValue)lhs).ManagedValue.RuntimeValue!.BoxedValue) || 
+                double.IsNaN((double)((VBNumericTypedValue)lhs).ManagedValue.RuntimeValue!.BoxedValue))
             {
                 return RuntimeSemanticsEvaluationResult.Error(OnRuntimeError(VBRuntimeErrorId.Overflow, expression, 
                     Exceptions.LetCoercionRuntimeErrorExceptionOverflow_Verbose));
             }
 
-            var result = ComparisonOp((double)((VBNumericTypedValue)lhs).ManagedValue.InteropValue!.BoxedValue, (double)((VBNumericTypedValue)rhs).ManagedValue.InteropValue!.BoxedValue);
+            var result = ComparisonOp((double)((VBNumericTypedValue)lhs).ManagedValue.RuntimeValue!.BoxedValue, (double)((VBNumericTypedValue)rhs).ManagedValue.RuntimeValue!.BoxedValue);
             return RuntimeSemanticsEvaluationResult.Success(VBTypedValueFactory.CreateBooleanValue(result));
         }
 
@@ -248,6 +248,6 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     /// </summary>
     /// <param name="expression">The <em>binary arithmetic operator expression</em> whose <c>ResultSymbol</c> the error result will be attached to.</param>
     /// <param name="verbose">A detailed <c>Verbose</c> message about the error.</param>
-    protected static RuntimeSemanticsEvaluationResult OnObjectRequired(BoundExpression expression, string verbose)
+    protected static RuntimeSemanticsEvaluationResult OnObjectRequired(ExpressionNode expression, string verbose)
         => RuntimeSemanticsEvaluationResult.Error(OnRuntimeError(VBRuntimeErrorId.ObjectRequired, expression, verbose));
 }
