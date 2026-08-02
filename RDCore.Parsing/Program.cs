@@ -9,6 +9,7 @@ using RDCore.SDK.Server.Services.States;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RDCore.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace RDCore.Parsing;
 
 public class Program

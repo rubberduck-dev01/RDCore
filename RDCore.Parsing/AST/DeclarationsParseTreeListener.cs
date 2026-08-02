@@ -37,13 +37,16 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         _expressionId++;
     }
     private void OnExitParent(Func<NodeBuilder, SyntaxNode> provider)
-        => CurrentBuilder.AddChild(provider(_builderStack.Pop()));
+    {
+        var node = provider.Invoke(_builderStack.Pop());
+        CurrentBuilder.AddChild(node);
+    }
 
     private Uri GetParentUriFor(string name) => new($"{_root.SemanticId.AbsolutePath}/{name.ToLowerInvariant()}");
 
     private bool _isInsideProcedure = false;
     private bool _isAfterArgsList = false;
-    private bool IsDeclarationPassExpression => !_isInsideProcedure || _isAfterArgsList;
+    private bool IsDeclarationPassExpression => !_isInsideProcedure || !_isAfterArgsList;
 
     private void OnModuleOptionDirective(string name, SourceLocation location, ModuleOptions value) 
         => CurrentBuilder.AddChild(new ModuleOptionDirectiveNode(GetUriWithFragmentFor(name), location, value));
@@ -147,7 +150,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     }
     private void OnExitProcedure(Func<NodeBuilder, SyntaxNode> provider)
     {
-        OnExitProcedure(provider);
+        OnExitParent(provider);
         _isInsideProcedure = false;
         _isAfterArgsList = false;
         _isPropertyWriterMember = false;
@@ -184,6 +187,17 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     {
         CurrentBuilder.AddChild(expression);
         _expressionId++;
+    }
+
+    public override void ExitAsTypeClause([NotNull] VBAParser.AsTypeClauseContext context)
+    {
+        if (!IsDeclarationPassExpression)
+        {
+            return;
+        }
+        var value = context.type().GetText();
+        var location = context.GetSourceLocation(_root.SemanticId);
+        OnExpression(new VBAsTypeExpression(GetUriWithFragmentFor($"__astype_{_expressionId}"), location, value, null, context.NEW() is not null));
     }
 
     public override void ExitSimpleNameExpr([NotNull] VBAParser.SimpleNameExprContext context)
@@ -340,6 +354,8 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     {
         _parameterIndex = 0;
         _isAfterArgsList = true;
+        _isInsideProcedure = true;
+
         if (_isPropertyWriterMember)
         {
             if (CurrentBuilder.GetChildren.Last() is ParameterDeclarationNode node

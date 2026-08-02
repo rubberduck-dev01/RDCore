@@ -21,8 +21,8 @@ public abstract class VBABaseParserRuleContext : ParserRuleContext
     /// The Line and Character positions are added to both <c>Start</c> and <c>Stop</c> Line and Column positions (respectively) to compute the <c>SourceRange</c>.
     /// </remarks>
     public void AnchorAt(SourcePosition offset) => _anchoredRange = new(
-            offset + new SourcePosition(Start.Line, Start.Column),
-            offset + new SourcePosition(Stop.Line, Stop.Column));
+            offset + new SourcePosition(Start?.Line ?? 0, Start?.Column ?? 0),
+            offset + new SourcePosition(Stop?.Line ?? 0, Stop?.Column ?? 0));
 
     private SourceRange _anchoredRange;
     /// <summary>
