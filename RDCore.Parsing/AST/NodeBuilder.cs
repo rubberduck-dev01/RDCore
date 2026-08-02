@@ -3,6 +3,7 @@ using RDCore.SDK.Model;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Directives;
+using RDCore.SDK.Model.AST.Expressions;
 
 namespace RDCore.Parsing.AST;
 
@@ -217,5 +218,46 @@ internal class NodeBuilder(Uri rootUri, string? nodeId = null)
             MemberKind.Function,
             modifier);
     }
+
+    public SyntaxNode BuildVariableDeclaration(VBAParser.VariableSubStmtContext context, AccessModifier modifier)
+    {
+        var typeHint = context.identifier().typedIdentifier()?.typeHint().GetText();
+
+        var name = typeHint is null
+            ? context.identifier().untypedIdentifier()!.identifierValue().IDENTIFIER().Symbol.Text
+            : context.identifier().typedIdentifier()!.untypedIdentifier().identifierValue().IDENTIFIER().Symbol.Text;
+
+        var declaredType = _children.Count == 0 ? null : _children[0] as VBAsTypeExpression;        
+        
+        return new VariableDeclarationNode(
+            GetUriWithFragmentFor(name),
+            context.GetSourceLocation(_rootUri), 
+            name, 
+            modifier,
+            declaredType, 
+            typeHint);
+    }
+
+    public SyntaxNode BuildConstDeclaration(VBAParser.ConstSubStmtContext context, ConstKind kind, AccessModifier modifier)
+    {
+        var typeHint = context.identifier().typedIdentifier()?.typeHint().GetText();
+
+        var name = typeHint is null
+            ? context.identifier().untypedIdentifier()!.identifierValue().IDENTIFIER().Symbol.Text
+            : context.identifier().typedIdentifier()!.untypedIdentifier().identifierValue().IDENTIFIER().Symbol.Text;
+
+        var declaredType = _children.OfType<VBAsTypeExpression>().SingleOrDefault();
+        var value = _children.Except([declaredType]).OfType<ExpressionNode>().SingleOrDefault();
+
+        return new ConstantDeclarationNode(
+            GetUriWithFragmentFor(name),
+            context.GetSourceLocation(_rootUri),
+            name,
+            kind,
+            modifier,
+            declaredType,
+            value);
+    }
+
     private Uri GetUriWithFragmentFor(string name) => new($"{_rootUri.AbsolutePath.TrimEnd('#')}{(nodeId is not null ? $"/{nodeId}#" : "#")}{name.ToLowerInvariant()}");
 }

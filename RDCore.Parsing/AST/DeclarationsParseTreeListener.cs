@@ -139,6 +139,45 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     public override void ExitEnumerationStmt([NotNull] VBAParser.EnumerationStmtContext context)
         => OnExitParent(builder => builder.BuildEnumDeclaration(context));
 
+    public override void EnterVariableSubStmt([NotNull] VBAParser.VariableSubStmtContext context)
+        => OnEnterParent($"__variable");
+    public override void ExitVariableSubStmt([NotNull] VBAParser.VariableSubStmtContext context)
+        => OnExitParent(builder => builder.BuildVariableDeclaration(context, _currentModifier!.Value));
+
+    private AccessModifier? _currentModifier;
+    public override void EnterVariableStmt([NotNull] VBAParser.VariableStmtContext context)
+    {
+        if (context.visibility()?.GetText() is string modifier)
+        {
+            _currentModifier = Enum.Parse<AccessModifier>(modifier);
+        }
+        else
+        {
+            _currentModifier = AccessModifier.Implicit;
+        }
+    }
+    public override void ExitVariableStmt([NotNull] VBAParser.VariableStmtContext context) 
+        => _currentModifier = null;
+
+
+    public override void EnterConstSubStmt([NotNull] VBAParser.ConstSubStmtContext context)
+        => OnEnterParent("$__const");
+    public override void ExitConstSubStmt([NotNull] VBAParser.ConstSubStmtContext context)
+        => OnExitParent(builder => builder.BuildConstDeclaration(context, _isInsideProcedure ? ConstKind.Local : ConstKind.ModuleMember, _currentModifier!.Value));
+    public override void EnterConstStmt([NotNull] VBAParser.ConstStmtContext context)
+    {
+        if (context.visibility()?.GetText() is string modifier)
+        {
+            _currentModifier = Enum.Parse<AccessModifier>(modifier);
+        }
+        else
+        {
+            _currentModifier = AccessModifier.Implicit;
+        }
+    }
+    public override void ExitConstStmt([NotNull] VBAParser.ConstStmtContext context)
+        => _currentModifier = null;
+
 
     private bool _isPropertyWriterMember = false;
     private void OnEnterProcedure(string name, bool isPropertyWriter = false)
@@ -191,10 +230,6 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
 
     public override void ExitAsTypeClause([NotNull] VBAParser.AsTypeClauseContext context)
     {
-        if (!IsDeclarationPassExpression)
-        {
-            return;
-        }
         var value = context.type().GetText();
         var location = context.GetSourceLocation(_root.SemanticId);
         OnExpression(new VBAsTypeExpression(GetUriWithFragmentFor($"__astype_{_expressionId}"), location, value, null, context.NEW() is not null));
@@ -375,5 +410,42 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         var isPropertyWriter = _isPropertyWriterMember;
         OnExitParent(builder => builder.BuildParameterDeclaration(context, isPropertyWriter));
         _parameterIndex++;
+    }
+
+    public override void ExitStatementLabelDefinition([NotNull] VBAParser.StatementLabelDefinitionContext context)
+    {
+        string? name = default;
+        int? number = default;
+        if (context.standaloneLineNumberLabel()?.lineNumberLabel() is VBAParser.LineNumberLabelContext numContextA)
+        {
+            number = int.Parse(numContextA.numberLiteral().GetText());
+        }
+        else if (context.combinedLabels()?.lineNumberLabel() is VBAParser.LineNumberLabelContext numContextB)
+        {
+            number = int.Parse(numContextB.numberLiteral().GetText());
+        }
+        else if (context.identifierStatementLabel().legalLabelIdentifier().identifier().GetText() is string labelNameA)
+        {
+            name = labelNameA;
+        }
+        else if (context.combinedLabels()?.identifierStatementLabel().legalLabelIdentifier().identifier().GetText() is string labelNameB)
+        {
+            name = labelNameB;
+        }
+
+        if (number.HasValue)
+        {
+            CurrentBuilder.AddChild(new LineNumberNode(
+                GetUriWithFragmentFor(number.Value.ToString()),
+                context.GetSourceLocation(_root.SemanticId),
+                number.Value));
+        }
+        if (name is not null)
+        {
+            CurrentBuilder.AddChild(new LineLabelNode(
+                GetUriWithFragmentFor(name),
+                context.GetSourceLocation(_root.SemanticId),
+                name));
+        }
     }
 }
