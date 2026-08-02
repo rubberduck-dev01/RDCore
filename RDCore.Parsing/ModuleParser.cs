@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Atn;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using RDCore.Parsing.AST;
 using RDCore.Parsing.PreProcessing;
@@ -7,6 +8,7 @@ using RDCore.Parsing.Syntax;
 using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.Errors;
 using RDCore.SDK.Model.Source;
+using System.Collections.Immutable;
 
 namespace RDCore.Parsing;
 
@@ -41,21 +43,18 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
         {
             var node = new ModuleNode(uri, new(uri, SourceRange.Empty), [], moduleType);
             var listener = new DeclarationsParseTreeListener(node);
-
+            var errorListener = new ErrorListener(uri);
             try
             {
-                ParseWithFallback(tokenStream, [listener]);
+                ParseWithFallback(tokenStream, errorListener, [listener]);
 
                 var ast = listener.BuildModuleNode();
-                return ModuleParseResult.Success(ast);
+                return ast.Children.Length > 0 
+                    ? ModuleParseResult.Success(ast) with { SyntaxError = errorListener.Errors.FirstOrDefault() }
+                    : ModuleParseResult.Failed(node.SourceLocation, errorListener.Errors.FirstOrDefault()?.Verbose ?? string.Empty);
+                ;
             }
-            catch (RecognitionException exception)
-            {
-                var token = exception.OffendingToken;
-                return ModuleParseResult.Failed(new(uri, new(token.Line, token.Column, token.Line, token.Column)),
-                    exception.Message);
-            }
-            catch
+            catch (Exception exception)
             {
                 var verbose = "Parsing failed";
                 return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbose);
@@ -65,33 +64,50 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
         return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbosePreprocessorFailed);
     }
 
-    private static void ParseWithFallback(CommonTokenStream tokenStream, IParseTreeListener[] listeners)
+    private static void ParseWithFallback(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners)
     {
         try
         {
-            ParseFast(tokenStream, listeners);
+            ParseFast(tokenStream, errorListener, listeners);
         }
-        catch
+        catch (InputMismatchException)
         {
-            ParseSlow(tokenStream, listeners);
+            ParseSlow(tokenStream, errorListener, listeners);
+        }
+        catch (RecognitionException)
+        {
+            ParseSlow(tokenStream, errorListener, listeners);
         }
     }
 
-    private static void ParseFast(CommonTokenStream tokenStream, IParseTreeListener[] listeners) 
-        => Parse(tokenStream, PredictionMode.Sll, listeners);
+    private static void ParseFast(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners) 
+        => Parse(tokenStream, PredictionMode.Sll, errorListener, listeners);
 
-    private static void ParseSlow(CommonTokenStream tokenStream, IParseTreeListener[] listeners) 
-        => Parse(tokenStream, PredictionMode.Ll, listeners);
+    private static void ParseSlow(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners) 
+        => Parse(tokenStream, PredictionMode.Ll, errorListener, listeners);
 
-    private static void Parse(CommonTokenStream tokenStream, PredictionMode mode, IParseTreeListener[] listeners)
+    private static void Parse(CommonTokenStream tokenStream, PredictionMode mode, ErrorListener errorListener, IParseTreeListener[] listeners)
     {
         var parser = new VBAParser(tokenStream);
         parser.Interpreter.PredictionMode = mode;
-        
+        parser.AddErrorListener(errorListener);
         foreach (var listener in listeners)
         {
             parser.AddParseListener(listener);
         }
         parser.startRule();
+    }
+}
+
+internal class ErrorListener(Uri uri) : IAntlrErrorListener<IToken>
+{
+    private readonly Uri _uri = uri;
+    private readonly List<VBSyntaxErrorInfo> _errors = [];
+    public ImmutableArray<VBSyntaxErrorInfo> Errors => [.. _errors];
+
+    public void SyntaxError([NotNull] IRecognizer recognizer, [Nullable] IToken offendingSymbol, int line, int charPositionInLine, [NotNull] string msg, [Nullable] RecognitionException e)
+    {
+        var location = new SourceLocation(_uri, new(line, charPositionInLine, line, charPositionInLine));
+        _errors.Add(VBSyntaxErrorInfo.For(VBCompileErrorId.SyntaxError, location, msg));
     }
 }

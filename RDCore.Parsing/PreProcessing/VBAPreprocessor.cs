@@ -27,7 +27,7 @@ internal sealed class VBAPreprocessor : ITokenStreamPreprocessor
         Dictionary<string, short> userCompilationArguments = [];
         try
         {
-            userCompilationArguments = _compilationArgumentsProvider.UserDefinedCompilationArguments(uri);
+            userCompilationArguments = _compilationArgumentsProvider.UserDefinedCompilationArguments(uri) ?? [];
         }
         catch (Exception)
         {
