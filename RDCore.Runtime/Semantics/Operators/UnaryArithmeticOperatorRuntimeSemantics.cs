@@ -42,7 +42,7 @@ public abstract record class UnaryArithmeticOperatorRuntimeSemantics(
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
         ArithmeticOperatorSemanticFlags semanticFlags) 
-        => new(node.SemanticId, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
+        => new(node.Identity, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
 
     /// <summary>
     /// Evaluates the runtime semantics of a unary arithmetic operator and returns a value of the effective numeric data type.

@@ -30,7 +30,7 @@ public record class VBErrorTypeLetCoercionRuntimeSemantics(
 
             VBNumericTypedValue or VBBooleanValue or VBDateValue or VBStringValue or VBArrayValue or VBUserDefinedTypeValue =>
                 LetCoercionProvider.EvaluateLetCoercionSemantics(resolver, expression, new(
-                    NodeUri: expression.SemanticId,
+                    NodeId: expression.Identity,
                     OperandIndex: frame.OperandIndex,
                     SourceValue: frame.SourceValue,
                     DestinationTypeDesc: VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo)

@@ -9,7 +9,7 @@ namespace RDCore.Runtime.Execution.Frames;
 /// <summary>
 /// Represents a single <em>call stack</em> frame that allocates locally-scoped symbols.
 /// </summary>
-public record class CallStackFrame(Uri NodeUri, StaticSymbol StaticSymbol, ImmutableArray<VBTypedValue> Inputs) : ICallStackFrame
+public record class CallStackFrame(Guid NodeId, StaticSymbol StaticSymbol, ImmutableArray<VBTypedValue> Inputs) : ICallStackFrame
 {
     private readonly Stack<Symbol> _localSymbols = [];
     private readonly Dictionary<Uri, Symbol> _localSymbolTable = [];

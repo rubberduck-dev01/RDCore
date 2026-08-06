@@ -30,7 +30,7 @@ public record class BinaryConcatOperatorRuntimeSemantics(
         LetCoercionAnalysisContext coercionResult,
         RuntimeSemanticsEvaluationResult evaluationResult,
         ConcatOperationSemanticFlags semanticFlags) 
-        => new(node.SemanticId, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
+        => new(node.Identity, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
 
     protected override ISemanticContextContributor<ConcatOperationSemanticContext, ConcatOperationSemanticFlags> Analyze(
         ISymbolResolver resolver, 

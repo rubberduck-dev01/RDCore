@@ -1,5 +1,6 @@
 ﻿using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.Errors;
+using RDCore.SDK.Model.Source;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Runtime.Abstract;
@@ -71,5 +72,11 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
     /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
     /// </summary>
     protected static VBRuntimeErrorInfo OnRuntimeError(VBRuntimeErrorId errorId, SyntaxNode node, string verbose)
-        => VBRuntimeErrorInfo.For(errorId, node.SourceLocation, verbose);
+        => OnRuntimeError(errorId, node.SourceLocation, verbose);
+
+    /// <summary>
+    /// A helper method to get a <c>VBRuntimeErrorInfo</c> error metadata from derived types as needed.
+    /// </summary>
+    protected static VBRuntimeErrorInfo OnRuntimeError(VBRuntimeErrorId errorId, SourceLocation location, string verbose)
+        => VBRuntimeErrorInfo.For(errorId, location, verbose);
 }

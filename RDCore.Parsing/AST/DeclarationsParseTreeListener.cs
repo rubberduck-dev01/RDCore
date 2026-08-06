@@ -18,12 +18,12 @@ namespace RDCore.Parsing.AST;
 /// A <em>listener</em> that builds the AST nodes representing all the directives and declarations in a module.
 /// </summary>
 /// <param name="moduleNode">The root AST module node.</param>
-internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserBaseListener
+internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNode) : VBAParserBaseListener
 {
+    private readonly Uri _rootUri = sourceUri;
     private readonly ModuleNode _root = moduleNode;
-    private readonly Stack<NodeBuilder> _builderStack = new([new(moduleNode.SemanticId)]);
+    private readonly Stack<NodeBuilder> _builderStack = new([new(sourceUri, moduleNode.Identity)]);
     private NodeBuilder CurrentBuilder => _builderStack.Peek();
-    private Uri GetUriWithFragmentFor(string name) => new($"{_root.SemanticId.AbsolutePath}#{name.ToLowerInvariant()}");
 
     public ModuleNode BuildModuleNode()
     {
@@ -31,65 +31,59 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         return _root with { Children = [.. CurrentBuilder.GetChildren] };
     }
 
-    private void OnEnterParent(string name)
-    {
-        _builderStack.Push(new(GetParentUriFor($"{name}_{_expressionId}")));
-        _expressionId++;
-    }
+    private void OnEnterParent() => _builderStack.Push(new(_rootUri));
     private void OnExitParent(Func<NodeBuilder, SyntaxNode> provider)
     {
         var node = provider.Invoke(_builderStack.Pop());
         CurrentBuilder.AddChild(node);
     }
 
-    private Uri GetParentUriFor(string name) => new($"{_root.SemanticId.AbsolutePath}/{name.ToLowerInvariant()}");
-
     private bool _isInsideProcedure = false;
     private bool _isAfterArgsList = false;
     private bool IsDeclarationPassExpression => !_isInsideProcedure || !_isAfterArgsList;
 
-    private void OnModuleOptionDirective(string name, SourceLocation location, ModuleOptions value) 
-        => CurrentBuilder.AddChild(new ModuleOptionDirectiveNode(GetUriWithFragmentFor(name), location, value));
+    private void OnModuleOptionDirective(SourceLocation location, ModuleOptions value) 
+        => CurrentBuilder.AddChild(new ModuleOptionDirectiveNode(Guid.NewGuid(), location, value));
     private void OnTypeDefDirective(string token, SourceLocation location, IEnumerable<(char from, char? to)> mappings, DefTypeUniversalPrefixMapping? universalMapping = default)
     {
         var prefixMappings = (universalMapping is null ? [] : new[] { universalMapping }).Concat(
             mappings.Select(map => new DefTypePrefixMapping(map.from, map.to))).ToImmutableArray();
-        CurrentBuilder.AddChild(new TypeDefDirectiveNode(GetUriWithFragmentFor(token), location, token, prefixMappings));
+        CurrentBuilder.AddChild(new TypeDefDirectiveNode(Guid.NewGuid(), location, token, prefixMappings));
     }
 
     public override void EnterAttributeStmt([NotNull] VBAParser.AttributeStmtContext context)
-        => OnEnterParent(Tokens.Attribute);
+        => OnEnterParent();
     public override void ExitAttributeStmt([NotNull] VBAParser.AttributeStmtContext context)
         => OnExitParent(builder => builder.BuildAttributeDirective(context));
     public override void ExitOptionBaseStmt([NotNull] VBAParser.OptionBaseStmtContext context)
     {
-        var location = context.GetSourceLocation(_root.SemanticId);
+        var location = context.GetSourceLocation(_rootUri);
         var value = int.Parse(context.numberLiteral()?.INTEGERLITERAL()?.GetText() ?? "0");
-        OnModuleOptionDirective($"{Tokens.Option}-{Tokens.Compare}", location, value == 1 ? ModuleOptions.OptionBase1 : ModuleOptions.OptionBase0);
+        OnModuleOptionDirective(location, value == 1 ? ModuleOptions.OptionBase1 : ModuleOptions.OptionBase0);
     }
     public override void ExitOptionCompareStmt([NotNull] VBAParser.OptionCompareStmtContext context)
     {
-        var location = context.GetSourceLocation(_root.SemanticId);
+        var location = context.GetSourceLocation(_rootUri);
         var value = context.TEXT() is not null ? ModuleOptions.OptionCompareText
                 : context.DATABASE() is not null ? ModuleOptions.OptionCompareDatabase
                 : ModuleOptions.OptionCompareBinary;
 
-        OnModuleOptionDirective($"{Tokens.Option}-{Tokens.Compare}", location, value);
+        OnModuleOptionDirective(location, value);
     }
     public override void ExitOptionExplicitStmt([NotNull] VBAParser.OptionExplicitStmtContext context)
     {
-        var location = context.GetSourceLocation(_root.SemanticId);
-        OnModuleOptionDirective($"{Tokens.Option}-{Tokens.Explicit}", location, ModuleOptions.OptionExplicit);
+        var location = context.GetSourceLocation(_rootUri);
+        OnModuleOptionDirective(location, ModuleOptions.OptionExplicit);
     }
     public override void ExitOptionPrivateModuleStmt([NotNull] VBAParser.OptionPrivateModuleStmtContext context)
     {
-        var location = context.GetSourceLocation(_root.SemanticId);
-        OnModuleOptionDirective($"{Tokens.Option}-{Tokens.Private}", location, ModuleOptions.OptionPrivateModule);
+        var location = context.GetSourceLocation(_rootUri);
+        OnModuleOptionDirective(location, ModuleOptions.OptionPrivateModule);
     }
     public override void ExitDefDirective([NotNull] VBAParser.DefDirectiveContext context)
     {
         var token = context.defType().GetText();
-        var location = context.GetSourceLocation(_root.SemanticId);
+        var location = context.GetSourceLocation(_rootUri);
 
         DefTypeUniversalPrefixMapping? universalMapping = default;
         var mappings = new List<(char, char?)>([]);
@@ -114,39 +108,70 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     }
 
     public override void EnterImplementsStmt([NotNull] VBAParser.ImplementsStmtContext context) 
-        => OnEnterParent(Tokens.Implements);
+        => OnEnterParent();
     public override void ExitImplementsStmt([NotNull] VBAParser.ImplementsStmtContext context)
         => OnExitParent(builder => builder.BuildImplementsDirective(context));
 
 
     public override void EnterDeclareStmt([NotNull] VBAParser.DeclareStmtContext context)
-        => OnEnterParent(Tokens.Declare);
+        => OnEnterParent();
     public override void ExitDeclareStmt([NotNull] VBAParser.DeclareStmtContext context)
         => OnExitParent(builder => builder.BuildExternalDeclaration(context));
 
     public override void EnterEventStmt([NotNull] VBAParser.EventStmtContext context)
-        => OnEnterParent(Tokens.Event);
+        => OnEnterParent();
     public override void ExitEventStmt([NotNull] VBAParser.EventStmtContext context)
         => OnExitParent(builder => builder.BuildEventDeclaration(context));
 
     public override void EnterUdtDeclaration([NotNull] VBAParser.UdtDeclarationContext context)
-        => OnEnterParent(Tokens.Type);
+        => OnEnterParent();
     public override void ExitUdtDeclaration([NotNull] VBAParser.UdtDeclarationContext context)
         => OnExitParent(builder => builder.BuildUserDefinedTypeDeclaration(context));
 
     public override void EnterEnumerationStmt([NotNull] VBAParser.EnumerationStmtContext context)
-        => OnEnterParent(Tokens.Enum);
+        => OnEnterParent();
     public override void ExitEnumerationStmt([NotNull] VBAParser.EnumerationStmtContext context)
         => OnExitParent(builder => builder.BuildEnumDeclaration(context));
 
+    public override void EnterEnumerationStmt_Constant([NotNull] VBAParser.EnumerationStmt_ConstantContext context)
+        => OnEnterParent();
+
+    public override void ExitEnumerationStmt_Constant([NotNull] VBAParser.EnumerationStmt_ConstantContext context)
+        => OnExitParent(builder => builder.BuildEnumConstDeclaration(context));
+
+    public override void EnterVariableSubStmt([NotNull] VBAParser.VariableSubStmtContext context)
+        => OnEnterParent();
+    public override void ExitVariableSubStmt([NotNull] VBAParser.VariableSubStmtContext context)
+    {
+        var parent = (VBAParser.VariableStmtContext)context.Parent.Parent;
+        var modifier = AccessModifier.Implicit;
+        if (parent.visibility()?.GetText() is string visibility)
+        {
+            modifier = Enum.Parse<AccessModifier>(visibility, ignoreCase: true);
+        }
+        OnExitParent(builder => builder.BuildVariableDeclaration(context, modifier));
+    }
+
+    public override void EnterConstSubStmt([NotNull] VBAParser.ConstSubStmtContext context)
+        => OnEnterParent();
+    public override void ExitConstSubStmt([NotNull] VBAParser.ConstSubStmtContext context)
+    {
+        var parent = (VBAParser.ConstStmtContext)context.Parent;
+        var modifier = AccessModifier.Implicit;
+        if (parent.visibility()?.GetText() is string visibility)
+        {
+            modifier = Enum.Parse<AccessModifier>(visibility, ignoreCase: true);
+        }
+        OnExitParent(builder => builder.BuildConstDeclaration(context, _isInsideProcedure ? ConstKind.Local : ConstKind.ModuleMember, modifier));
+    }
 
     private bool _isPropertyWriterMember = false;
-    private void OnEnterProcedure(string name, bool isPropertyWriter = false)
+    private void OnEnterProcedure(bool isPropertyWriter = false)
     {
         _isInsideProcedure = true;
         _isAfterArgsList = false;
         _isPropertyWriterMember = isPropertyWriter;
-        OnEnterParent(name);
+        OnEnterParent();
     }
     private void OnExitProcedure(Func<NodeBuilder, SyntaxNode> provider)
     {
@@ -157,47 +182,37 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
     }
 
     public override void EnterPropertyGetStmt([NotNull] VBAParser.PropertyGetStmtContext context)
-        => OnEnterProcedure($"{Tokens.Property}{Tokens.Get}");
+        => OnEnterProcedure();
 
     public override void ExitPropertyGetStmt([NotNull] VBAParser.PropertyGetStmtContext context) 
         => OnExitProcedure(builder => builder.BuildPropertyGetDeclaration(context));
 
     public override void EnterPropertyLetStmt([NotNull] VBAParser.PropertyLetStmtContext context) 
-        => OnEnterProcedure($"{Tokens.Property}{Tokens.Let}", isPropertyWriter: true);
+        => OnEnterProcedure(isPropertyWriter: true);
     public override void ExitPropertyLetStmt([NotNull] VBAParser.PropertyLetStmtContext context) 
         => OnExitProcedure(builder => builder.BuildPropertyLetDeclaration(context));
     public override void EnterPropertySetStmt([NotNull] VBAParser.PropertySetStmtContext context) 
-        => OnEnterProcedure($"{Tokens.Property}{Tokens.Set}", isPropertyWriter: true);
+        => OnEnterProcedure(isPropertyWriter: true);
     public override void ExitPropertySetStmt([NotNull] VBAParser.PropertySetStmtContext context) 
         => OnExitProcedure(builder => builder.BuildPropertySetDeclaration(context));
 
     public override void EnterSubStmt([NotNull] VBAParser.SubStmtContext context)
-        => OnEnterProcedure(Tokens.Sub);
+        => OnEnterProcedure();
     public override void ExitSubStmt([NotNull] VBAParser.SubStmtContext context)
         => OnExitProcedure(builder => builder.BuildProcedureDeclaration(context));
 
     public override void EnterFunctionStmt([NotNull] VBAParser.FunctionStmtContext context)
-        => OnEnterProcedure(Tokens.Function);
+        => OnEnterProcedure();
     public override void ExitFunctionStmt([NotNull] VBAParser.FunctionStmtContext context)
         => OnExitProcedure(builder => builder.BuildFunctionDeclaration(context));
 
-
-    private int _expressionId = 0;
-    private void OnExpression(ExpressionNode expression)
-    {
-        CurrentBuilder.AddChild(expression);
-        _expressionId++;
-    }
+    private void OnExpression(ExpressionNode expression) => CurrentBuilder.AddChild(expression);
 
     public override void ExitAsTypeClause([NotNull] VBAParser.AsTypeClauseContext context)
     {
-        if (!IsDeclarationPassExpression)
-        {
-            return;
-        }
         var value = context.type().GetText();
-        var location = context.GetSourceLocation(_root.SemanticId);
-        OnExpression(new VBAsTypeExpression(GetUriWithFragmentFor($"__astype_{_expressionId}"), location, value, null, context.NEW() is not null));
+        var location = context.GetSourceLocation(_rootUri);
+        OnExpression(new VBAsTypeExpression(Guid.NewGuid(), location, value, null, context.NEW() is not null));
     }
 
     public override void ExitSimpleNameExpr([NotNull] VBAParser.SimpleNameExprContext context)
@@ -208,8 +223,8 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         }
         var value = context.identifier().untypedIdentifier()?.GetText()
             ?? context.identifier().typedIdentifier().untypedIdentifier().GetText();
-        var location = context.GetSourceLocation(_root.SemanticId);
-        OnExpression(new VBSimpleNameExpression(GetUriWithFragmentFor($"__{value}_{_expressionId}"), location, value));
+        var location = context.GetSourceLocation(_rootUri);
+        OnExpression(new VBSimpleNameExpression(Guid.NewGuid(), location, value));
     }
     public override void ExitLiteralIdentifier([NotNull] VBAParser.LiteralIdentifierContext context)
     {
@@ -218,30 +233,30 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             return;
         }
 
-        var location = context.GetSourceLocation(_root.SemanticId);
+        var location = context.GetSourceLocation(_rootUri);
         if (context.booleanLiteralIdentifier() is VBAParser.BooleanLiteralIdentifierContext boolLiteralContext)
         {
             if (boolLiteralContext.FALSE() is not null)
             {
-                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_bool_{_expressionId}"), location, VBBooleanValue.False));
+                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBBooleanValue.False));
             }
             else if (boolLiteralContext.TRUE() is not null)
             {
-                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_bool_{_expressionId}"), location, VBBooleanValue.True));
+                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBBooleanValue.True));
             }
         }
         else if (context.objectLiteralIdentifier() is VBAParser.ObjectLiteralIdentifierContext objLiteralContext)
         {
             if (objLiteralContext.NOTHING() is not null)
             {
-                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_object_{_expressionId}"), location, VBObjectValue.Nothing));
+                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBObjectValue.Nothing));
             }
         }
         else if (context.variantLiteralIdentifier() is VBAParser.VariantLiteralIdentifierContext variantLiteralContext)
         {
             if (variantLiteralContext.EMPTY() is not null)
             {
-                OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_variant_{_expressionId}"), location, VBEmptyValue.Empty));
+                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBEmptyValue.Empty));
             }
         }
     }
@@ -252,7 +267,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             return;
         }
 
-        var location = context.GetSourceLocation(_root.SemanticId);
+        var location = context.GetSourceLocation(_rootUri);
         VBTypedValue value = VBUnknownValue.DefaultValue;
         if (context.INTEGERLITERAL() is ITerminalNode intNumeric)
         {
@@ -315,7 +330,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             }
         }
 
-        OnExpression(new VBLiteralExpression(GetUriWithFragmentFor($"__literal_numeric_{_expressionId}"), location, value));
+        OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, value));
     }
     public override void ExitLiteralExpression([NotNull] VBAParser.LiteralExpressionContext context)
     {
@@ -324,13 +339,13 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
             return;
         }
 
-        var location = context.GetSourceLocation(_root.SemanticId);
+        var location = context.GetSourceLocation(_rootUri);
         if (context.DATELITERAL() is ITerminalNode dateLiteral)
         {
             if (DateTime.TryParse(dateLiteral.Symbol.Text.Trim('#'), out var rawValue))
             {
                 OnExpression(new VBLiteralExpression(
-                    GetUriWithFragmentFor($"__literal_date_{_expressionId}"), 
+                    Guid.NewGuid(), 
                     location, 
                     new VBDateValue(rawValue.ToOADate())));
             }
@@ -338,7 +353,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         else if (context.STRINGLITERAL() is ITerminalNode stringLiteral)
         {
             OnExpression(new VBLiteralExpression(
-                GetUriWithFragmentFor($"__literal_string_{_expressionId}"), 
+                Guid.NewGuid(), 
                 location,
                 new VBStringValue(stringLiteral.Symbol.Text[1..^1])));
         }
@@ -359,7 +374,7 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         if (_isPropertyWriterMember)
         {
             if (CurrentBuilder.GetChildren.Last() is ParameterDeclarationNode node
-                && node.ParameterKind == ParameterKind.ImplicitByRef)
+                && node.ParameterKind != ParameterKind.ExplicitByVal)
             {
                 // we cannot do this before knowing how many parameters there are,
                 // because it's only applicable to the RHS/value parameter (last).
@@ -369,11 +384,49 @@ internal class DeclarationsParseTreeListener(ModuleNode moduleNode) : VBAParserB
         }
     }
     public override void EnterArg([NotNull] VBAParser.ArgContext context)
-        => OnEnterParent($"parameter_{_parameterIndex}");
+        => OnEnterParent();
     public override void ExitArg([NotNull] VBAParser.ArgContext context)
     {
         var isPropertyWriter = _isPropertyWriterMember;
         OnExitParent(builder => builder.BuildParameterDeclaration(context, isPropertyWriter));
         _parameterIndex++;
+    }
+
+    public override void ExitStatementLabelDefinition([NotNull] VBAParser.StatementLabelDefinitionContext context)
+    {
+        string? name = default;
+        int? number = default;
+        var labelLocation = context.GetSourceLocation(_rootUri);
+        var lineNumberLocation = labelLocation;
+
+        if (context.standaloneLineNumberLabel()?.lineNumberLabel() is VBAParser.LineNumberLabelContext numContextA)
+        {
+            lineNumberLocation = numContextA.GetSourceLocation(_rootUri);
+            number = int.Parse(numContextA.numberLiteral().GetText());
+        }
+        else if (context.combinedLabels()?.lineNumberLabel() is VBAParser.LineNumberLabelContext numContextB)
+        {
+            lineNumberLocation = numContextB.GetSourceLocation(_rootUri);
+            number = int.Parse(numContextB.numberLiteral().GetText());
+        }
+        else if (context.identifierStatementLabel().legalLabelIdentifier().identifier() is VBAParser.IdentifierContext labelContextA)
+        {
+            labelLocation = labelContextA.GetSourceLocation(_rootUri);
+            name = labelContextA.GetText();
+        }
+        else if (context.combinedLabels()?.identifierStatementLabel().legalLabelIdentifier().identifier() is VBAParser.IdentifierContext labelContextB)
+        {
+            labelLocation = labelContextB.GetSourceLocation(_rootUri);
+            name = labelContextB.GetText();
+        }
+
+        if (number.HasValue)
+        {
+            CurrentBuilder.AddChild(new LineNumberNode(Guid.NewGuid(), lineNumberLocation, number.Value));
+        }
+        if (name is not null)
+        {
+            CurrentBuilder.AddChild(new LineLabelNode(Guid.NewGuid(), labelLocation, name));
+        }
     }
 }

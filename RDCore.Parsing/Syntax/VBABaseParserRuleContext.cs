@@ -20,11 +20,9 @@ public abstract class VBABaseParserRuleContext : ParserRuleContext
     /// <remarks>
     /// The Line and Character positions are added to both <c>Start</c> and <c>Stop</c> Line and Column positions (respectively) to compute the <c>SourceRange</c>.
     /// </remarks>
-    public void AnchorAt(SourcePosition offset) => _anchoredRange = new(
-            offset + new SourcePosition(Start?.Line ?? 0, Start?.Column ?? 0),
-            offset + new SourcePosition(Stop?.Line ?? 0, Stop?.Column ?? 0));
+    public void AnchorAt(SourcePosition offset) => _offset = offset;
+    private SourcePosition _offset;
 
-    private SourceRange _anchoredRange;
     /// <summary>
     /// Gets a <see cref="SourceRange"/> representing the line/character start and end positions in the source document,
     /// anchored at an explicitly specified offset; the range is implicitly anchored at <c>L0C0</c> otherwise.
@@ -34,6 +32,8 @@ public abstract class VBABaseParserRuleContext : ParserRuleContext
     /// for a <em>source code fragment</em> or partial document; other positional members' values 
     /// would only be safe to surface in the context of a full-document parse.
     /// </remarks>
-    public SourceRange SourceRange => _anchoredRange;
+    public SourceRange SourceRange => new(
+            _offset + new SourcePosition(Start?.Line ?? 0, Start?.Column ?? 0),
+            _offset + new SourcePosition(Stop?.Line ?? 0, Stop?.Column ?? 0));
     public SourceLocation GetSourceLocation(Uri documentUri) => new(documentUri, SourceRange);
 }

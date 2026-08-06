@@ -78,9 +78,9 @@ public abstract record class LetCoercionRuntimeSemantics<TStrategy> : ILetCoerci
         if (flags.HasFlag(ConversionSemanticFlags.Failed))
         {
             builder.AddOnError(result.ErrorInfo);
-            return new(expression.SemanticId, result, flags);
+            return new(expression.Identity, result, flags);
         }
-        return new(expression.SemanticId, LetCoercionResult.NotApplicable(frame), flags);
+        return new(expression.Identity, LetCoercionResult.NotApplicable(frame), flags);
     }
 
     /// <summary>

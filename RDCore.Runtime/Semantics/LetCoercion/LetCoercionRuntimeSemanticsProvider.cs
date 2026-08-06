@@ -144,7 +144,7 @@ public class LetCoercionRuntimeSemanticsProvider(
     where TFlags : struct, Enum
     {
         var coercionResult = LetCoercionResult.NotApplicable(frame);
-        var context = new LetCoercionAnalysisContext(expression.SemanticId, coercionResult, 0);
+        var context = new LetCoercionAnalysisContext(expression.Identity, coercionResult, 0);
 
         var operandIndex = frame.OperandIndex;
 
@@ -216,8 +216,6 @@ public class LetCoercionRuntimeSemanticsProvider(
             // in-and-out: no need to push the coercion frame for this
             return LetCoercionResult.Error(OnLetCoercionTypeMismatch(expression, frame), [.. _frameStack]);
         }
-
-        var builder = new LetCoercionSemanticContextFlagsBuilder();
 
         if (TryPushCoercionFrame(frame))
         {

@@ -77,7 +77,7 @@ where TFlags : struct, Enum
         // 1. determine the effective type:
         var frame = new OperatorEvaluationFrame
         {
-            NodeUri = expression.SemanticId,
+            NodeId = expression.Identity,
             //OperatorSymbol = expression.Symbol,
             Operands = [.. operands],
             EffectiveType = VBUnknownType.TypeInfo,
@@ -166,7 +166,7 @@ where TFlags : struct, Enum
         params VBTypedValue[] inputs)
     {
         var expression = (VBOperatorExpression<TContext, TFlags>)node;
-        var frame = new OperatorEvaluationFrame(expression.SemanticId, [.. inputs], VBUnknownType.TypeInfo);
+        var frame = new OperatorEvaluationFrame(expression.Identity, [.. inputs], VBUnknownType.TypeInfo);
         return Evaluate((ISymbolResolver)runtime, context, expression, frame);
     }
 
@@ -269,11 +269,11 @@ where TFlags : struct, Enum
     {
         var operand = frame[operandIndex];
         return operand is VBNullValue
-            ? new LetCoercionAnalysisContext(frame.NodeUri, LetCoercionResult.Success(operand, []))
+            ? new LetCoercionAnalysisContext(frame.NodeId, LetCoercionResult.Success(operand, []))
             : LetCoercionSemanticsProvider.Analyze(resolver, builder, expression,
                 new()
                 {
-                    NodeUri = expression.SemanticId,
+                    NodeId = expression.Identity,
                     OperandIndex = operandIndex,
                     SourceValue = operand,
                     DestinationTypeDesc = VBTypedValueFactory.DescribeType(frame.EffectiveType),
@@ -303,7 +303,7 @@ where TFlags : struct, Enum
             // if the type of the operand is the effective type, the result is the unchanged operand (no coercion occurs).
             ? LetCoercionResult.Success(operand)
             : LetCoercionSemanticsProvider.EvaluateLetCoercionSemantics(resolver, expression, new() {
-                NodeUri = expression.SemanticId,
+                NodeId = expression.Identity,
                 OperandIndex = operandIndex,
                 SourceValue = operand,
                 DestinationTypeDesc = VBTypedValueFactory.DescribeType(frame.EffectiveType),

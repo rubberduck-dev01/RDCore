@@ -57,7 +57,7 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
         DetermineOperatorEffectiveTypeResult determineOperatorEffectiveTypeResult, 
         LetCoercionAnalysisContext coercionResult, 
         RuntimeSemanticsEvaluationResult evaluationResult, 
-        ConversionSemanticFlags semanticFlags) => new(node.SemanticId, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
+        ConversionSemanticFlags semanticFlags) => new(node.Identity, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver, 
@@ -76,7 +76,7 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
         OperatorEvaluationFrame frame)
     {
         var coercionResult = LetCoercionProvider.EvaluateLetCoercionSemantics((ISymbolResolver)runtime, expression, 
-            new(NodeUri: expression.SemanticId, 
+            new(NodeId: expression.Identity, 
                 OperandIndex: InputIndex.BinaryLeftOperand, 
                 SourceValue: frame[InputIndex.BinaryLeftOperand], 
                 DestinationTypeDesc: VBTypedValueFactory.DescribeType(frame[InputIndex.BinaryRightOperand].GetTargetType())));
