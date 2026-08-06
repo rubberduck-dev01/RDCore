@@ -5,9 +5,7 @@ using RDCore.Parsing.PreProcessing;
 using RDCore.Parsing.PreProcessing.Legacy;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
-using System.IO.Abstractions;
 using System.Text;
-using System.Text.Unicode;
 
 namespace RDCore.Tests;
 
@@ -49,8 +47,10 @@ public class DeclarationPassParserTests
         Assert.IsNotNull(result.SyntaxError);
     }
 
-    private const string _testProcedureWithDeclarations = """
+    private const string _testModuleWithDeclarations = """
 Option Explicit
+
+Private SomeField As Double
 
 Public Sub Test()
     DoSomething 42
@@ -80,7 +80,7 @@ End Sub
     public void ValidContent_ReturnsModuleNodeWithChildren()
     {
         // arrange
-        var content = _testProcedureWithDeclarations;
+        var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser(_preprocessor!);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
@@ -97,7 +97,7 @@ End Sub
     public void ValidContent_ContainsLocalVariableChildren()
     {
         // arrange
-        var content = _testProcedureWithDeclarations;
+        var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser(_preprocessor!);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
@@ -116,7 +116,7 @@ End Sub
     public void ValidContent_ContainsLocalConstChildren()
     {
         // arrange
-        var content = _testProcedureWithDeclarations;
+        var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser(_preprocessor!);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
@@ -135,7 +135,7 @@ End Sub
     public void ValidContent_ContainsLabelChildren()
     {
         // arrange
-        var content = _testProcedureWithDeclarations;
+        var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser(_preprocessor!);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));

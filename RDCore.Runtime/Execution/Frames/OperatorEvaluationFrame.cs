@@ -1,6 +1,4 @@
 ﻿using RDCore.Runtime.Semantics.Abstract;
-using RDCore.SDK.Model.AST.Abstract;
-using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
@@ -13,14 +11,14 @@ namespace RDCore.Runtime.Execution.Frames
     /// <summary>
     /// Represents a <see cref="OperatorRuntimeSemantics{TContext, TFlags}"/> evaluation step.
     /// </summary>
-    /// <param name="NodeUri">The <c>SemanticId</c> of the associated expression node.</param>
+    /// <param name="NodeId">The <c>Identity</c> of the associated expression node.</param>
     /// <param name="Operands">The resolved <see cref="VBTypedValue"/> values of the operand inputs of the operator.</param>
     /// <param name="EffectiveType">The <em>effective data type</em> of the operator expression, if determined.</param>
     /// <remarks>
     /// The <c>EffectiveType</c> is <see cref="VBUnknownType"/> if undetermined.
     /// </remarks>
     public readonly record struct OperatorEvaluationFrame(
-        Uri NodeUri,
+        Guid NodeId,
         ImmutableArray<VBTypedValue> Operands,
         VBType EffectiveType) : IStackFrame<InputIndex>
     {
@@ -31,7 +29,7 @@ namespace RDCore.Runtime.Execution.Frames
         /// <returns>The <see cref="VBTypedValue"/> operand at the specified index.</returns>
         public VBTypedValue this[InputIndex index] => Operands[Convert.ToInt32(index)];
 
-        Uri IStackFrame.NodeUri => NodeUri;
+        Guid IStackFrame.NodeId => NodeId;
         ImmutableArray<VBTypedValue> IStackFrame.Inputs => Operands;
     };
 }

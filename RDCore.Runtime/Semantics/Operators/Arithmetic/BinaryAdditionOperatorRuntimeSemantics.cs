@@ -66,14 +66,14 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
                 var leftCoercion = LetCoercionProvider.EvaluateLetCoercionSemantics(
                     resolver: runtime.Memory, 
                     expression: expression, 
-                    frame: new(expression.SemanticId, InputIndex.BinaryLeftOperand, leftOperand, 
+                    frame: new(expression.Identity, InputIndex.BinaryLeftOperand, leftOperand, 
                         VBTypedValueFactory.DescribeType(stringEffectiveType)));
 
                 var rightOperand = frame[InputIndex.BinaryRightOperand];
                 var rightCoercion = LetCoercionProvider.EvaluateLetCoercionSemantics(
                     resolver: runtime.Memory,
                     expression: expression,
-                    frame: new(expression.SemanticId, InputIndex.BinaryRightOperand, rightOperand,
+                    frame: new(expression.Identity, InputIndex.BinaryRightOperand, rightOperand,
                         VBTypedValueFactory.DescribeType(stringEffectiveType)));
 
                 if (leftCoercion.IsSuccess && rightCoercion.IsSuccess)

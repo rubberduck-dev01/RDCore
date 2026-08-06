@@ -41,8 +41,8 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
 
         if (preprocessor.PreprocessTokenStream(uri, rawTokenStream) is CommonTokenStream tokenStream)
         {
-            var node = new ModuleNode(uri, new(uri, SourceRange.Empty), [], moduleType);
-            var listener = new DeclarationsParseTreeListener(node);
+            var node = new ModuleNode(Guid.NewGuid(), new(uri, SourceRange.Empty), [], moduleType);
+            var listener = new DeclarationsParseTreeListener(uri, node);
             var errorListener = new ErrorListener(uri);
             try
             {
