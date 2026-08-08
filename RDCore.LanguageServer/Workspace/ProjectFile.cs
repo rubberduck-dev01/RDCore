@@ -162,12 +162,5 @@ internal enum DocClassType
 
 internal record class RDCoreModule : RDCoreFile
 {
-    /// <summary>
-    /// The name of the module; must be unique across the entire workspace.
-    /// </summary>
-    /// <remarks>
-    /// The value of the module's <c>VB_Name</c> attribute.
-    /// </remarks>
-    public string Name { get; init; } = string.Empty;
     public DocClassType? Super { get; init; }
 }

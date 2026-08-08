@@ -12,7 +12,7 @@ public sealed class ProjectFileTests
     private static readonly string TestWorkspaceUri = "file://c:/dev/rdcore/workspaces/rdcore.tests";
 
     private static RDCoreReference TestLibraryReference { get; } = new() { Name = "TestLibrary", IsUnremovable = false };
-    private static RDCoreModule TestModule { get; } = new() { RelativeUri = "model/Class1.cls", Name = "Class1" };
+    private static RDCoreModule TestModule { get; } = new() { RelativeUri = "model/Class1.cls" };
     private static RDCoreFile TestDocument { get; } = new RDCoreFile { RelativeUri = "README.md" };
     private static string TestFolder { get; } = "test/projectfile";
 

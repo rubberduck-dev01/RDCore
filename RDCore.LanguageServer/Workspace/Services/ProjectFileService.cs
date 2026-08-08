@@ -86,7 +86,6 @@ internal class ProjectFileService(ILogger<ProjectFileService> logger,
     {
         var module = new RDCoreModule
         {
-            Name = document.Name,
             RelativeUri = ioPath.GetRelativePath(Project.Uri, document.Id.Uri.GetFileSystemPath()),
             Super = classType
         };
@@ -96,10 +95,10 @@ internal class ProjectFileService(ILogger<ProjectFileService> logger,
 
     public void AddSourceFile(RDCoreModule module)
     {
-        if (Project.ProjectInfo.Modules.Any(e => e.Name == module.Name))
+        if (Project.ProjectInfo.Modules.Any(e => e.DefaultName == module.DefaultName))
         {
             logger.LogWarning("⚠️ Source file names must be unique in a project, regardless of folder location.");
-            throw new InvalidOperationException($"Project already contains a module named '{module.Name}'.");
+            throw new InvalidOperationException($"Project already contains a source file named '{module.DefaultName}'.");
         }
 
         _projectFile = Project.WithModule(module);
@@ -195,7 +194,7 @@ internal class ProjectFileService(ILogger<ProjectFileService> logger,
         else
         {
             logger.LogWarning("⚠️ The specified source file '{uri}' was not found.", module.RelativeUri);
-            throw new InvalidOperationException($"Source file '{module.Name}' could not be removed.");
+            throw new InvalidOperationException($"Source file '{module.RelativeUri}' could not be removed.");
         }
     }
 
