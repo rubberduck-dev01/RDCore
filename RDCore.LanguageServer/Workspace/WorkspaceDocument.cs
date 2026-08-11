@@ -1,5 +1,4 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using RDCore.SDK.Model.Symbols.Unbound;
 
 namespace RDCore.LanguageServer.Workspace;
 
