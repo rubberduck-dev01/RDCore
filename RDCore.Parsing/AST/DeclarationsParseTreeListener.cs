@@ -215,8 +215,8 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         var location = context.GetSourceLocation(_rootUri);
         var value = context.type().GetText().Split('.');
 
-        var qualifier = value.Length > 1 ? value[^1] : null;
-        var name = value[^0];
+        var qualifier = value.Length > 1 ? value[0] : null;
+        var name = value.Last();
 
         OnExpression(new VBAsTypeExpression(GetCurrentNodeId(), location, name, qualifier, 
             AsAutoObject: context.NEW() is not null, 

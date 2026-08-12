@@ -86,14 +86,13 @@ Write-Host ""
 foreach ($project in $Projects)
 {
     $publishPath = Join-Path $StagingRoot $project.Name
+    $projPath = Join-Path $RepoRoot $project.Project
 
     New-Item $publishPath -ItemType Directory -Force | Out-Null
 
-    Write-Host "🚀 Publishing $($project.Name)..."
+    Write-Host "🚀 Publishing $($project.Name): $($projPath)"
 
-    dotnet publish (Join-Path $RepoRoot $project.Project) `
-        --configuration $Configuration `
-        --output $publishPath
+    dotnet publish $projPath --configuration $Configuration --output $publishPath
 
     if ($LASTEXITCODE -ne 0)
     {
