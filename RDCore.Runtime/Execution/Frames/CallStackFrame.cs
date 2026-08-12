@@ -1,4 +1,5 @@
-﻿using RDCore.SDK.Model.Symbols.Abstract;
+﻿using RDCore.SDK.Model.AST.Abstract;
+using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Runtime.Abstract.Execution;
 using System.Collections.Immutable;
@@ -9,7 +10,7 @@ namespace RDCore.Runtime.Execution.Frames;
 /// <summary>
 /// Represents a single <em>call stack</em> frame that allocates locally-scoped symbols.
 /// </summary>
-public record class CallStackFrame(Guid NodeId, StaticSymbol StaticSymbol, ImmutableArray<VBTypedValue> Inputs) : ICallStackFrame
+public record class CallStackFrame(SyntaxNodeId NodeId, StaticSymbol StaticSymbol, ImmutableArray<VBTypedValue> Inputs) : ICallStackFrame
 {
     private readonly Stack<Symbol> _localSymbols = [];
     private readonly Dictionary<Uri, Symbol> _localSymbolTable = [];

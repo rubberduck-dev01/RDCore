@@ -6,10 +6,12 @@ using RDCore.SDK.Model.AST.Directives;
 
 namespace RDCore.Parsing.AST;
 
-internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
+internal class NodeBuilder(Uri rootUri, SyntaxNodeId nodeId)
 {
     private readonly Uri _rootUri = rootUri;
     private readonly List<SyntaxNode> _children = [];
+
+    public SyntaxNodeId NodeId => nodeId;
 
     public void AddChild(SyntaxNode node) => _children.Add(node);
     public void UpdateLastChild(SyntaxNode node)
@@ -23,6 +25,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
         _children.Add(node);
     }
 
+    public int ChildCount => _children.Count;
     public IEnumerable<SyntaxNode> GetChildren => _children.AsEnumerable();
     public SyntaxNode BuildAttributeDirective(VBAParser.AttributeStmtContext context)
     {
@@ -31,7 +34,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
         var name = identifiers.Length == 1 ? identifiers[0] : identifiers.Last();
         var qualifier = identifiers.Length == 2 ? identifiers[0] : null;
         return new AttributeDirectiveNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             name,
             _children[0],
@@ -39,7 +42,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
     }
     public SyntaxNode BuildImplementsDirective(VBAParser.ImplementsStmtContext context) =>
         new ImplementsDirectiveNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             (ExpressionNode)_children[0]);
 
@@ -60,7 +63,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             : Enum.Parse<AccessModifier>(visibility, ignoreCase: true);
 
         return new ExternalMemberDeclarationNode(
-            Guid.NewGuid(), 
+            nodeId, 
             location, 
             [.. _children],
             name, 
@@ -78,7 +81,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(), 
+            nodeId, 
             context.GetSourceLocation(_rootUri), 
             [.. _children], 
             name, 
@@ -92,7 +95,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children],
             name, 
@@ -108,7 +111,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
         
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children],
             name, 
@@ -127,7 +130,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
                     : ParameterKind.ImplicitByRef;
         
         return new ParameterDeclarationNode(
-                    Guid.NewGuid(),
+                    nodeId,
                     context.GetSourceLocation(_rootUri),
                     name,
                     kind,
@@ -144,7 +147,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children], 
             name,
@@ -160,7 +163,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children],
             name,
@@ -176,7 +179,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children],
             name,
@@ -192,7 +195,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children],
             name,
@@ -208,7 +211,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             ? Enum.Parse<AccessModifier>(value) : AccessModifier.Implicit;
 
         return new MemberDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             [.. _children],
             name,
@@ -227,7 +230,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
         var isWithEvents = context.WITHEVENTS() is not null;
         
         return new VariableDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri), 
             name,
             [.. _children], 
@@ -245,7 +248,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
             : context.identifier().typedIdentifier()!.untypedIdentifier().identifierValue().IDENTIFIER().Symbol.Text;
 
         return new ConstantDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             context.GetSourceLocation(_rootUri),
             name,
             kind,
@@ -266,7 +269,7 @@ internal class NodeBuilder(Uri rootUri, Guid? nodeId = null)
         }
 
         return new ConstantDeclarationNode(
-            Guid.NewGuid(),
+            nodeId,
             location, 
             name, 
             ConstKind.EnumMember,

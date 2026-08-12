@@ -8,7 +8,7 @@ namespace RDCore.SDK.Model.AST.Expressions;
 // TODO migrate to types dedicated to the runtime semantics for member and dictionary access
 
 public record class VBMemberAccessOperatorExpression(
-    Guid Identity,
+    SyntaxNodeId Identity,
     SourceLocation Location,
     ExpressionNode Left, ExpressionNode Right) 
     : VBBinaryOperatorExpression<BinaryOperatorSemanticContext<MemberAccessOperationSemanticFlags>, MemberAccessOperationSemanticFlags>(

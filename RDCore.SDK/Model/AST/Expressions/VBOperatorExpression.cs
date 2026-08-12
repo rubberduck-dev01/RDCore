@@ -1,7 +1,6 @@
 ﻿using RDCore.SDK.Model.Source;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.Symbols.Abstract;
-using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Semantics.Context.Abstract;
 using System.Collections.Immutable;
 
@@ -21,15 +20,14 @@ public abstract record class VBOperatorExpression<TContext, TFlags> : Expression
 where TContext : SemanticContext<TFlags>, new()
 where TFlags : struct, Enum
 {
-    protected VBOperatorExpression(Guid Identity,
+    protected VBOperatorExpression(SyntaxNodeId Identity,
     OperatorSymbol<TContext, TFlags> Symbol,
-    OperatorExpressionValueSymbol ResultSymbol,
     SourceLocation Location,
     ImmutableArray<ExpressionNode> Operands)
         : base(Symbol.Name, Identity, Location, Operands)
     { }
 
-    protected VBOperatorExpression(string token, Guid identity, SourceLocation location, 
+    protected VBOperatorExpression(string token, SyntaxNodeId identity, SourceLocation location, 
         ImmutableArray<ExpressionNode> operands)
         : base(token, identity, location, operands) {  }
 }
