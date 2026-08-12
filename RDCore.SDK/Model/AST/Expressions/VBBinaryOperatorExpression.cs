@@ -24,7 +24,7 @@ public record class VBBinaryOperatorExpression<TContext, TFlags>
     /// <param name="Location">The <c>Location</c> (holds the document <c>Uri</c> and a <c>Range</c>) of the bound expression.</param>
     /// <param name="Left">The left-hand side (LHS) operand of this <em>binary operator expression</em></param>
     /// <param name="Right">The right-hand side (RHS) operand of this <em>binary operator expression</em></param>
-    public VBBinaryOperatorExpression(string token, Guid identity, SourceLocation location, ExpressionNode left, ExpressionNode right) 
+    public VBBinaryOperatorExpression(string token, SyntaxNodeId identity, SourceLocation location, ExpressionNode left, ExpressionNode right) 
         : base(token, identity, location, [left, right])
     {
         Left = left;
@@ -33,12 +33,11 @@ public record class VBBinaryOperatorExpression<TContext, TFlags>
 
     /// <param name="Identity">A unique identifier for this specific syntax node.</param>
     /// <param name="Symbol">The <c>OperatorSymbol</c> associated with this <em>operator expression</em>.</param>
-    /// <param name="ResultSymbol">The <see cref="OperatorExpressionValueSymbol"/> associated with the <em>result</em> of this <em>operator expression</em>.</param>
     /// <param name="Location">The <c>Location</c> (holds the document <c>Uri</c> and a <c>Range</c>) of the bound expression.</param>
     /// <param name="Left">The left-hand side (LHS) operand of this <em>binary operator expression</em></param>
     /// <param name="Right">The right-hand side (RHS) operand of this <em>binary operator expression</em></param>
-    public VBBinaryOperatorExpression(Guid identity, OperatorSymbol<TContext, TFlags> symbol, OperatorExpressionValueSymbol resultSymbol, SourceLocation location, ExpressionNode left, ExpressionNode right) 
-        : base(identity, symbol, resultSymbol, location, [left, right])
+    public VBBinaryOperatorExpression(SyntaxNodeId identity, OperatorSymbol<TContext, TFlags> symbol, SourceLocation location, ExpressionNode left, ExpressionNode right) 
+        : base(identity, symbol, location, [left, right])
     {
         Left = left;
         Right = right;

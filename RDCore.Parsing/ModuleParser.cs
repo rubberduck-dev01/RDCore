@@ -5,6 +5,7 @@ using Antlr4.Runtime.Tree;
 using RDCore.Parsing.AST;
 using RDCore.Parsing.PreProcessing;
 using RDCore.Parsing.Syntax;
+using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.Errors;
 using RDCore.SDK.Model.Source;
@@ -41,7 +42,7 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
 
         if (preprocessor.PreprocessTokenStream(uri, rawTokenStream) is CommonTokenStream tokenStream)
         {
-            var node = new ModuleNode(Guid.NewGuid(), new(uri, SourceRange.Empty), [], moduleType);
+            var node = new ModuleNode(new SyntaxNodeId([uri.GetHashCode()]), new(uri, SourceRange.Empty), [], moduleType);
             var listener = new DeclarationsParseTreeListener(uri, node);
             var errorListener = new ErrorListener(uri);
             try
@@ -56,7 +57,7 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
             }
             catch (Exception exception)
             {
-                var verbose = "Parsing failed";
+                var verbose = $"Parsing failed: {exception}";
                 return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbose);
             }
         }

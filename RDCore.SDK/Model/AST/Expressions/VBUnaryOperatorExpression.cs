@@ -1,5 +1,5 @@
-﻿using RDCore.SDK.Model.Source;
-using RDCore.SDK.Model.Symbols.Abstract;
+﻿using RDCore.SDK.Model.AST.Abstract;
+using RDCore.SDK.Model.Source;
 using RDCore.SDK.Semantics.Context.Abstract;
 
 namespace RDCore.SDK.Model.AST.Expressions;
@@ -14,7 +14,7 @@ namespace RDCore.SDK.Model.AST.Expressions;
 /// <param name="Token">The <c>OperatorSymbol</c> token associated with this <em>operator expression</em>.</param>
 /// <param name="Location">The <c>Location</c> (holds the document <c>Uri</c> and a <c>Range</c>) of the bound expression.</param>
 /// <param name="Expression">The operand of this <em>unary operator expression</em></param>
-public record class VBUnaryOperatorExpression<TContext, TFlags>(Guid Identity, string Token, SourceLocation Location, VBOperatorExpression<TContext, TFlags> Expression) 
+public record class VBUnaryOperatorExpression<TContext, TFlags>(SyntaxNodeId Identity, string Token, SourceLocation Location, VBOperatorExpression<TContext, TFlags> Expression) 
     : VBOperatorExpression<TContext, TFlags>(Token, Identity, Location, [Expression]) 
     where TContext : SemanticContext<TFlags>, new()
     where TFlags : struct, Enum
