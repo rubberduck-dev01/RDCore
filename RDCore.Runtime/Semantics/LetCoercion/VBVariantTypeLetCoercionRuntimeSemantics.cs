@@ -19,9 +19,9 @@ public record class VBVariantTypeLetCoercionRuntimeSemantics(
     IVerboseMessageBuilder FormatterService) 
     : LetCoercionRuntimeSemantics<VBVariantType>(FormatterService) 
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame) => frame.SourceValue switch
         {
             not VBObjectValue and not VBNothingValue => 
@@ -30,9 +30,9 @@ public record class VBVariantTypeLetCoercionRuntimeSemantics(
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder,
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame) => builder.AddFlags(ConversionSemanticFlags.VariantTarget);
 }

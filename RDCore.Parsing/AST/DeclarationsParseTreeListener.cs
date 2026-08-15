@@ -25,7 +25,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     private readonly Stack<NodeBuilder> _builderStack = new([new(sourceUri, moduleNode.Identity)]);
     private NodeBuilder CurrentBuilder => _builderStack.Peek();
 
-    private SyntaxNodeId GetCurrentNodeId() => new([.. CurrentBuilder.NodeId.Lineage.Append(CurrentBuilder.ChildCount)]);
+    private SyntaxNodeId GetCurrentNodeId() => CurrentBuilder.NodeId.Add(CurrentBuilder.ChildCount);
 
     public ModuleNode BuildModuleNode()
     {

@@ -21,9 +21,9 @@ public record class VBDateLetCoercionRuntimeSemantics(
     IVerboseMessageBuilder FormatterService) 
     : LetCoercionRuntimeSemantics<VBDateType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame) => 
         frame.SourceValue switch
         {
@@ -53,10 +53,10 @@ public record class VBDateLetCoercionRuntimeSemantics(
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder, 
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame)
     {
         var destinationType = frame.DestinationTypeDesc.Target;

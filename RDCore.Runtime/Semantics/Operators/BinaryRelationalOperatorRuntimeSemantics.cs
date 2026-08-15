@@ -16,7 +16,6 @@ using RDCore.SDK.Semantics;
 using RDCore.SDK.Semantics.Analysis;
 using RDCore.SDK.Semantics.Builders;
 using RDCore.SDK.Semantics.Context;
-using RDCore.SDK.Semantics.Context.Abstract;
 using RDCore.SDK.Semantics.Flags;
 using RDCore.SDK.Services.VerboseMessages;
 
@@ -44,9 +43,8 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext coercionContext, 
         ISemanticContextContributor<BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags>, ComparisonOperatorSemanticFlags> builder, 
-        VBOperatorExpression<BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags>, ComparisonOperatorSemanticFlags> expression, 
-        OperatorAnalysisContext<ComparisonOperatorSemanticFlags> analysisContext, 
-        params VBTypedValue[] operands)
+        VBOperatorExpression expression, 
+        OperatorAnalysisContext<ComparisonOperatorSemanticFlags> analysisContext, params VBTypedValue[] operands)
     {
         if (analysisContext.EffectiveTypeResult.Result is VBErrorType 
             && analysisContext.EvaluationResult.Result!.ManagedValue.RuntimeValue!.BoxedValue is int errorCode
@@ -88,9 +86,9 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     }
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
-        ISymbolResolver resolver, 
-        SemanticContext<ComparisonOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression<BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags>, ComparisonOperatorSemanticFlags> expression, 
+        ISymbolResolver resolver,
+        BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags> context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame.Operands[(int)InputIndex.BinaryLeftOperand].GetTargetType();
@@ -188,23 +186,12 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     }
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime, 
-        SemanticContext<ComparisonOperatorSemanticFlags> context,
-        VBBinaryOperatorExpression<BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags>, ComparisonOperatorSemanticFlags> expression, 
+        IVBExecutionContext runtime,
+        BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags> context,
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame.Operands[(int)InputIndex.BinaryLeftOperand];
-        var lhsManaged = lhs switch
-        {
-            VBByteValue lhsByte => lhsByte.ManagedValue,
-            VBIntegerValue lhsInteger => lhsInteger.ManagedValue,
-            VBLongValue lhsLong => lhsLong.ManagedValue,
-            VBLongLongValue lhsLongLong => lhsLongLong.ManagedValue,
-            VBCurrencyValue lhsCurrency => lhsCurrency.ManagedValue,
-            VBDecimalValue lhsDecimal => lhsDecimal.ManagedValue,
-            _ => throw new NotSupportedException()
-        };
-
         var rhs = frame.Operands[(int)InputIndex.BinaryRightOperand];
         
         if (frame.EffectiveType is VBByteType or VBIntegerType or VBLongType or VBLongLongType)

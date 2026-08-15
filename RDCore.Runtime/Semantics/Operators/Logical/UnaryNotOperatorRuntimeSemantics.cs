@@ -26,8 +26,8 @@ public record class UnaryNotOperatorRuntimeSemantics(
     protected override double EvaluateBitwiseOp(double operand) => ~(long)operand;
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(IVBExecutionContext runtime,
-        SemanticContext<LogicalOperatorSemanticFlags> context,
-        VBOperatorExpression<UnaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression,
+        UnaryLogicalOperatorSemanticContext context,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame) =>
         frame.EffectiveType switch
         {

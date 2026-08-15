@@ -4,7 +4,6 @@ using RDCore.SDK;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Errors;
-using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values;
@@ -16,7 +15,6 @@ using RDCore.SDK.Semantics;
 using RDCore.SDK.Semantics.Analysis;
 using RDCore.SDK.Semantics.Builders;
 using RDCore.SDK.Semantics.Context;
-using RDCore.SDK.Semantics.Context.Abstract;
 using RDCore.SDK.Semantics.Runtime.Operators;
 using RDCore.SDK.Services.VerboseMessages;
 
@@ -52,13 +50,13 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     protected abstract DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame);
 
     protected sealed override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
-        ISymbolResolver resolver, 
-        SemanticContext<ArithmeticOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        ISymbolResolver resolver,
+        BinaryArithmeticOperatorSemanticContext context, 
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame)
     {
         var result = DetermineArithmeticOperatorEffectiveType(resolver, (BinaryArithmeticOperatorSemanticContext)context, expression, frame);
@@ -146,6 +144,7 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
             VBTypedValueFactory.CreateValue(effectiveType, 
                 EvaluateManagedNumericOp((double)lhs.ManagedValue.RuntimeValue!.BoxedValue, (double)rhs.ManagedValue.RuntimeValue!.BoxedValue)));
 
+
     /// <summary>
     /// Evaluates the <see cref="VBDateType"/> runtime semantics of a <em>binary arithmetic operator</em>.<br/>
     /// 👉 <see cref="VBDateValue"/> operands have been <em>let-coerced</em> to <see cref="VBDoubleValue"/> values for evaluation.
@@ -199,7 +198,7 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
         ISymbolResolver resolver,
         ConversionOperationSemanticContext coercionContext,
         ISemanticContextContributor<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> builder,
-        VBOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        VBOperatorExpression expression,
         OperatorAnalysisContext<ArithmeticOperatorSemanticFlags> analysisContext,
         params VBTypedValue[] operands)
         => builder.AddFlags(analysisContext.EffectiveTypeResult.Result switch

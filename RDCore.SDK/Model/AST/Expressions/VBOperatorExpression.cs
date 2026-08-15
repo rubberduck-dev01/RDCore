@@ -7,27 +7,13 @@ using System.Collections.Immutable;
 namespace RDCore.SDK.Model.AST.Expressions;
 
 /// <summary>
-/// A <c>BoundExpression</c> that is associated to an <c>OperatorSymbol</c>.
+/// An <em>expression</em> syntax node representing an operator.
 /// </summary>
 /// <remarks>
 /// Unless specified otherwise in a derived node type, <strong>MS-VBAL 5.6.9 Operator Expressions</strong> defines the static and run-time semantics of this node.
 /// </remarks>
-/// <param name="SemanticId">A semantic <c>Uri</c> uniquely identifying this specific node.</param>
-/// <param name="Symbol">The <see cref="OperatorSymbol{TContext, TFlags}"/> associated with this <em>operator expression</em>.</param>
-/// <param name="ResultSymbol">A <see cref="BoundTypedSymbol"/> bound to the result of this expression.</param>
-/// <param name="Location">The <c>Location</c> (holds the document <c>Uri</c> and a <c>Range</c>) of the bound expression.</param>
-public abstract record class VBOperatorExpression<TContext, TFlags> : ExpressionNode 
-where TContext : SemanticContext<TFlags>, new()
-where TFlags : struct, Enum
+public abstract record class VBOperatorExpression : ExpressionNode 
 {
-    protected VBOperatorExpression(SyntaxNodeId Identity,
-    OperatorSymbol<TContext, TFlags> Symbol,
-    SourceLocation Location,
-    ImmutableArray<ExpressionNode> Operands)
-        : base(Symbol.Name, Identity, Location, Operands)
-    { }
-
-    protected VBOperatorExpression(string token, SyntaxNodeId identity, SourceLocation location, 
-        ImmutableArray<ExpressionNode> operands)
+    protected VBOperatorExpression(string token, SyntaxNodeId identity, SourceLocation location, ImmutableArray<ExpressionNode> operands)
         : base(token, identity, location, operands) {  }
 }

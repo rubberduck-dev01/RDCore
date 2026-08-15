@@ -25,27 +25,27 @@ public sealed record class BinaryModuloOperatorRuntimeSemantics(
     : BinaryIntegerDivisionOperatorRuntimeSemantics(LetCoercionProvider, FormatterService)
 {
     protected override double EvaluateManagedNumericOp(double lhs, double rhs) => Math.DivRem((int)lhs, (int)rhs).Remainder;
-
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime, 
-        SemanticContext<ArithmeticOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression, 
+        IVBExecutionContext runtime,
+        BinaryArithmeticOperatorSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         if (frame.EffectiveType is VBByteType or VBIntegerType or VBLongType or VBLongLongType
             && frame[InputIndex.BinaryLeftOperand] is VBNumericTypedValue lhsNumeric 
             && frame[InputIndex.BinaryRightOperand] is VBNumericTypedValue rhsNumeric)
         {
-            if ((double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue == 0)
+            var lhs = (double)lhsNumeric.Handle.GetValue(runtime).BoxedValue;
+            var rhs = (double)rhsNumeric.Handle.GetValue(runtime).BoxedValue;
+
+            if (rhs == 0d)
             {
                 OnDivisionByZero(expression, Exceptions.VBDivisionOp_DivisionByZero);
             }
 
             return RuntimeSemanticsEvaluationResult.Success(
-                VBTypedValueFactory.CreateValue((VBNumericType)frame.EffectiveType,
-                EvaluateManagedNumericOp(
-                    (double)lhsNumeric.ManagedValue.RuntimeValue!.BoxedValue, 
-                    (double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue)));
+                VBTypedValueFactory.CreateValue((VBNumericType)frame.EffectiveType, 
+                EvaluateManagedNumericOp(lhs, rhs)));
         }
         else if (frame.EffectiveType is VBNullType)
         {

@@ -42,7 +42,7 @@ internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModulePars
 
         if (preprocessor.PreprocessTokenStream(uri, rawTokenStream) is CommonTokenStream tokenStream)
         {
-            var node = new ModuleNode(new SyntaxNodeId([uri.GetHashCode()]), new(uri, SourceRange.Empty), [], moduleType);
+            var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), [], moduleType);
             var listener = new DeclarationsParseTreeListener(uri, node);
             var errorListener = new ErrorListener(uri);
             try

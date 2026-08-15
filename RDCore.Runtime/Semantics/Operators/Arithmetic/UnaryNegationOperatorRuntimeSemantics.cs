@@ -26,7 +26,7 @@ public sealed record class UnaryNegationOperatorRuntimeSemantics(
 {
     protected override DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
         ISymbolResolver resolver,
-        VBOperatorExpression<UnaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame) => frame[InputIndex.UnaryOperand].TypeInfo switch
         {
             VBByteType  => DetermineOperatorEffectiveTypeResult.Success(VBIntegerType.TypeInfo),
@@ -38,8 +38,8 @@ public sealed record class UnaryNegationOperatorRuntimeSemantics(
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
-        SemanticContext<ArithmeticOperatorSemanticFlags> context,
-        VBOperatorExpression<UnaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        UnaryArithmeticOperatorSemanticContext context,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame) => frame.EffectiveType switch
         {
             /* 

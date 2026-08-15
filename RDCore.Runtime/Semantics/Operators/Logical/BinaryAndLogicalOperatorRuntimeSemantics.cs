@@ -38,13 +38,13 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
-        SemanticContext<LogicalOperatorSemanticFlags> context,
-        VBBinaryOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression,
+        BinaryLogicalOperatorSemanticContext context,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame) => DetermineOperatorEffectiveTypeResult.NotApplicable(); // already determined, but the method still needs an override.
 
     protected override RuntimeSemanticsEvaluationResult EvaluateSemanticallly(
         IVBExecutionContext context, 
-        VBBinaryOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];
@@ -81,7 +81,7 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext coercionContext, 
         ISemanticContextContributor<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> builder, 
-        VBOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression, 
+        VBOperatorExpression expression, 
         OperatorAnalysisContext<LogicalOperatorSemanticFlags> analysisContext, 
         params VBTypedValue[] operands)
     {

@@ -68,9 +68,9 @@ public record class VBObjectLetCoercionRuntimeSemantics(
         => LetCoercionResult.Error(VBRuntimeErrorInfo.For(
             VBRuntimeErrorId.ObjectVariableOrWithBlockVariableNotSet, expression.Location, verbose));
 
-    public override LetCoercionResult EvaluateLetCoercion<ConversionOperationSemanticContext, ConversionSemanticFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<ConversionOperationSemanticContext, ConversionSemanticFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame) 
         => frame.SourceValue switch
         {
@@ -89,9 +89,9 @@ public record class VBObjectLetCoercionRuntimeSemantics(
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder,
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame) => builder; // TODO
 }

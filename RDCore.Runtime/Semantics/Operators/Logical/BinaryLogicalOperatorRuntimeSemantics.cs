@@ -21,7 +21,8 @@ namespace RDCore.Runtime.Semantics.Operators.Logical;
 
 /// <summary>
 /// <strong>MS-VBAL 5.6.9.8 Logical Operators</strong><br/>
-/// 👉 Logical operators are <em>simple data operators</em> that perform <strong>bitwise computations</strong> on their operands.
+/// 👉 Logical operators are <em>simple data operators</em> 
+/// that perform <strong>bitwise computations</strong> on their operands.
 /// </summary>
 public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     ILetCoercionRuntimeSemanticsProvider LetCoercionSemanticsProvider, 
@@ -44,9 +45,9 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
         LogicalOperatorSemanticFlags semanticFlags) => new(node.Identity, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
-        ISymbolResolver resolver, 
-        SemanticContext<LogicalOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression, 
+        ISymbolResolver resolver,
+        BinaryLogicalOperatorSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
         => frame[InputIndex.BinaryLeftOperand].TypeInfo switch
         {
@@ -57,9 +58,9 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
         };
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime, 
-        SemanticContext<LogicalOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression, 
+        IVBExecutionContext runtime,
+        BinaryLogicalOperatorSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];
@@ -110,7 +111,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     /// </remarks>
     protected abstract RuntimeSemanticsEvaluationResult EvaluateSemanticallly(
         IVBExecutionContext context, 
-        VBBinaryOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame);
 
     /// <summary>
@@ -137,7 +138,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
         ISymbolResolver resolver,
         ConversionOperationSemanticContext coercionContext,
         ISemanticContextContributor<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> builder,
-        VBOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression,
+        VBOperatorExpression expression,
         OperatorAnalysisContext<LogicalOperatorSemanticFlags> analysisContext,
         params VBTypedValue[] operands)
     {

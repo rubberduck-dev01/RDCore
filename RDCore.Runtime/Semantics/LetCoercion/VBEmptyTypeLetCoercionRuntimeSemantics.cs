@@ -22,7 +22,7 @@ namespace RDCore.Runtime.Semantics.LetCoercion;
 public record class VBEmptyTypeLetCoercionRuntimeSemantics(IVerboseMessageBuilder FormatterService) 
     : LetCoercionRuntimeSemantics<VBEmptyType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(ISymbolResolver resolver, VBOperatorExpression<TContext, TFlags> expression, LetCoercionStackFrame frame) =>
+    public override LetCoercionResult EvaluateLetCoercion(ISymbolResolver resolver, VBOperatorExpression expression, LetCoercionStackFrame frame) =>
         frame.DestinationTypeDesc.Target switch
         {
             VBNumericType numericType => LetCoercionResult.Success(
@@ -47,13 +47,13 @@ public record class VBEmptyTypeLetCoercionRuntimeSemantics(IVerboseMessageBuilde
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder,
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame)
     {
-        if (expression is VBUnaryOperatorExpression<TContext, TFlags>)
+        if (expression is VBUnaryOperatorExpression)
         {
             builder.AddLetCoercionFlags(ConversionSemanticFlags.UnaryOperand);
         }

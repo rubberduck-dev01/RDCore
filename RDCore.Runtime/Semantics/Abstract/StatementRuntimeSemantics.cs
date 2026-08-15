@@ -11,14 +11,9 @@ public abstract record class StatementRuntimeSemantics<TContext, TFlags> : Runti
     where TContext : SemanticContext<TFlags>, new()
     where TFlags : struct, Enum
 {
-    public override RuntimeSemanticsEvaluationResult Evaluate(IVBExecutionContext runtime, SemanticContext<TFlags> context, SyntaxNode node, params VBTypedValue[] inputs)
-    {
-        throw new NotImplementedException();
-    }
-
     protected sealed override RuntimeSemanticsEvaluationResult EvaluateSemanticResult(
         ISymbolResolver resolver,
-        SemanticContext<TFlags> context,
+        TContext context,
         SyntaxNode node,
         VBType effectiveType,
         params VBTypedValue[] inputs) => EvaluateSemanticResult((IVBExecutionContext)resolver, (StatementNode)node, inputs);

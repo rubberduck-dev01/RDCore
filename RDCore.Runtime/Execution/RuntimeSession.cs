@@ -9,11 +9,6 @@ public interface IRuntimeSession
     bool Is64Bit { get; }
     ISessionMemoryAllocator Memory { get; }
 }
-public interface ISessionSymbols
-{
-    bool TryDefine(Symbol symbol);
-    bool TryResolve(string name, Symbol scope, out Symbol symbol);
-}
 internal sealed class RuntimeSession(SessionMemory memory, SessionSymbols symbols) : IRuntimeSession
 {
     public bool Is64Bit { get; init; }
@@ -21,6 +16,11 @@ internal sealed class RuntimeSession(SessionMemory memory, SessionSymbols symbol
     public ISessionSymbols Symbols { get; init; } = symbols;
 }
 
+public interface ISessionSymbols
+{
+    bool TryDefine(Symbol symbol);
+    bool TryResolve(string name, Symbol scope, out Symbol symbol);
+}
 internal sealed class SessionSymbols : ISessionSymbols
 {
     private readonly Dictionary<Uri, Symbol> _symbolTable = [];
@@ -50,45 +50,6 @@ internal sealed class SessionBindings
             || _workspaceSymbols.TryGetValue(symbol, out handle)
             || _globalSymbols.TryGetValue(symbol, out handle);
     }
-}
-
-/// <summary>
-/// 
-/// </summary>
-/// <param name="ReservedSegmentBytes">The number of bytes <em>reserved</em> for the session memory.</param>
-/// <param name="AllocatedBytes">The number of bytes <em>allocated</em> in session memory.</param>
-/// <param name="CommittedBytes">The number of bytes committed (allocated, free, or fragmented)</param>
-/// <param name="FreeListBytes">The number of bytes currently held by memory blocks in free-list storage.</param>
-public record struct SessionMemoryInfo(
-    int ReservedSegmentBytes, 
-    int AllocatedBytes, 
-    int CommittedBytes,
-    int FreeListBytes,
-    int FragmentedBytes)
-{
-    public readonly double FragmentationPercent => CommittedBytes == 0 ? 0 : FragmentedBytes / CommittedBytes;
-    public readonly double AvailablePercent => (ReservedSegmentBytes - AllocatedBytes - FreeListBytes - FragmentedBytes) / ReservedSegmentBytes;
-
-    public SessionMemoryInfo WithReserved(int bytes) => this with 
-    {
-        ReservedSegmentBytes = ReservedSegmentBytes + bytes
-    };
-    public SessionMemoryInfo WithAllocated(int bytes) => this with
-    {
-        AllocatedBytes = AllocatedBytes + bytes
-    };
-    public SessionMemoryInfo WithCommitted(int bytes) => this with 
-    { 
-        CommittedBytes = CommittedBytes + bytes 
-    };
-    public SessionMemoryInfo WithFreeList(int bytes) => this with
-    {
-        FreeListBytes = FreeListBytes + bytes
-    };
-    public SessionMemoryInfo WithFragmented(int bytes) => this with
-    {
-        FragmentedBytes = FragmentedBytes + bytes
-    };
 }
 
 internal class FreeListManager

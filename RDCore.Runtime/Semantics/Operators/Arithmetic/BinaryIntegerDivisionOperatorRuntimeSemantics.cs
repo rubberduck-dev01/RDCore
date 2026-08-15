@@ -10,8 +10,6 @@ using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
 using RDCore.SDK.Semantics;
 using RDCore.SDK.Semantics.Context;
-using RDCore.SDK.Semantics.Context.Abstract;
-using RDCore.SDK.Semantics.Runtime.Operators;
 using RDCore.SDK.Services.VerboseMessages;
 
 namespace RDCore.Runtime.Semantics.Operators.Arithmetic;
@@ -29,7 +27,7 @@ public record class BinaryIntegerDivisionOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver, 
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame) 
     {
         var rhs = frame[InputIndex.BinaryLeftOperand].TypeInfo;
@@ -63,8 +61,8 @@ public record class BinaryIntegerDivisionOperatorRuntimeSemantics(
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
-        SemanticContext<ArithmeticOperatorSemanticFlags> context,
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        BinaryArithmeticOperatorSemanticContext context,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

@@ -17,17 +17,17 @@ public record class VBResizableArrayLetCoercionRuntimeSemantics(
     IVerboseMessageBuilder FormatterService) 
     : LetCoercionRuntimeSemantics<VBResizableArrayType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame)
     {
         throw new NotImplementedException();
     }
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder,
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame) => builder.AddFlags(ConversionSemanticFlags.ArrayTarget);
 }

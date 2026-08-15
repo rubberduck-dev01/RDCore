@@ -55,7 +55,7 @@ where TFlags : struct, Enum
         ISemanticFlagsAccumulator<TFlags> builder, 
         SyntaxNode node, 
         params VBTypedValue[] inputs)
-        => Analyze(resolver, conversionContext, builder, (VBOperatorExpression<TContext, TFlags>)node, inputs);
+        => Analyze(resolver, conversionContext, builder, (VBOperatorExpression)node, inputs);
 
     /// <summary>
     /// Analyzes the specified <c>VBOperatorExpression</c> node in the specified execution context, using the specified operands.
@@ -67,7 +67,7 @@ where TFlags : struct, Enum
     protected ISemanticContextContributor<TContext, TFlags> Analyze(
         ISymbolResolver resolver, 
         ISemanticContextContributor<TContext, TFlags> builder, 
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         params VBTypedValue[] operands)
     {
         var initialContext = ((ISemanticContextBuilder<TContext, TFlags>)builder).Build();
@@ -136,7 +136,7 @@ where TFlags : struct, Enum
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext coercionContext, 
         ISemanticContextContributor<TContext, TFlags> builder,
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         OperatorAnalysisContext<TFlags> analysisContext, 
         params VBTypedValue[] operands);
 
@@ -148,8 +148,8 @@ where TFlags : struct, Enum
     /// <returns><strong>Does not throw exceptions.</strong> Returns <c>DetermineOperatorEffectiveTypeResult.NotApplicable</c> if no type is statically valid.</returns>
     public abstract DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
         ISymbolResolver resolver, 
-        SemanticContext<TFlags> context, VBOperatorExpression
-        <TContext, TFlags> expression,
+        TContext context, 
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame);
 
     /// <summary>
@@ -161,11 +161,11 @@ where TFlags : struct, Enum
     /// <param name="inputs">The inputs of the expression.</param>
     public sealed override RuntimeSemanticsEvaluationResult Evaluate(
         IVBExecutionContext runtime, 
-        SemanticContext<TFlags> context, 
+        TContext context, 
         SyntaxNode node, 
         params VBTypedValue[] inputs)
     {
-        var expression = (VBOperatorExpression<TContext, TFlags>)node;
+        var expression = (VBOperatorExpression)node;
         var frame = new OperatorEvaluationFrame(expression.Identity, [.. inputs], VBUnknownType.TypeInfo);
         return Evaluate((ISymbolResolver)runtime, context, expression, frame);
     }
@@ -179,8 +179,8 @@ where TFlags : struct, Enum
     /// <param name="frame">The evaluation frame encapsulating the operation inputs.</param>
     protected RuntimeSemanticsEvaluationResult Evaluate(
         ISymbolResolver resolver, 
-        SemanticContext<TFlags> context, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        TContext context, 
+        VBOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         // 1. Determine the EFFECTIVE TYPE of the operation base on the type of its operands.
@@ -235,7 +235,7 @@ where TFlags : struct, Enum
     /// <param name="frame">The <see cref="OperatorEvaluationFrame"/> holding the semantic evaluation inputs.</param>
     protected abstract RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime, 
-        SemanticContext<TFlags> context, VBOperatorExpression<TContext, TFlags> expression, 
+        TContext context, VBOperatorExpression expression, 
         OperatorEvaluationFrame frame);
 
     /// <summary>
@@ -246,7 +246,7 @@ where TFlags : struct, Enum
     /// <param name="frame">The operation evaluation frame.</param>
     protected LetCoercionResult ValidateOperand(
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame,
         InputIndex index)
     {
@@ -263,7 +263,7 @@ where TFlags : struct, Enum
     protected LetCoercionAnalysisContext AnalyzeValidateOperand(
         ISymbolResolver resolver,
         ILetCoercionSemanticContextBuilder builder,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame,
         InputIndex operandIndex)
     {
@@ -292,7 +292,7 @@ where TFlags : struct, Enum
     /// </remarks>
     protected LetCoercionResult LetCoerceNonNullOperand(
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame,
         InputIndex operandIndex)
     {

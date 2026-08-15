@@ -10,8 +10,6 @@ using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
 using RDCore.SDK.Semantics;
 using RDCore.SDK.Semantics.Context;
-using RDCore.SDK.Semantics.Context.Abstract;
-using RDCore.SDK.Semantics.Runtime.Operators;
 using RDCore.SDK.Services.VerboseMessages;
 
 namespace RDCore.Runtime.Semantics.Operators.Arithmetic;
@@ -36,7 +34,7 @@ public sealed record class UnaryPlusOperatorRuntimeSemantics(
     /// </summary>
     protected override DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
         ISymbolResolver resolver,
-        VBOperatorExpression<UnaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame) => frame[InputIndex.UnaryOperand].TypeInfo switch
         {
             VBByteType => DetermineOperatorEffectiveTypeResult.Success(VBIntegerType.TypeInfo),
@@ -46,8 +44,8 @@ public sealed record class UnaryPlusOperatorRuntimeSemantics(
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
-        SemanticContext<ArithmeticOperatorSemanticFlags> context,
-        VBOperatorExpression<UnaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        UnaryArithmeticOperatorSemanticContext context,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame) => frame.EffectiveType switch
         {
             VBNumericType numericEffectiveType when frame[InputIndex.UnaryOperand] is VBNumericTypedValue numericOperand 

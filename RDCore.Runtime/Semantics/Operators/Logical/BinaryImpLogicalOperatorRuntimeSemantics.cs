@@ -34,7 +34,7 @@ public record class BinaryImpLogicalOperatorRuntimeSemantics(
     /// </remarks>
     protected override RuntimeSemanticsEvaluationResult EvaluateSemanticallly(
         IVBExecutionContext context, 
-        VBBinaryOperatorExpression<BinaryLogicalOperatorSemanticContext, LogicalOperatorSemanticFlags> expression, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

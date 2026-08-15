@@ -32,7 +32,7 @@ where TFlags : struct, Enum
         ISymbolResolver resolver,
         ConversionOperationSemanticContext coercionContext,
         ISemanticContextContributor<TContext, TFlags> builder,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         OperatorAnalysisContext<TFlags> analysisContext,
         params VBTypedValue[] operands)
         => AnalyzeEffectiveType(builder, analysisContext.EffectiveTypeResult);
@@ -43,8 +43,8 @@ where TFlags : struct, Enum
 
     public sealed override DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
         ISymbolResolver resolver, 
-        SemanticContext<TFlags> context, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        TContext context, 
+        VBOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var result = DetermineOperatorEffectiveType(resolver, expression, frame);
@@ -93,7 +93,7 @@ where TFlags : struct, Enum
     /// <param name="frame">The current evaluation frame for this operation.</param>
     protected abstract DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         OperatorEvaluationFrame frame);
 
     /// <summary>
@@ -107,6 +107,6 @@ where TFlags : struct, Enum
     /// This implementation satifies the specifiations of every defined unary operator with regards to <c>VBNullValue</c> operands.
     /// </remarks>
     /// <returns>An evaluation result containing the value <c>VBNullValue.Null</c>.</returns>
-    protected /*virtual*/ RuntimeSemanticsEvaluationResult EvaluateUnaryExpressionResult(IVBExecutionContext runtime, VBUnaryOperatorExpression<TContext, TFlags> expression, VBNullType effectiveType, VBNullValue operand) => 
+    protected /*virtual*/ RuntimeSemanticsEvaluationResult EvaluateUnaryExpressionResult(IVBExecutionContext runtime, VBUnaryOperatorExpression expression, VBNullType effectiveType, VBNullValue operand) => 
         RuntimeSemanticsEvaluationResult.Success(VBNullValue.Null);
 }

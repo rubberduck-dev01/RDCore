@@ -14,18 +14,18 @@ namespace RDCore.Runtime.Semantics.LetCoercion;
 public record class VBFixedStringLetCoercionRuntimeSemantics(IVerboseMessageBuilder FormatterService) 
     : LetCoercionRuntimeSemantics<VBFixedStringType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame)
     {
         throw new NotImplementedException();
     }
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder, 
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame)
     {
         throw new NotImplementedException();
