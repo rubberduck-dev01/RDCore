@@ -3,7 +3,6 @@ using RDCore.Runtime.Semantics.Abstract;
 using RDCore.Runtime.Semantics.LetCoercion;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.Errors;
-using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Values;
 using RDCore.SDK.Model.Values.Abstract;
@@ -38,27 +37,28 @@ where TFlags : struct, Enum
     /// <returns><see cref="DetermineOperatorEffectiveTypeResult.NotApplicable"/> if no type is statically valid for this operation.</returns>
     protected abstract DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver, 
-        SemanticContext<TFlags> context,
-        VBBinaryOperatorExpression<TContext, TFlags> expression,
+        TContext context,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame);
 
     public sealed override DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
         ISymbolResolver resolver,
-        SemanticContext<TFlags> context,
-        VBOperatorExpression<TContext, TFlags> expression,
-        OperatorEvaluationFrame frame) => DetermineBinaryOperatorEffectiveType(resolver, context, (VBBinaryOperatorExpression<TContext, TFlags>)expression, frame);
-
-    protected sealed override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime,
-        SemanticContext<TFlags> context,
-        VBOperatorExpression<TContext, TFlags> expression,
-        OperatorEvaluationFrame frame) => EvaluateExpressionResult(runtime, context, (VBBinaryOperatorExpression<TContext, TFlags>)expression, frame);
+        TContext context,
+        VBOperatorExpression expression,
+        OperatorEvaluationFrame frame)
+        => DetermineBinaryOperatorEffectiveType(resolver, context, (VBBinaryOperatorExpression)expression, frame);
 
     protected abstract RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
-        SemanticContext<TFlags> context,
-        VBBinaryOperatorExpression<TContext, TFlags> expression,
+        TContext context,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame);
+
+    protected sealed override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
+        IVBExecutionContext runtime,
+        TContext context,
+        VBOperatorExpression expression,
+        OperatorEvaluationFrame frame) => EvaluateExpressionResult(runtime, context, (VBBinaryOperatorExpression)expression, frame);
 
     /// <summary>
     /// Evaluates the <see cref="VBNullType"/> runtime semantics of a <em>binary operator expression</em>.<br/>

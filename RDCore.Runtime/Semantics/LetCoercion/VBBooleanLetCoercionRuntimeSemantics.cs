@@ -21,7 +21,7 @@ public sealed record class VBBooleanLetCoercionRuntimeSemantics(
     IVerboseMessageBuilder FormatterService) 
     : LetCoercionRuntimeSemantics<VBBooleanType>(FormatterService)
 {
-    public sealed override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(ISymbolResolver resolver, VBOperatorExpression<TContext, TFlags> expression, LetCoercionStackFrame frame) => 
+    public sealed override LetCoercionResult EvaluateLetCoercion(ISymbolResolver resolver, VBOperatorExpression expression, LetCoercionStackFrame frame) => 
         frame.SourceValue switch
         {
             IFixedPointNumericType or IFloatingPointNumericType when frame.DestinationTypeDesc.Target is IIntegralNumericType and VBNumericType numericDestinationType
@@ -43,7 +43,7 @@ public sealed record class VBBooleanLetCoercionRuntimeSemantics(
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(ILetCoercionSemanticContextBuilder builder, ISymbolResolver resolver, VBOperatorExpression<TContext, TFlags> expression, LetCoercionStackFrame frame)
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(ILetCoercionSemanticContextBuilder builder, ISymbolResolver resolver, VBOperatorExpression expression, LetCoercionStackFrame frame)
     {
         builder.AddLetCoercionFlags(ConversionSemanticFlags.Numeric | ConversionSemanticFlags.CTypeAvailable | frame.SourceValue switch
         {

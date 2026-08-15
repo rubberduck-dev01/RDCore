@@ -48,7 +48,7 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
         ISymbolResolver resolver,
         ConversionOperationSemanticContext coercionContext,
         ISemanticContextContributor<ConversionOperationSemanticContext, ConversionSemanticFlags> builder,
-        VBOperatorExpression<ConversionOperationSemanticContext, ConversionSemanticFlags> expression,
+        VBOperatorExpression expression,
         OperatorAnalysisContext<ConversionSemanticFlags> analysisContext,
         params VBTypedValue[] operands) => builder.AddFlags(ConversionSemanticFlags.Explicit);
 
@@ -60,9 +60,9 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
         ConversionSemanticFlags semanticFlags) => new(node.Identity, determineOperatorEffectiveTypeResult, coercionResult, evaluationResult, semanticFlags);
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
-        ISymbolResolver resolver, 
-        SemanticContext<ConversionSemanticFlags> context, 
-        VBBinaryOperatorExpression<ConversionOperationSemanticContext, ConversionSemanticFlags> expression, 
+        ISymbolResolver resolver,
+        ConversionOperationSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
         => frame[InputIndex.BinaryRightOperand].GetTargetType() is VBType targetType 
             && targetType is VBIntrinsicType or VBClassType or VBUserDefinedType 
@@ -70,9 +70,9 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
                 : DetermineOperatorEffectiveTypeResult.NotApplicable();
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime, 
-        SemanticContext<ConversionSemanticFlags> context, 
-        VBBinaryOperatorExpression<ConversionOperationSemanticContext, ConversionSemanticFlags> expression, 
+        IVBExecutionContext runtime,
+        ConversionOperationSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var coercionResult = LetCoercionProvider.EvaluateLetCoercionSemantics((ISymbolResolver)runtime, expression, 

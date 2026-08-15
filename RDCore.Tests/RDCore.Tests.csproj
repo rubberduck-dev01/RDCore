@@ -6,19 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>9562-7303 Québec inc.</Authors>
-    <Copyright>Copyright © 2026 ${Authors}</Copyright>
+    <Copyright>Copyright © 2026 9562-7303 Québec inc.</Copyright>
     <Product>RDCore</Product>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MSTest" Version="4.2.3" />
-    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="MSTest" Version="4.3.3" />
+    <PackageReference Include="NSubstitute" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RDCore.LanguageServer\RDCore.LanguageServer.csproj" />
     <ProjectReference Include="..\RDCore.Parsing\RDCore.Parsing.csproj" />
-    <ProjectReference Include="..\RDCore\RDCore.LanguageServer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

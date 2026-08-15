@@ -17,9 +17,9 @@ public record class VBNullTypeLetCoercionRuntimeSemantics(
     IVerboseMessageBuilder FormatterService)
     : LetCoercionRuntimeSemantics<VBNullType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame) => frame.SourceValue switch
         {
             VBNullValue when frame.DestinationTypeDesc.GetTargetType() is VBUserDefinedType or VBResizableArrayType 
@@ -31,10 +31,10 @@ public record class VBNullTypeLetCoercionRuntimeSemantics(
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder,
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame) => builder.AddFlags(ConversionSemanticFlags.NullOperand | 
             frame.SourceValue switch
             {

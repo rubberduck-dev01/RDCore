@@ -24,9 +24,9 @@ public record class VBStringLetCoercionRuntimeSemantics(
     ILetCoercionRuntimeSemanticsProvider LetCoercionProvider) 
     : LetCoercionRuntimeSemantics<VBStringType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
+    public override LetCoercionResult EvaluateLetCoercion(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame)
     {
         var cultureInfo = CultureInfo.InvariantCulture;
@@ -61,23 +61,21 @@ public record class VBStringLetCoercionRuntimeSemantics(
         };
     }
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder, 
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame)
     {
         throw new NotImplementedException();
     }
 
-    private LetCoercionResult CoerceToVBDate<TContext, TFlags>(
+    private LetCoercionResult CoerceToVBDate(
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame,
         VBStringValue stringSourceValue,
         CultureInfo cultureInfo)
-    where TContext : SemanticContext<TFlags>, new()
-    where TFlags : struct, Enum
     {
         if (DateTime.TryParse(stringSourceValue.Value, cultureInfo, out var dateValue))
         {
@@ -102,13 +100,11 @@ public record class VBStringLetCoercionRuntimeSemantics(
         return LetCoercionResult.Error(OnLetCoercionTypeMismatch(expression, frame));
     }
 
-    private LetCoercionResult CoerceToVBBoolean<TContext, TFlags>(
+    private LetCoercionResult CoerceToVBBoolean(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame frame, 
         VBStringValue value)
-    where TContext : SemanticContext<TFlags>, new()
-    where TFlags : struct, Enum
     {
         if (string.Equals(value.Value, Tokens.True, StringComparison.InvariantCultureIgnoreCase)
             || string.Equals(value.Value, $"#TRUE#", StringComparison.InvariantCulture))
@@ -130,12 +126,10 @@ public record class VBStringLetCoercionRuntimeSemantics(
     }
 
 
-    private LetCoercionResult LetCoerceDouble<TContext, TFlags>(
+    private LetCoercionResult LetCoerceDouble(
         ISymbolResolver resolver, 
-        VBOperatorExpression<TContext, TFlags> expression, 
+        VBOperatorExpression expression, 
         LetCoercionStackFrame currentFrame)
-    where TContext : SemanticContext<TFlags>, new()
-    where TFlags : struct, Enum
     {
         var letCoercionFrame = currentFrame with
         {

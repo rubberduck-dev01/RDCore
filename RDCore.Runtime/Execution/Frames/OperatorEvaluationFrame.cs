@@ -1,4 +1,5 @@
 ﻿using RDCore.Runtime.Semantics.Abstract;
+using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values.Abstract;
@@ -18,7 +19,7 @@ namespace RDCore.Runtime.Execution.Frames
     /// The <c>EffectiveType</c> is <see cref="VBUnknownType"/> if undetermined.
     /// </remarks>
     public readonly record struct OperatorEvaluationFrame(
-        Guid NodeId,
+        SyntaxNodeId NodeId,
         ImmutableArray<VBTypedValue> Operands,
         VBType EffectiveType) : IStackFrame<InputIndex>
     {
@@ -29,7 +30,7 @@ namespace RDCore.Runtime.Execution.Frames
         /// <returns>The <see cref="VBTypedValue"/> operand at the specified index.</returns>
         public VBTypedValue this[InputIndex index] => Operands[Convert.ToInt32(index)];
 
-        Guid IStackFrame.NodeId => NodeId;
+        SyntaxNodeId IStackFrame.NodeId => NodeId;
         ImmutableArray<VBTypedValue> IStackFrame.Inputs => Operands;
     };
 }

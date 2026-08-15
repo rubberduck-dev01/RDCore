@@ -50,7 +50,7 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
     /// <param name="inputs">The inputs of the bound node.</param>
     public abstract RuntimeSemanticsEvaluationResult Evaluate(
         IVBExecutionContext runtime, 
-        SemanticContext<TFlags> context, 
+        TContext context, 
         SyntaxNode node, 
         params VBTypedValue[] inputs);
 
@@ -65,7 +65,7 @@ public abstract record class RuntimeSemantics<TContext, TFlags>() : IRuntimeSema
     /// <param name="node">The <em>bound node</em> to be evaluated.</param>
     /// <param name="effectiveType">The <em>effective type</em> of the operation.</param>
     /// <param name="inputs">The inputs of the expression.</param>
-    protected virtual RuntimeSemanticsEvaluationResult EvaluateSemanticResult(ISymbolResolver resolver, SemanticContext<TFlags> context, SyntaxNode node, VBType effectiveType, params VBTypedValue[] inputs) 
+    protected virtual RuntimeSemanticsEvaluationResult EvaluateSemanticResult(ISymbolResolver resolver, TContext context, SyntaxNode node, VBType effectiveType, params VBTypedValue[] inputs) 
         => Evaluate((IVBExecutionContext)resolver, context, node, inputs);
 
     /// <summary>

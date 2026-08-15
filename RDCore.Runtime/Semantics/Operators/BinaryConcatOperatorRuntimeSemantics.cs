@@ -36,7 +36,7 @@ public record class BinaryConcatOperatorRuntimeSemantics(
         ISymbolResolver resolver, 
         ConversionOperationSemanticContext coercionContext, 
         ISemanticContextContributor<ConcatOperationSemanticContext, ConcatOperationSemanticFlags> builder, 
-        VBOperatorExpression<ConcatOperationSemanticContext, ConcatOperationSemanticFlags> expression, 
+        VBOperatorExpression expression, 
         OperatorAnalysisContext<ConcatOperationSemanticFlags> analysisContext, 
         params VBTypedValue[] operands)
     {
@@ -62,9 +62,9 @@ public record class BinaryConcatOperatorRuntimeSemantics(
     }
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
-        ISymbolResolver resolver, 
-        SemanticContext<ConcatOperationSemanticFlags> context, 
-        VBBinaryOperatorExpression<ConcatOperationSemanticContext, ConcatOperationSemanticFlags> expression, 
+        ISymbolResolver resolver,
+        ConcatOperationSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var rhs = frame[InputIndex.BinaryRightOperand].TypeInfo;
@@ -91,9 +91,9 @@ public record class BinaryConcatOperatorRuntimeSemantics(
     }
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime, 
-        SemanticContext<ConcatOperationSemanticFlags> context, 
-        VBBinaryOperatorExpression<ConcatOperationSemanticContext, ConcatOperationSemanticFlags> expression, 
+        IVBExecutionContext runtime,
+        ConcatOperationSemanticContext context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame) =>
         frame.EffectiveType switch
         {

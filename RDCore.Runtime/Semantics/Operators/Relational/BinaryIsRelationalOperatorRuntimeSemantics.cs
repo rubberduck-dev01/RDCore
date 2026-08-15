@@ -30,14 +30,14 @@ public record class BinaryIsRelationalOperatorRuntimeSemantics(
 
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
-        SemanticContext<ComparisonOperatorSemanticFlags> context,
-        VBBinaryOperatorExpression<BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags>, ComparisonOperatorSemanticFlags> expression,
+        BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags> context,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame) => DetermineOperatorEffectiveTypeResult.Success(VBBooleanType.TypeInfo);
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
-        IVBExecutionContext runtime, 
-        SemanticContext<ComparisonOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression<BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags>, ComparisonOperatorSemanticFlags> expression, 
+        IVBExecutionContext runtime,
+        BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags> context, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

@@ -19,8 +19,8 @@ public sealed record class VBNumericLetCoercionTypeRuntimeSemantics(
     ILetCoercionRuntimeSemanticsProvider Provider) 
     : LetCoercionRuntimeSemantics<VBNumericType>(FormatterService)
 {
-    public override LetCoercionResult EvaluateLetCoercion<TContext, TFlags>(
-        ISymbolResolver resolver, VBOperatorExpression<TContext, TFlags> expression, 
+    public override LetCoercionResult EvaluateLetCoercion(
+        ISymbolResolver resolver, VBOperatorExpression expression, 
         LetCoercionStackFrame frame) => frame.SourceValue.TypeInfo switch
         {
             IIntegralNumericType when frame.DestinationTypeDesc.Target is INumericType
@@ -58,10 +58,10 @@ public sealed record class VBNumericLetCoercionTypeRuntimeSemantics(
             _ => LetCoercionResult.NotApplicable(frame)
         };
 
-    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation<TContext, TFlags>(
+    protected override ILetCoercionSemanticContextBuilder AnalyzeLetCoercionOperation(
         ILetCoercionSemanticContextBuilder builder,
         ISymbolResolver resolver,
-        VBOperatorExpression<TContext, TFlags> expression,
+        VBOperatorExpression expression,
         LetCoercionStackFrame frame) => 
         builder.AddFlags(ConversionSemanticFlags.LetCoerced
             // IMPLEMENTATION NOTE: LetCoercionRuntimeSemantics does not know about its own context.

@@ -25,13 +25,15 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     private readonly Stack<NodeBuilder> _builderStack = new([new(sourceUri, moduleNode.Identity)]);
     private NodeBuilder CurrentBuilder => _builderStack.Peek();
 
+    private SyntaxNodeId GetCurrentNodeId() => CurrentBuilder.NodeId.Add(CurrentBuilder.ChildCount);
+
     public ModuleNode BuildModuleNode()
     {
         Debug.Assert(_builderStack.Count == 1);
         return _root with { Children = [.. CurrentBuilder.GetChildren] };
     }
 
-    private void OnEnterParent() => _builderStack.Push(new(_rootUri));
+    private void OnEnterParent() => _builderStack.Push(new(_rootUri, GetCurrentNodeId()));
     private void OnExitParent(Func<NodeBuilder, SyntaxNode> provider)
     {
         var node = provider.Invoke(_builderStack.Pop());
@@ -43,12 +45,12 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     private bool IsDeclarationPassExpression => !_isInsideProcedure || !_isAfterArgsList;
 
     private void OnModuleOptionDirective(SourceLocation location, ModuleOptions value) 
-        => CurrentBuilder.AddChild(new ModuleOptionDirectiveNode(Guid.NewGuid(), location, value));
+        => CurrentBuilder.AddChild(new ModuleOptionDirectiveNode(GetCurrentNodeId(), location, value));
     private void OnTypeDefDirective(string token, SourceLocation location, IEnumerable<(char from, char? to)> mappings, DefTypeUniversalPrefixMapping? universalMapping = default)
     {
         var prefixMappings = (universalMapping is null ? [] : new[] { universalMapping }).Concat(
             mappings.Select(map => new DefTypePrefixMapping(map.from, map.to))).ToImmutableArray();
-        CurrentBuilder.AddChild(new TypeDefDirectiveNode(Guid.NewGuid(), location, token, prefixMappings));
+        CurrentBuilder.AddChild(new TypeDefDirectiveNode(GetCurrentNodeId(), location, token, prefixMappings));
     }
 
     public override void EnterAttributeStmt([NotNull] VBAParser.AttributeStmtContext context)
@@ -210,9 +212,15 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
 
     public override void ExitAsTypeClause([NotNull] VBAParser.AsTypeClauseContext context)
     {
-        var value = context.type().GetText();
         var location = context.GetSourceLocation(_rootUri);
-        OnExpression(new VBAsTypeExpression(Guid.NewGuid(), location, value, null, context.NEW() is not null));
+        var value = context.type().GetText().Split('.');
+
+        var qualifier = value.Length > 1 ? value[0] : null;
+        var name = value.Last();
+
+        OnExpression(new VBAsTypeExpression(GetCurrentNodeId(), location, name, qualifier, 
+            AsAutoObject: context.NEW() is not null, 
+            IsArrayDef: context.type().LPAREN() is not null));
     }
 
     public override void ExitSimpleNameExpr([NotNull] VBAParser.SimpleNameExprContext context)
@@ -224,7 +232,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         var value = context.identifier().untypedIdentifier()?.GetText()
             ?? context.identifier().typedIdentifier().untypedIdentifier().GetText();
         var location = context.GetSourceLocation(_rootUri);
-        OnExpression(new VBSimpleNameExpression(Guid.NewGuid(), location, value));
+        OnExpression(new VBSimpleNameExpression(GetCurrentNodeId(), location, value));
     }
     public override void ExitLiteralIdentifier([NotNull] VBAParser.LiteralIdentifierContext context)
     {
@@ -238,25 +246,25 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         {
             if (boolLiteralContext.FALSE() is not null)
             {
-                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBBooleanValue.False));
+                OnExpression(new VBLiteralExpression(GetCurrentNodeId(), location, VBBooleanValue.False));
             }
             else if (boolLiteralContext.TRUE() is not null)
             {
-                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBBooleanValue.True));
+                OnExpression(new VBLiteralExpression(GetCurrentNodeId(), location, VBBooleanValue.True));
             }
         }
         else if (context.objectLiteralIdentifier() is VBAParser.ObjectLiteralIdentifierContext objLiteralContext)
         {
             if (objLiteralContext.NOTHING() is not null)
             {
-                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBObjectValue.Nothing));
+                OnExpression(new VBLiteralExpression(GetCurrentNodeId(), location, VBObjectValue.Nothing));
             }
         }
         else if (context.variantLiteralIdentifier() is VBAParser.VariantLiteralIdentifierContext variantLiteralContext)
         {
             if (variantLiteralContext.EMPTY() is not null)
             {
-                OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, VBEmptyValue.Empty));
+                OnExpression(new VBLiteralExpression(GetCurrentNodeId(), location, VBEmptyValue.Empty));
             }
         }
     }
@@ -330,7 +338,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
             }
         }
 
-        OnExpression(new VBLiteralExpression(Guid.NewGuid(), location, value));
+        OnExpression(new VBLiteralExpression(GetCurrentNodeId(), location, value));
     }
     public override void ExitLiteralExpression([NotNull] VBAParser.LiteralExpressionContext context)
     {
@@ -345,7 +353,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
             if (DateTime.TryParse(dateLiteral.Symbol.Text.Trim('#'), out var rawValue))
             {
                 OnExpression(new VBLiteralExpression(
-                    Guid.NewGuid(), 
+                    GetCurrentNodeId(), 
                     location, 
                     new VBDateValue(rawValue.ToOADate())));
             }
@@ -353,7 +361,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         else if (context.STRINGLITERAL() is ITerminalNode stringLiteral)
         {
             OnExpression(new VBLiteralExpression(
-                Guid.NewGuid(), 
+                GetCurrentNodeId(), 
                 location,
                 new VBStringValue(stringLiteral.Symbol.Text[1..^1])));
         }
@@ -422,11 +430,11 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
 
         if (number.HasValue)
         {
-            CurrentBuilder.AddChild(new LineNumberNode(Guid.NewGuid(), lineNumberLocation, number.Value));
+            CurrentBuilder.AddChild(new LineNumberNode(GetCurrentNodeId(), lineNumberLocation, number.Value));
         }
         if (name is not null)
         {
-            CurrentBuilder.AddChild(new LineLabelNode(Guid.NewGuid(), labelLocation, name));
+            CurrentBuilder.AddChild(new LineLabelNode(GetCurrentNodeId(), labelLocation, name));
         }
     }
 }

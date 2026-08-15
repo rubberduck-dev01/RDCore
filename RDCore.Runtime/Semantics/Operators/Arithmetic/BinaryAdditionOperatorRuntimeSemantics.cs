@@ -1,7 +1,6 @@
 ﻿using RDCore.Runtime.Execution.Frames;
 using RDCore.Runtime.Semantics.LetCoercion;
 using RDCore.SDK.Model.AST.Expressions;
-using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Types;
 using RDCore.SDK.Model.Types.Abstract;
 using RDCore.SDK.Model.Values;
@@ -11,8 +10,6 @@ using RDCore.SDK.Runtime.Abstract.Execution;
 using RDCore.SDK.Runtime.Shared;
 using RDCore.SDK.Semantics;
 using RDCore.SDK.Semantics.Context;
-using RDCore.SDK.Semantics.Context.Abstract;
-using RDCore.SDK.Semantics.Runtime.Operators;
 using RDCore.SDK.Services.VerboseMessages;
 
 namespace RDCore.Runtime.Semantics.Operators.Arithmetic;
@@ -30,7 +27,7 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver, 
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression, 
+        VBBinaryOperatorExpression expression, 
         OperatorEvaluationFrame frame) => frame[InputIndex.BinaryLeftOperand].TypeInfo switch
         {
             VBStringType when frame[InputIndex.BinaryRightOperand].GetTargetType() is VBStringType
@@ -41,8 +38,8 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
-        SemanticContext<ArithmeticOperatorSemanticFlags> context,
-        VBBinaryOperatorExpression<BinaryArithmeticOperatorSemanticContext, ArithmeticOperatorSemanticFlags> expression,
+        BinaryArithmeticOperatorSemanticContext context,
+        VBBinaryOperatorExpression expression,
         OperatorEvaluationFrame frame)
     {
         switch (frame.EffectiveType)
@@ -78,8 +75,7 @@ public sealed record class BinaryAdditionOperatorRuntimeSemantics(
 
                 if (leftCoercion.IsSuccess && rightCoercion.IsSuccess)
                 {
-                    return EvaluateBinaryExpressionResult((VBStringValue)leftCoercion.Result!,
-                        (VBStringValue)rightCoercion.Result!);
+                    return EvaluateBinaryExpressionResult((VBStringValue)leftCoercion.Result!, (VBStringValue)rightCoercion.Result!);
                 }
                 else if (leftCoercion.ErrorInfo is not null || rightCoercion.ErrorInfo is not null)
                 {
