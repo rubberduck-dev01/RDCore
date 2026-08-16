@@ -25,7 +25,7 @@ internal sealed class RuntimeSession(ISessionMemoryAllocator memory, ISessionSym
 
 public interface ISessionObjects
 {
-    VBRuntimeObjectId CreateObject(Symbol symbol);
+    VBRuntimeObjectId CreateObject();
     bool TryRemoveObject(VBRuntimeObjectId instance);
     void AddRef(VBRuntimeObjectId instance, IBindingHandle handle);
     int RemoveRef(VBRuntimeObjectId instance, IBindingHandle handle);
@@ -35,7 +35,7 @@ internal sealed class SessionObjects : ISessionObjects
     private readonly Dictionary<VBRuntimeObjectId, List<IBindingHandle>> _roots = [];
     private readonly Dictionary<VBRuntimeObjectId, int> _refs = [];
 
-    public VBRuntimeObjectId CreateObject(Symbol symbol)
+    public VBRuntimeObjectId CreateObject()
     {
         var id = new VBRuntimeObjectId();
         _roots[id] = [];
