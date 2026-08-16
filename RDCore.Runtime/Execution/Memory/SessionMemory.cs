@@ -4,17 +4,17 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
 {
     private readonly FreeListManager _freeLists;
     private readonly Stack<SessionMemorySegment> _segments = new(4);
-    private readonly int _size;
+    private readonly int _segmentSize;
 
-    public SessionMemory(FreeListManager freeLists, PointerSize pointerSize)
+    public SessionMemory(FreeListManager freeLists, PointerSize pointerSize, int offset = 0)
     {
         _freeLists = freeLists;
-        _size = pointerSize == PointerSize.x86 ? SessionMemorySegment.SegmentSize32 : SessionMemorySegment.SegmentSize64;
-        _segments.Push(GetNewReservedSegment(new(0)));
+        _segmentSize = pointerSize == PointerSize.x86 ? SessionMemorySegment.SegmentSize32 : SessionMemorySegment.SegmentSize64;
+        _segments.Push(GetNewReservedSegment(new(offset)));
         PointerSize = pointerSize;
     }
 
-    private SessionMemorySegment GetNewReservedSegment(MemoryAddress address) => new(address, _size, PointerSize);
+    private SessionMemorySegment GetNewReservedSegment(MemoryAddress address) => new(address, _segmentSize, PointerSize);
 
     public PointerSize PointerSize { get; }
 
@@ -26,6 +26,7 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
             var totalAllocated = 0;
             var totalCommitted = 0;
             var totalFreeList = 0;
+            var largestFreeBlock = _freeLists.LargestFreeBlockSize;
 
             foreach (var segment in _segments)
             {
@@ -35,7 +36,7 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
                 totalFreeList += segment.Info.FreeBytes;
             }
 
-            return new(totalReserved, totalAllocated, totalCommitted, totalFreeList);
+            return new(totalReserved, totalAllocated, totalCommitted, totalFreeList, largestFreeBlock);
         }
     }
 

@@ -10,6 +10,8 @@ internal class FreeListManager
     private readonly FreeBlocksList _freeSmallBlocks = new();
     private readonly FreeBlocksList _freeLargeBlocks = new();
 
+    public int LargestFreeBlockSize => Math.Max(_freeLargeBlocks.LargestBlockSize, _freeSmallBlocks.LargestBlockSize);
+
     public void Add(SessionMemoryBlock block, SessionMemorySegment segment)
     {
         var list = block.Size <= _smallListSize 
@@ -41,7 +43,7 @@ internal class FreeListManager
                         var fragment = new SessionMemoryBlock(block.Value.Address + size, block.Value.Size - size);
                         block = new SessionMemoryBlock(block.Value.Address, size);
 
-                        // add the fragment as a new free block
+                        // add the fragment as a new free block, move memory block to small list as needed
                         if (fragment.Size <= _smallListSize)
                         {
                             _freeSmallBlocks.Add(fragment);
@@ -52,6 +54,7 @@ internal class FreeListManager
                             _freeLargeBlocks.Add(fragment);
                             _segmentMap.Add(fragment, segment);
                         }
+                        // ...and fragmentation is practically inexistent since we leave no small block in the large free list.
                     }
                     return true;
                 }

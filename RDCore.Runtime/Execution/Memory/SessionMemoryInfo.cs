@@ -4,22 +4,36 @@ public record struct SessionMemoryInfo(
     int ReservedSegmentBytes, 
     int AllocatedBytes, 
     int CommittedBytes,
-    int FreeBytes)
+    int FreeBytes,
+    int LargestFreeBlock)
 {
-    public SessionMemoryInfo WithReserved(int bytes) => this with 
-    {
-        ReservedSegmentBytes = ReservedSegmentBytes + bytes
-    };
+    /// <summary>
+    /// Increments the <em>allocated bytes</em> by the specified amount.
+    /// </summary>
+    /// <param name="bytes">The number of bytes to be <strong>added</strong> to the current value.</param>
+    /// <returns>A new <em>memory info</em> data structure representing the new value.</returns>
     public SessionMemoryInfo WithAllocated(int bytes) => this with
     {
-        AllocatedBytes = AllocatedBytes + bytes
+        AllocatedBytes = AllocatedBytes + bytes,
     };
-    public SessionMemoryInfo WithCommitted(int bytes) => this with 
-    { 
-        CommittedBytes = CommittedBytes + bytes 
-    };
-    public SessionMemoryInfo WithFreeList(int bytes) => this with
+
+    /// <summary>
+    /// Increments the <em>free bytes</em> by the specified amount.
+    /// </summary>
+    /// <param name="bytes">The number of bytes to be <strong>added</strong> to the current value.</param>
+    /// <returns>A new <em>memory info</em> data structure representing the new value.</returns>
+    public SessionMemoryInfo WithFree(int bytes) => this with
     {
-        FreeBytes = FreeBytes + bytes
+        FreeBytes = FreeBytes + bytes,
+    };
+
+    /// <summary>
+    /// Increments the <em>committed bytes</em> by the specified amount.
+    /// </summary>
+    /// <param name="bytes">The number of bytes to be <strong>added</strong> to the current value.</param>
+    /// <returns>A new <em>memory info</em> data structure representing the new value.</returns>
+    public SessionMemoryInfo WithCommitted(int bytes) => this with
+    {
+        CommittedBytes = CommittedBytes + bytes,
     };
 }

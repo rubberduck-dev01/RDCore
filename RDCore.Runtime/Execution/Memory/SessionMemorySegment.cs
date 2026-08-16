@@ -17,7 +17,9 @@ internal record class SessionMemorySegment : ISessionMemoryAllocator
         PointerSize = pointerSize;
 
         _currentAddress = address;
-        _nextSegmentAddress = address + (pointerSize == PointerSize.x86 ? SegmentSize32 : SegmentSize64);
+        _nextSegmentAddress = address + size;
+
+        _info = new(size, 0, 0, 0, 0);
     }
     public MemoryAddress Address { get; }
     public MemoryAddress NextSegment => _nextSegmentAddress;
@@ -53,8 +55,10 @@ internal record class SessionMemorySegment : ISessionMemoryAllocator
     internal MemoryAddress Allocate(SessionMemoryBlock block)
     {
         _memoryMap[block.Address] = block;
+        _info = _info
+            .WithAllocated(block.Size)
+            .WithCommitted(block.Size);
 
-        _info = _info.WithAllocated(block.Size);
         return block.Address;
     }
 
@@ -62,7 +66,10 @@ internal record class SessionMemorySegment : ISessionMemoryAllocator
     {
         if (_memoryMap.Remove(address, out block))
         {
-            _info = _info.WithAllocated(-block.Size);
+            _info = _info
+                .WithAllocated(-block.Size)
+                .WithFree(block.Size);
+
             return true;
         }
         return false;

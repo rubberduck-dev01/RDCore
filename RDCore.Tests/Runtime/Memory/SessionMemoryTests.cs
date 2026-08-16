@@ -61,4 +61,81 @@ public class SessionMemoryTests
             Assert.Inconclusive();
         }
     }
+
+    [TestMethod]
+    public void SessionMemorySegmentSize32()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        Assert.AreEqual(SessionMemorySegment.SegmentSize32, sut.Info.ReservedSegmentBytes);
+    }
+    [TestMethod]
+    public void SessionMemorySegmentSize64()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x64);
+        Assert.AreEqual(SessionMemorySegment.SegmentSize64, sut.Info.ReservedSegmentBytes);
+    }
+
+    [TestMethod]
+    public void MemoryInfoCommittedBytes_MatchTotalAllocated()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        var alloc = 8;
+
+        _ = sut.TryAllocate(alloc, out _);
+
+        Assert.AreEqual(alloc, sut.Info.CommittedBytes);
+    }
+
+    [TestMethod]
+    public void MemoryInfoAllocatedBytes_MatchTotalAllocated()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        var alloc = 8;
+
+        _ = sut.TryAllocate(alloc, out _);
+
+        Assert.AreEqual(alloc, sut.Info.AllocatedBytes);
+    }
+
+    [TestMethod]
+    public void MemoryInfoReservedBytes_DeallocatedBytesRemainReserved()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        var alloc = 8;
+
+        _ = sut.TryAllocate(alloc, out var address);
+        sut.TryDeallocate(address, out _);
+
+        Assert.AreEqual(SessionMemorySegment.SegmentSize32, sut.Info.ReservedSegmentBytes);
+        Assert.AreEqual(0, sut.Info.AllocatedBytes);
+    }
+
+    [TestMethod]
+    public void MemoryInfoFreeBytes_MatchDeallocatedBytes()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        var alloc = 8;
+
+        _ = sut.TryAllocate(alloc, out var address);
+        sut.TryDeallocate(address, out _);
+
+        Assert.AreEqual(alloc, sut.Info.FreeBytes);
+        Assert.AreEqual(0, sut.Info.AllocatedBytes);
+    }
+
+    [TestMethod]
+    public void MemoryInfoLargestFreeBlockSize_MatchLargestDeallocatedBytes()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        var allocSmall = 2;
+        var allocLarge = 14;
+
+        _ = sut.TryAllocate(allocLarge, out var largeBlockAddress);
+        _ = sut.TryAllocate(allocSmall, out _);
+
+        sut.TryDeallocate(largeBlockAddress, out _);
+
+        Assert.AreEqual(allocLarge, sut.Info.FreeBytes);
+        Assert.AreEqual(allocSmall, sut.Info.AllocatedBytes);
+    }
 }
