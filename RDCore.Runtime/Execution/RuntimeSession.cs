@@ -2,6 +2,9 @@
 using RDCore.SDK.Model.Symbols.Abstract;
 using RDCore.SDK.Model.Values.Bindings;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("RDCore.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace RDCore.Runtime.Execution;
 

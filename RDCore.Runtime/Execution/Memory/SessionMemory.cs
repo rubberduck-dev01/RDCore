@@ -58,13 +58,16 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
             }
         }
 
-        if (!currentSegment.TryAllocate(size, out address))
+        if (currentSegment.TryAllocate(size, out address))
+        {
+            return true;
+        }
+        else
         {
             currentSegment = GetNewReservedSegment(currentSegment.NextSegment);
             _segments.Push(currentSegment);
+            return currentSegment.TryAllocate(size, out address);
         }
-
-        return currentSegment.TryAllocate(size, out address);
     }
 
     public bool TryDeallocate(MemoryAddress address, out SessionMemoryBlock block)

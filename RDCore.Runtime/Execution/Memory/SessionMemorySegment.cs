@@ -7,8 +7,8 @@
 /// <param name="PointerSize">The size of an object pointer, in <strong>bytes</strong>.</param>
 internal record class SessionMemorySegment : ISessionMemoryAllocator
 {
-    public static readonly int SegmentSize32 = 4096;
-    public static readonly int SegmentSize64 = 8192;
+    public static readonly int SegmentSize32 = 2048;
+    public static readonly int SegmentSize64 = 4096;
 
     public SessionMemorySegment(MemoryAddress address, int size, PointerSize pointerSize)
     {

@@ -11,6 +11,7 @@ internal record class FreeBlocksList
     public int LargestBlockSize => _largestBlockSize;
     public SessionMemoryBlock this[int index] => _blocks[index];
     public int Count => _blocks.Count;
+    internal bool Contains(MemoryAddress address) => _blocks.Any(block => block.Address == address);
 
     private int _totalSize = 0;
     public int TotalSize => _totalSize;
@@ -59,18 +60,25 @@ internal record class FreeBlocksList
         var index = 0;
         SessionMemoryBlock previous = _blocks[0];
 
-        while (_comparer.Compare(_blocks[index], block) <= 0)
+        while (index < _blocks.Count && _comparer.Compare(_blocks[index], block) <= 0)
         {
             previous = _blocks[index];
             index++;
         }
 
-        if (previous.Address + previous.Size + 1 == block.Address)
+        if (previous.Address.Value + previous.Size == block.Address.Value)
         {
-            _blocks.RemoveAt(index);
+            _blocks.Remove(previous);
 
             var merged = new SessionMemoryBlock(previous.Address, previous.Size + block.Size);
-            _blocks.Insert(index, merged);
+            if (_blocks.Count > index)
+            {
+                _blocks.Insert(index, merged);
+            }
+            else
+            {
+                _blocks.Add(merged);
+            }
         }
         else
         {
