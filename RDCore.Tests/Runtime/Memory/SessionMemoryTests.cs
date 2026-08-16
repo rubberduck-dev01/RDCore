@@ -185,4 +185,36 @@ public class SessionMemoryTests
         Assert.HasCount(3, sut.Segments);
         Assert.AreEqual(SessionMemorySegment.SegmentSize32 - allocSmall - allocSmall, sut.Info.UncommittedBytes);
     }
+
+    [TestMethod]
+    public void TryDeallocate_EmptyMemorySpace_ReturnsFalse()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+
+        var result = sut.TryDeallocate(new(42), out var block);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void TryDeallocate_UnallocatedAddress_ReturnsFalse()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        _ = sut.TryAllocate(4, out _);
+
+        var result = sut.TryDeallocate(new(42), out var block);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void TryDeallocate_UntrackedAddress_ReturnsFalse()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        _ = sut.TryAllocate(4, out _);
+
+        var result = sut.TryDeallocate(new(8196), out var block);
+
+        Assert.IsFalse(result);
+    }
 }

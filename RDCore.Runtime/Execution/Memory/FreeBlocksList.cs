@@ -13,37 +13,9 @@ internal record class FreeBlocksList
     public int Count => _blocks.Count;
     internal bool Contains(MemoryAddress address) => _blocks.Any(block => block.Address == address);
 
-    private int _totalSize = 0;
-    public int TotalSize => _totalSize;
-
-    public bool TryGetFreeBlock(int size, [NotNullWhen(true)][MaybeNullWhen(false)] out SessionMemoryBlock? block)
-    {
-        block = default;
-        if (size > _largestBlockSize)
-        {
-            return false;
-        }
-
-        for (var i = 0; i < _blocks.Count; i++)
-        {
-            if (_blocks[i].Size <= size)
-            {
-                block = _blocks[i];
-                continue;
-            }
-            else if (_blocks[i].Size > size)
-            {
-                break;
-            }
-        }
-
-        return (block?.Size ?? 0) == size;
-    }
-
     public void RemoveAt(int index)
     {
         var block = _blocks[index];
-        _totalSize -= block.Size;
         _blocks.RemoveAt(index);
     }
 
@@ -53,7 +25,6 @@ internal record class FreeBlocksList
         {
             _blocks.Add(block);
             _largestBlockSize = block.Size;
-            _totalSize += block.Size;
             return;
         }
 
@@ -84,7 +55,5 @@ internal record class FreeBlocksList
         {
             _blocks.Insert(index, block);
         }
-
-        _totalSize += block.Size;
     }
 }
