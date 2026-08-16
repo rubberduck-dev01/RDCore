@@ -43,4 +43,22 @@ public class SessionMemoryTests
         Assert.IsTrue(result);
         Assert.AreEqual(address1, block1.Address);
     }
+
+    [TestMethod]
+    public void TryAllocate_ReusesFreeMemory()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        _ = sut.TryAllocate(8, out _);
+
+        if (sut.TryAllocate(4, out var address1) &&
+            sut.TryDeallocate(address1, out _))
+        {
+            _ = sut.TryAllocate(4, out var address2);
+            Assert.AreEqual(address1, address2);
+        }
+        else
+        {
+            Assert.Inconclusive();
+        }
+    }
 }

@@ -20,7 +20,7 @@ internal record class SessionMemorySegment : ISessionMemoryAllocator
         _nextSegmentAddress = address + (pointerSize == PointerSize.x86 ? SegmentSize32 : SegmentSize64);
     }
     public MemoryAddress Address { get; }
-    public MemoryAddress NextSegment { get; }
+    public MemoryAddress NextSegment => _nextSegmentAddress;
 
     public int Size { get; }
     public PointerSize PointerSize { get; }
