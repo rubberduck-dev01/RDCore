@@ -47,28 +47,34 @@ public readonly record struct SyntaxNodeId : IEquatable<SyntaxNodeId>, IComparab
 
     public int CompareTo(SyntaxNodeId other)
     {
-        if (_lineage.Length < other._lineage.Length)
-        {
-            return -1;
-        }
-        else if (_lineage.Length > other._lineage.Length)
-        {
-            return 1;
-        }
-        else
+        if (_documentUri == other._documentUri)
         {
             for (var i = 0; i < _lineage.Length; i++)
             {
-                if (_lineage[i] < other._lineage[i])
+                if (i < other._lineage.Length)
                 {
-                    return -1;
+                    if (_lineage[i] < other._lineage[i])
+                    {
+                        return -1;
+                    }
+                    else if (_lineage[i] > other._lineage[i])
+                    {
+                        return 1;
+                    }
                 }
-                else if (_lineage[i] > other._lineage[i])
+                else
                 {
+                    // this node goes deeper, so necessarily compares greater than:
                     return 1;
                 }
             }
-            return 0;
+
+            if (_lineage.Length < other._lineage.Length)
+            {
+                // same lineage but other node goes deeper; necessarily compares smaller than:
+                return -1;
+            }
         }
+        return _documentUri.CompareTo(other._documentUri);
     }
 }
