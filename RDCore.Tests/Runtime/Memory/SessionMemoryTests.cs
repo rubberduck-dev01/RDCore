@@ -138,4 +138,19 @@ public class SessionMemoryTests
         Assert.AreEqual(allocLarge, sut.Info.FreeBytes);
         Assert.AreEqual(allocSmall, sut.Info.AllocatedBytes);
     }
+
+    [TestMethod]
+    public void TryAllocate_SegmentFull_ReservesNewSegment()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        var allocSmall = 2;
+
+        var didAllocateSegmentSize = sut.TryAllocate(SessionMemorySegment.SegmentSize32, out _);
+        var didAllocateAdditional = sut.TryAllocate(allocSmall, out var smallAllocAddress);
+
+        Assert.IsTrue(didAllocateSegmentSize);
+        Assert.IsTrue(didAllocateAdditional);
+        Assert.AreEqual(SessionMemorySegment.SegmentSize32 * 2, sut.Info.ReservedSegmentBytes);
+        Assert.AreEqual(SessionMemorySegment.SegmentSize32 + allocSmall, sut.Info.AllocatedBytes);
+    }
 }
