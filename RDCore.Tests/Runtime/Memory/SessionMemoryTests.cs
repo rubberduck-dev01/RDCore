@@ -156,7 +156,7 @@ public class SessionMemoryTests
     }
 
     [TestMethod]
-    public void NewSegment_DoesNotOverlapPrevious()
+    public void NewSegment_DoesNotOverlapExisting()
     {
         var sut = new SessionMemory(new(), PointerSize.x86, offset: 0);
         var allocSmall = 4;
@@ -168,10 +168,21 @@ public class SessionMemoryTests
         Assert.HasCount(2, sut.Segments);
 
         // weak: Segments is a stack, enumerates current / top-most segment first:
-        var allocSegment = sut.Segments.First(); 
-        var largeAllocSegment = sut.Segments.Last();
+        var allocSegment = sut.Segments.Last(); 
+        var largeAllocSegment = sut.Segments.First();
 
         Assert.AreEqual(SessionMemorySegment.SegmentSize32, allocSegment.Size);
         Assert.AreEqual(allocSegment.NextSegment, largeAllocSegment.Address);
+
+        var didAllocateFiller = sut.TryAllocate(SessionMemorySegment.SegmentSize32 - allocSmall - allocSmall, out var fillerAlloc);
+        Assert.IsTrue(didAllocateFiller);
+        Assert.HasCount(2, sut.Segments);
+        Assert.AreEqual(allocSmall, sut.Info.UncommittedBytes);
+
+        var didAllocateThird = sut.TryAllocate(allocSmall * 3, out var thirdAlloc);
+        Assert.IsTrue(didAllocateThird);
+        Assert.AreEqual(largeAllocSegment.NextSegment, thirdAlloc);
+        Assert.HasCount(3, sut.Segments);
+        Assert.AreEqual(SessionMemorySegment.SegmentSize32 - allocSmall - allocSmall, sut.Info.UncommittedBytes);
     }
 }

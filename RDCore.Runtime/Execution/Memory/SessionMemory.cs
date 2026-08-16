@@ -1,22 +1,66 @@
-﻿namespace RDCore.Runtime.Execution.Memory;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+
+namespace RDCore.Runtime.Execution.Memory;
 
 internal sealed class SessionMemory : ISessionMemoryAllocator
 {
     private readonly FreeListManager _freeLists;
     private readonly Stack<SessionMemorySegment> _segments = new(4);
+    private readonly List<SessionMemorySegment> _availableSegments = new(4);
+
     private readonly int _segmentSize;
 
     public SessionMemory(FreeListManager freeLists, PointerSize pointerSize, int offset = 0)
     {
+        PointerSize = pointerSize;
+
         _freeLists = freeLists;
         _segmentSize = pointerSize == PointerSize.x86 ? SessionMemorySegment.SegmentSize32 : SessionMemorySegment.SegmentSize64;
-        _segments.Push(GetNewReservedSegment(new(offset)));
-        PointerSize = pointerSize;
+
+        CreateNewReservedSegment(new(offset));
     }
 
     internal IEnumerable<SessionMemorySegment> Segments => _segments.AsEnumerable();
+    private bool TryGetAvailableSegment(int size, [NotNullWhen(true)][MaybeNullWhen(false)] out SessionMemorySegment? segment)
+    {
+        for (var i = 0; i < _availableSegments.Count; i++)
+        {
+            var avlbSegment = _availableSegments[i];
+            if (avlbSegment.Info.AvailableBytes >= size)
+            {
+                segment = avlbSegment;
+                return true;
+            }
+        }
 
-    private SessionMemorySegment GetNewReservedSegment(MemoryAddress address, int? size = default) => new(address, Math.Max(size ?? _segmentSize, _segmentSize), PointerSize);
+        segment = null;
+        return false;
+    }
+
+    private bool TryFindSegment(MemoryAddress address, [NotNullWhen(true)][MaybeNullWhen(false)] out SessionMemorySegment? segment)
+    {
+        foreach (var prospect in _segments) // stack iterates most recent ones first.. not necessarily last allocated segment.
+        {
+            if (prospect.Address.Value <= address.Value && prospect.NextSegment.Value > address.Value)
+            {
+                segment = prospect;
+                return true;
+            }
+        }
+
+        segment = null;
+        return false;
+    }
+
+    private SessionMemorySegment CreateNewReservedSegment(MemoryAddress address, int? size = default)
+    {
+        var segment = new SessionMemorySegment(address, Math.Max(size ?? _segmentSize, _segmentSize), PointerSize);
+        _segments.Push(segment);
+        _availableSegments.Add(segment);
+
+        return segment;
+    }
 
     public PointerSize PointerSize { get; }
 
@@ -44,58 +88,38 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
 
     public bool TryAllocate(int size, out MemoryAddress address)
     {
-        var currentSegment = _segments.Peek();
-        if (size > currentSegment.Size)
+        if (_freeLists.TryGetFreeListBlock(size, out var block, out var segment))
         {
-            currentSegment = GetNewReservedSegment(currentSegment.NextSegment, size);
-
-            SessionMemorySegment? freeSegment = default;
-            if (_segments.Peek().Info.UncommittedBytes >= 8)
-            {
-                freeSegment = _segments.Pop();
-            }
-
-            _segments.Push(currentSegment); // this segment will be full in no time            
-            var result = currentSegment.TryAllocate(size, out address); // here. current fragment full.
-
-            if (freeSegment is not null)
-            {
-                _segments.Push(freeSegment); // resume with the previous segment.
-            }
-            return result;
-        }
-
-        if (_freeLists.TryGetFreeListBlock(size, out var freeBlock, out var segment))
-        {
-            if (freeBlock.Value.Address.Value >= segment.Address.Value
-                && freeBlock.Value.Address.Value < segment.NextSegment.Value)
-            {
-                address = segment.Allocate(freeBlock.Value);
-                return true;
-            }
-        }
-
-        if (currentSegment.TryAllocate(size, out address))
-        {
+            // free memory fast path
+            address = block.Value.Address;
             return true;
         }
-        else
+        else if (!TryGetAvailableSegment(size, out segment))
         {
-            currentSegment = GetNewReservedSegment(currentSegment.NextSegment);
-            _segments.Push(currentSegment);
-            return currentSegment.TryAllocate(size, out address);
+            // segment full slow path
+            segment = CreateNewReservedSegment(_segments.OrderBy(s => s.Address.Value).Last().NextSegment, size);
         }
+
+        var result = segment.TryAllocate(size, out address);
+        if (segment.Info.AvailableBytes < 8)
+        {
+            _availableSegments.Remove(segment);    
+        }
+        return result;
     }
 
     public bool TryDeallocate(MemoryAddress address, out SessionMemoryBlock block)
     {
         // NOTE: deallocation does not check if the segment is left empty; this is intentional.
-        var currentSegment = _segments.Peek();
-        if (currentSegment.TryDeallocate(address, out block))
+        if (TryFindSegment(address, out var segment) && segment.TryDeallocate(address, out block))
         {
-            _freeLists.Add(block, currentSegment);
+            // the deallocated block becomes free memory
+            _freeLists.Add(block, segment);
+            _availableSegments.Add(segment);
             return true;
         }
+
+        block = default;
         return false;
     }
 }
