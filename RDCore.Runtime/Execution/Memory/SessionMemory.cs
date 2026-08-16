@@ -14,7 +14,9 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
         PointerSize = pointerSize;
     }
 
-    private SessionMemorySegment GetNewReservedSegment(MemoryAddress address) => new(address, _segmentSize, PointerSize);
+    internal IEnumerable<SessionMemorySegment> Segments => _segments.AsEnumerable();
+
+    private SessionMemorySegment GetNewReservedSegment(MemoryAddress address, int? size = default) => new(address, Math.Max(size ?? _segmentSize, _segmentSize), PointerSize);
 
     public PointerSize PointerSize { get; }
 
@@ -45,8 +47,22 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
         var currentSegment = _segments.Peek();
         if (size > currentSegment.Size)
         {
-            address = default;
-            return false;
+            currentSegment = GetNewReservedSegment(currentSegment.NextSegment, size);
+
+            SessionMemorySegment? freeSegment = default;
+            if (_segments.Peek().Info.UncommittedBytes >= 8)
+            {
+                freeSegment = _segments.Pop();
+            }
+
+            _segments.Push(currentSegment); // this segment will be full in no time            
+            var result = currentSegment.TryAllocate(size, out address); // here. current fragment full.
+
+            if (freeSegment is not null)
+            {
+                _segments.Push(freeSegment); // resume with the previous segment.
+            }
+            return result;
         }
 
         if (_freeLists.TryGetFreeListBlock(size, out var freeBlock, out var segment))

@@ -1,3 +1,4 @@
+using NSubstitute.ReceivedExtensions;
 using RDCore.Runtime.Execution;
 using RDCore.Runtime.Execution.Memory;
 
@@ -152,5 +153,25 @@ public class SessionMemoryTests
         Assert.IsTrue(didAllocateAdditional);
         Assert.AreEqual(SessionMemorySegment.SegmentSize32 * 2, sut.Info.ReservedSegmentBytes);
         Assert.AreEqual(SessionMemorySegment.SegmentSize32 + allocSmall, sut.Info.AllocatedBytes);
+    }
+
+    [TestMethod]
+    public void NewSegment_DoesNotOverlapPrevious()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86, offset: 0);
+        var allocSmall = 4;
+
+        var didAllocateDynamicSegment = sut.TryAllocate(SessionMemorySegment.SegmentSize32 + 42, out var largeAlloc);
+        var didAllocateSmallSegment = sut.TryAllocate(allocSmall, out var alloc);
+
+        Assert.IsTrue(didAllocateDynamicSegment && didAllocateSmallSegment);
+        Assert.HasCount(2, sut.Segments);
+
+        // weak: Segments is a stack, enumerates current / top-most segment first:
+        var allocSegment = sut.Segments.First(); 
+        var largeAllocSegment = sut.Segments.Last();
+
+        Assert.AreEqual(SessionMemorySegment.SegmentSize32, allocSegment.Size);
+        Assert.AreEqual(allocSegment.NextSegment, largeAllocSegment.Address);
     }
 }

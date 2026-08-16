@@ -7,6 +7,8 @@ public record struct SessionMemoryInfo(
     int FreeBytes,
     int LargestFreeBlock)
 {
+    public readonly int UncommittedBytes => ReservedSegmentBytes - CommittedBytes;
+
     /// <summary>
     /// Increments the <em>allocated bytes</em> by the specified amount.
     /// </summary>
