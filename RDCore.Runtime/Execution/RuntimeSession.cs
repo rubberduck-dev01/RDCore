@@ -49,9 +49,9 @@ internal sealed class SessionObjects : ISessionObjects
         {
             roots.Add(handle);
         }
-        if (_refs.TryGetValue(instance, out var refs))
+        if (_refs.TryGetValue(instance, out _))
         {
-            _refs[instance] = refs++;
+            _refs[instance]++;
         }        
     }
 
@@ -61,9 +61,9 @@ internal sealed class SessionObjects : ISessionObjects
         {
             _ = roots.Remove(handle);
         }
-        if (_refs.TryGetValue(instance, out var refs))
+        if (_refs.TryGetValue(instance, out _))
         {
-            _refs[instance] = refs--;
+            _refs[instance]--;
         }
 
         return _refs[instance];
@@ -74,7 +74,8 @@ internal sealed class SessionObjects : ISessionObjects
         if (_refs.TryGetValue(instance, out var refCount) && refCount == 0
             /*&& _roots[instance].Count == 0*/)
         {
-            return _refs.Remove(instance);
+            return _refs.Remove(instance)
+                && _roots.Remove(instance);
         }
         return false;
     }
@@ -97,6 +98,8 @@ internal sealed class SessionSymbols : ISessionSymbols
     public bool TryDefine(Symbol symbol, ScopeKind scope)
     {
         _nameTable[symbol.Name.ToLowerInvariant()] = symbol.Name;
+        _idMap[symbol.Uri] = symbol;
+
         var symbolTable = scope switch
         {
             ScopeKind.Global => _globalSymbols,
@@ -107,8 +110,13 @@ internal sealed class SessionSymbols : ISessionSymbols
         return symbolTable?.Add(symbol) ?? false;
     }
 
-    private bool IsAccessibleFrom(Symbol symbol, Symbol scope)
+    private bool IsAccessibleFrom(AccessibleTypedSymbol? symbol, Symbol scope)
     {
+        if (symbol is null)
+        {
+            return false;
+        }
+
         if (symbol.ParentUri == scope.Uri)
         {
             // local scope
@@ -126,12 +134,12 @@ internal sealed class SessionSymbols : ISessionSymbols
         if (scopingProject.Children.Any(c => c == symbol.Uri))
         {
             // same project
-            return ((AccessibleTypedSymbol)symbol).AccessModifier != AccessModifier.Private;
+            return symbol.AccessModifier != AccessModifier.Private;
         }
 
         if (_globalSymbols.Contains(symbol))
         {
-            return ((AccessibleTypedSymbol)symbol).AccessModifier != AccessModifier.Private;
+            return symbol.AccessModifier != AccessModifier.Private;
         }
 
         return false;
