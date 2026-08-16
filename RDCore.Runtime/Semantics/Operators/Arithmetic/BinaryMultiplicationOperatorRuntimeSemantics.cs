@@ -27,7 +27,7 @@ public record class BinaryMultiplicationOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame) => frame[InputIndex.BinaryLeftOperand].TypeInfo switch
         {
             VBCurrencyType
@@ -52,7 +52,7 @@ public record class BinaryMultiplicationOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame) => frame.EffectiveType switch
         {
             VBNumericType numericEffectiveType

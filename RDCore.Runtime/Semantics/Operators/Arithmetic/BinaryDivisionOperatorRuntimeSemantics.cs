@@ -30,7 +30,7 @@ public record class BinaryDivisionOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver, 
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame) => frame[InputIndex.BinaryLeftOperand].TypeInfo switch
         {
             VBByteType or VBBooleanType or VBIntegerType or VBLongType or VBLongLongType or VBEmptyType
@@ -51,7 +51,7 @@ public record class BinaryDivisionOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

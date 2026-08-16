@@ -29,7 +29,7 @@ public record class BinaryExponentOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver, 
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame) => frame[InputIndex.BinaryLeftOperand].TypeInfo switch
         {
             VBNumericType or VBStringType or VBDateType or VBEmptyType
@@ -42,7 +42,7 @@ public record class BinaryExponentOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         if (frame.EffectiveType is VBDoubleType 

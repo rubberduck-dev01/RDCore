@@ -39,12 +39,12 @@ public record class BinaryAndLogicalOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryLogicalOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame) => DetermineOperatorEffectiveTypeResult.NotApplicable(); // already determined, but the method still needs an override.
 
     protected override RuntimeSemanticsEvaluationResult EvaluateSemanticallly(
         IVBExecutionContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

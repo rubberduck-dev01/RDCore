@@ -32,37 +32,32 @@ internal interface IModuleParser
     ModuleParseResult Parse(Uri uri, ModuleType moduleType, Stream content);
 }
 
-internal class ModuleParser(ITokenStreamPreprocessor preprocessor) : IModuleParser
+internal class ModuleParser() : IModuleParser
 {
     public ModuleParseResult Parse(Uri uri, ModuleType moduleType, Stream content)
     {
         var input = new AntlrInputStream(content);
         var lexer = new VBALexer(input);
-        var rawTokenStream = new CommonTokenStream(lexer);
+        var tokenStream = new CommonTokenStream(lexer);
 
-        if (preprocessor.PreprocessTokenStream(uri, rawTokenStream) is CommonTokenStream tokenStream)
+        var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), [], moduleType);
+        var listener = new DeclarationsParseTreeListener(uri, node);
+        var errorListener = new ErrorListener(uri);
+        try
         {
-            var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), [], moduleType);
-            var listener = new DeclarationsParseTreeListener(uri, node);
-            var errorListener = new ErrorListener(uri);
-            try
-            {
-                ParseWithFallback(tokenStream, errorListener, [listener]);
+            ParseWithFallback(tokenStream, errorListener, [listener]);
 
-                var ast = listener.BuildModuleNode();
-                return ast.Children.Length > 0 
-                    ? ModuleParseResult.Success(ast) with { SyntaxError = errorListener.Errors.FirstOrDefault() }
-                    : ModuleParseResult.Failed(node.SourceLocation, errorListener.Errors.FirstOrDefault()?.Verbose ?? string.Empty);
-                ;
-            }
-            catch (Exception exception)
-            {
-                var verbose = $"Parsing failed: {exception}";
-                return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbose);
-            }
+            var ast = listener.BuildModuleNode();
+            return ast.Children.Length > 0 
+                ? ModuleParseResult.Success(ast) with { SyntaxError = errorListener.Errors.FirstOrDefault() }
+                : ModuleParseResult.Failed(node.SourceLocation, errorListener.Errors.FirstOrDefault()?.Verbose ?? string.Empty);
+            ;
         }
-        var verbosePreprocessorFailed = "Preprocessing failed";
-        return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbosePreprocessorFailed);
+        catch (Exception exception)
+        {
+            var verbose = $"Parsing failed: {exception}";
+            return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbose);
+        }
     }
 
     private static void ParseWithFallback(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners)

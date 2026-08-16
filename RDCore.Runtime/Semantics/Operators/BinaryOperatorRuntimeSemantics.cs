@@ -38,7 +38,7 @@ where TFlags : struct, Enum
     protected abstract DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver, 
         TContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame);
 
     public sealed override DetermineOperatorEffectiveTypeResult DetermineOperatorEffectiveType(
@@ -46,19 +46,19 @@ where TFlags : struct, Enum
         TContext context,
         VBOperatorExpression expression,
         OperatorEvaluationFrame frame)
-        => DetermineBinaryOperatorEffectiveType(resolver, context, (VBBinaryOperatorExpression)expression, frame);
+        => DetermineBinaryOperatorEffectiveType(resolver, context, (VBBinaryOperatorExpressionNode)expression, frame);
 
     protected abstract RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         TContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame);
 
     protected sealed override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         TContext context,
         VBOperatorExpression expression,
-        OperatorEvaluationFrame frame) => EvaluateExpressionResult(runtime, context, (VBBinaryOperatorExpression)expression, frame);
+        OperatorEvaluationFrame frame) => EvaluateExpressionResult(runtime, context, (VBBinaryOperatorExpressionNode)expression, frame);
 
     /// <summary>
     /// Evaluates the <see cref="VBNullType"/> runtime semantics of a <em>binary operator expression</em>.<br/>

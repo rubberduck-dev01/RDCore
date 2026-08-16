@@ -25,7 +25,7 @@ public record class BinaryXorLogicalOperatorRuntimeSemantics(
 
     protected override RuntimeSemanticsEvaluationResult EvaluateSemanticallly(
         IVBExecutionContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

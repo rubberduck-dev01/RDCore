@@ -12,7 +12,7 @@ public abstract class StaticSemanticsTests
     public static void AssertDeterminedDeclaredType(StaticSemantics semantics, VBType[] operandDeclaredTypes, VBType expected)
     {
         var resolver = Substitute.For<ISymbolResolver>();
-        var expression = new VBLiteralExpression(new(TestUri.TestModuleUri().AbsolutePath, [42]), TestLocations.TestLocation, VBUnknownType.TypeInfo.DefaultValue);
+        var expression = new LiteralExpressionNode(new(TestUri.TestModuleUri().AbsolutePath, [42]), TestLocations.TestLocation, VBUnknownType.TypeInfo.DefaultValue);
         var result = semantics.DetermineDeclaredType(resolver, expression, operandDeclaredTypes);
         Assert.AreEqual(expected, result.Result);
     }

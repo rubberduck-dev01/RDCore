@@ -62,7 +62,7 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
         ConversionOperationSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
         => frame[InputIndex.BinaryRightOperand].GetTargetType() is VBType targetType 
             && targetType is VBIntrinsicType or VBClassType or VBUserDefinedType 
@@ -72,7 +72,7 @@ public record class BinaryLetCoerceOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         ConversionOperationSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         var coercionResult = LetCoercionProvider.EvaluateLetCoercionSemantics((ISymbolResolver)runtime, expression, 

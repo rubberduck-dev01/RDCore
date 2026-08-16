@@ -88,7 +88,7 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags> context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame.Operands[(int)InputIndex.BinaryLeftOperand].GetTargetType();
@@ -188,7 +188,7 @@ public abstract record class BinaryRelationalOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryOperatorSemanticContext<ComparisonOperatorSemanticFlags> context,
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame.Operands[(int)InputIndex.BinaryLeftOperand];
