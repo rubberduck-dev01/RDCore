@@ -28,7 +28,7 @@ public sealed record class BinaryModuloOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         if (frame.EffectiveType is VBByteType or VBIntegerType or VBLongType or VBLongLongType

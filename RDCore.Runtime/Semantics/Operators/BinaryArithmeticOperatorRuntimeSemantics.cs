@@ -50,13 +50,13 @@ public abstract record class BinaryArithmeticOperatorRuntimeSemantics(
     protected abstract DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame);
 
     protected sealed override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame)
     {
         var result = DetermineArithmeticOperatorEffectiveType(resolver, (BinaryArithmeticOperatorSemanticContext)context, expression, frame);

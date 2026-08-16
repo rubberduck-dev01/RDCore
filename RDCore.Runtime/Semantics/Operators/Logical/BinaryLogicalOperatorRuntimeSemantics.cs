@@ -47,7 +47,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineBinaryOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryLogicalOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
         => frame[InputIndex.BinaryLeftOperand].TypeInfo switch
         {
@@ -60,7 +60,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryLogicalOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];
@@ -111,7 +111,7 @@ public abstract record class BinaryLogicalOperatorRuntimeSemantics(
     /// </remarks>
     protected abstract RuntimeSemanticsEvaluationResult EvaluateSemanticallly(
         IVBExecutionContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame);
 
     /// <summary>

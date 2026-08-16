@@ -24,13 +24,13 @@ public record class BinarySubtractionOperatorRuntimeSematics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame) => DetermineOperatorEffectiveTypeResult.NotApplicable(); // no operator-specific overrides
 
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame) => frame.EffectiveType switch
         {
             VBNumericType numericEffectiveType => EvaluateBinaryExpressionResult(numericEffectiveType,

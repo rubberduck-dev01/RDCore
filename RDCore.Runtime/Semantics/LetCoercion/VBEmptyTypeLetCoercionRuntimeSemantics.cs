@@ -53,7 +53,7 @@ public record class VBEmptyTypeLetCoercionRuntimeSemantics(IVerboseMessageBuilde
         VBOperatorExpression expression,
         LetCoercionStackFrame frame)
     {
-        if (expression is VBUnaryOperatorExpression)
+        if (expression is VBUnaryOperatorExpressionNode)
         {
             builder.AddLetCoercionFlags(ConversionSemanticFlags.UnaryOperand);
         }

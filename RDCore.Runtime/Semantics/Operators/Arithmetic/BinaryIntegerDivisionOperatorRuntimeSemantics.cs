@@ -27,7 +27,7 @@ public record class BinaryIntegerDivisionOperatorRuntimeSemantics(
     protected override DetermineOperatorEffectiveTypeResult DetermineArithmeticOperatorEffectiveType(
         ISymbolResolver resolver, 
         BinaryArithmeticOperatorSemanticContext context, 
-        VBBinaryOperatorExpression expression, 
+        VBBinaryOperatorExpressionNode expression, 
         OperatorEvaluationFrame frame) 
     {
         var rhs = frame[InputIndex.BinaryLeftOperand].TypeInfo;
@@ -62,7 +62,7 @@ public record class BinaryIntegerDivisionOperatorRuntimeSemantics(
     protected override RuntimeSemanticsEvaluationResult EvaluateExpressionResult(
         IVBExecutionContext runtime,
         BinaryArithmeticOperatorSemanticContext context,
-        VBBinaryOperatorExpression expression,
+        VBBinaryOperatorExpressionNode expression,
         OperatorEvaluationFrame frame)
     {
         var lhs = frame[InputIndex.BinaryLeftOperand];

@@ -181,13 +181,13 @@ public class LetCoercionRuntimeSemanticsProvider(
     {
         builder.AddLetCoercionFlags(expression switch
         {
-            VBUnaryOperatorExpression when frame.OperandIndex == InputIndex.UnaryOperand 
+            VBUnaryOperatorExpressionNode when frame.OperandIndex == InputIndex.UnaryOperand 
                 => ConversionSemanticFlags.UnaryOperand,
 
-            VBBinaryOperatorExpression when frame.OperandIndex == InputIndex.BinaryLeftOperand
+            VBBinaryOperatorExpressionNode when frame.OperandIndex == InputIndex.BinaryLeftOperand
                 => ConversionSemanticFlags.BinaryLeftOperand,
 
-            VBBinaryOperatorExpression when frame.OperandIndex == InputIndex.BinaryRightOperand
+            VBBinaryOperatorExpressionNode when frame.OperandIndex == InputIndex.BinaryRightOperand
                 => ConversionSemanticFlags.BinaryRightOperand,
 
             _ => 0
