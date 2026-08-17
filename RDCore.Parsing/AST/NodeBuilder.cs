@@ -256,6 +256,23 @@ internal class NodeBuilder(Uri rootUri, SyntaxNodeId nodeId)
             modifier);
     }
 
+    public SyntaxNode BuildPrecompilerConstDeclaration(VBAParser.ConstSubStmtContext context, ConstKind kind, AccessModifier modifier)
+    {
+        var typeHint = context.identifier().typedIdentifier()?.typeHint().GetText();
+
+        var name = typeHint is null
+            ? context.identifier().untypedIdentifier()!.identifierValue().IDENTIFIER().Symbol.Text
+            : context.identifier().typedIdentifier()!.untypedIdentifier().identifierValue().IDENTIFIER().Symbol.Text;
+
+        return new ConstantDeclarationNode(
+            nodeId,
+            context.GetSourceLocation(_rootUri),
+            name,
+            kind,
+            [.. _children],
+            modifier);
+    }
+
     public SyntaxNode BuildEnumConstDeclaration(VBAParser.EnumerationStmt_ConstantContext context)
     {
         var name = context.identifier().GetText();

@@ -1,8 +1,4 @@
-using NSubstitute;
-using NSubstitute.ClearExtensions;
 using RDCore.Parsing;
-using RDCore.Parsing.PreProcessing;
-using RDCore.Parsing.PreProcessing.Legacy;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
 using System.Text;
@@ -13,23 +9,6 @@ namespace RDCore.Tests;
 [TestClass]
 public class DeclarationPassParserTests
 {
-    private readonly ICompilationArgumentsProvider _compilationArgsProvider = Substitute.For<ICompilationArgumentsProvider>();
-
-    private readonly VBAPreprocessorParser _preprocessorParser = new();
-
-    [TestInitialize]
-    public void InitializeFileMock()
-    {
-        _compilationArgsProvider.PredefinedCompilationConstants.Returns(provider => new VBAPredefinedCompilationConstants(vbVersion: 7));
-        _compilationArgsProvider.UserDefinedCompilationArguments(Arg.Any<Uri>()).Returns(provider => []);
-    }
-
-    [TestCleanup]
-    public void Cleanup()
-    {
-        _compilationArgsProvider.ClearSubstitute();
-    }
-
     [TestMethod]
     public void InvalidContent_ReturnsErrorResult()
     {

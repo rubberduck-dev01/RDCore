@@ -64,6 +64,26 @@ public class SessionMemoryTests
     }
 
     [TestMethod]
+    public void TryAllocate_UpdatesLargestFreeBlockSize()
+    {
+        var sut = new SessionMemory(new(), PointerSize.x86);
+        _ = sut.TryAllocate(4, out _);
+
+        if (sut.TryAllocate(4, out var address1) &&
+            sut.TryDeallocate(address1, out _))
+        {
+            _ = sut.TryAllocate(8, out var address2) &&
+            sut.TryDeallocate(address2, out _);
+        }
+        else
+        {
+            Assert.Inconclusive();
+        }
+
+        Assert.AreEqual(12, sut.Info.LargestFreeBlock); // 4+8=12, merged because adjacent
+    }
+
+    [TestMethod]
     public void SessionMemorySegmentSize32()
     {
         var sut = new SessionMemory(new(), PointerSize.x86);

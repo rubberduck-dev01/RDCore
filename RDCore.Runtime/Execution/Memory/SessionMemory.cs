@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 
 namespace RDCore.Runtime.Execution.Memory;
 
@@ -105,6 +104,7 @@ internal sealed class SessionMemory : ISessionMemoryAllocator
         {
             _availableSegments.Remove(segment);    
         }
+
         return result;
     }
 
