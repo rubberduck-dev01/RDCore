@@ -96,8 +96,8 @@ moduleOption :
 ;
 
 moduleDeclarationsElement :
-    whiteSpace?
-    (attributeStmt
+    whiteSpace? 
+    ( attributeStmt
     | declareStmt
     | defDirective
     | enumerationStmt 
@@ -138,8 +138,7 @@ unterminatedBlock : blockStmt (endOfStatement blockStmt)*;
 
 blockStmt : 
     statementLabelDefinition whiteSpace? mainBlockStmt?
-    | mainBlockStmt 
-;
+    | mainBlockStmt;
 
 mainBlockStmt :
     fileStmt

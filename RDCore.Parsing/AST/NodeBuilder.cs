@@ -1,8 +1,12 @@
-﻿using RDCore.Parsing.Syntax;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using RDCore.Parsing.Syntax;
 using RDCore.SDK.Model;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Directives;
+using RDCore.SDK.Model.AST.Expressions;
+using RDCore.SDK.Model.AST.Statements;
+using System.Linq.Expressions;
 
 namespace RDCore.Parsing.AST;
 
@@ -256,22 +260,30 @@ internal class NodeBuilder(Uri rootUri, SyntaxNodeId nodeId)
             modifier);
     }
 
-    public SyntaxNode BuildPrecompilerConstDeclaration(VBAParser.ConstSubStmtContext context, ConstKind kind, AccessModifier modifier)
-    {
-        var typeHint = context.identifier().typedIdentifier()?.typeHint().GetText();
+    //public SyntaxNode BuildPrecompilerConstDeclaration(VBAParser.CcConstContext context, ConstKind kind, AccessModifier modifier)
+    //{
+    //    var name = context.ccVarLhs().ccName().ccNameValue().IDENTIFIER().Symbol.Text;
 
-        var name = typeHint is null
-            ? context.identifier().untypedIdentifier()!.identifierValue().IDENTIFIER().Symbol.Text
-            : context.identifier().typedIdentifier()!.untypedIdentifier().identifierValue().IDENTIFIER().Symbol.Text;
+    //    return new PrecompilerConstantDeclarationNode(
+    //        nodeId,
+    //        context.GetSourceLocation(_rootUri),
+    //        name,
+    //        kind,
+    //        [.. _children],
+    //        modifier);
+    //}
 
-        return new ConstantDeclarationNode(
-            nodeId,
-            context.GetSourceLocation(_rootUri),
-            name,
-            kind,
-            [.. _children],
-            modifier);
-    }
+    //public SyntaxNode BuildConditionalExpression(VBAParser.CcExpressionContext context) 
+    //    => new ConditionalExpressionNode(nodeId, context.GetSourceLocation(_rootUri), [.. _children]);
+
+    //public SyntaxNode BuildConditionalExpression(VBAParser.ExpressionContext context)
+    //    => new ConditionalExpressionNode(nodeId, context.GetSourceLocation(_rootUri), [.. _children]);
+
+    //public SyntaxNode BuildPrecompilerConditional(VBAParser.CcIfBlockContext context)
+    //    => new PrecompilerIfBlockStatementNode(nodeId, context.GetSourceLocation(_rootUri), [.. _children]);
+
+    public SyntaxNode BuildAnnotationTriviaNode(VBAParser.AnnotationContext context)
+        => new AnnotationTriviaNode(nodeId, context.GetSourceLocation(_rootUri), context.annotationName().GetText(), [.. _children]);
 
     public SyntaxNode BuildEnumConstDeclaration(VBAParser.EnumerationStmt_ConstantContext context)
     {

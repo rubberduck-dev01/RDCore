@@ -14,5 +14,5 @@ namespace RDCore.SDK.Model.AST.Expressions;
 /// <param name="Location">The <c>Location</c> (holds the document <c>Uri</c> and a <c>Range</c>) of the bound expression.</param>
 /// <param name="Expression">The operand of this <em>unary operator expression</em></param>
 public record class VBUnaryOperatorExpressionNode(SyntaxNodeId Identity, string Token, SourceLocation Location, VBOperatorExpression Expression) 
-    : VBOperatorExpression(Token, Identity, Location, [Expression]) 
+    : VBOperatorExpression(Identity, Location, [Expression])
 { }

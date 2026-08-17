@@ -9,7 +9,7 @@ public record class MemberAccessOperatorExpressionNode(
     SyntaxNodeId Identity,
     SourceLocation Location,
     ExpressionNode Left, ExpressionNode Right) 
-    : VBBinaryOperatorExpressionNode(Tokens.MemberAccess, Identity, Location, Left, Right)
+    : VBBinaryOperatorExpressionNode(Identity, Location, Left, Right)
 {
     /*
     public static VBTypedValue EvaluateBinaryMemberAccess(

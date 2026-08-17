@@ -21,6 +21,7 @@ internal record class ModuleParseResult
     };
 
     public ModuleNode? SyntaxTree { get; init; }
+    public ModuleNode? ConditionalCompilationTree { get; init; }
     public VBSyntaxErrorInfo? SyntaxError { get; init; }
 
     public bool IsSuccess => SyntaxTree is not null && SyntaxError is null;
@@ -57,6 +58,18 @@ internal class ModuleParser() : IModuleParser
             var verbose = $"Parsing failed: {exception}";
             return ModuleParseResult.Failed(new(uri, SourceRange.Empty), verbose);
         }
+    }
+
+    private static void ParsePrecompilationTokens(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners)
+    {
+        var parser = new VBAConditionalCompilationParser(tokenStream);
+        parser.Interpreter.PredictionMode = PredictionMode.Ll;
+        parser.AddErrorListener(errorListener);
+        foreach (var listener in listeners)
+        {
+            parser.AddParseListener(listener);
+        }
+        parser.compilationUnit();
     }
 
     private static void ParseWithFallback(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners)

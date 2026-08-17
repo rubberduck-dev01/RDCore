@@ -28,8 +28,6 @@ public class DeclarationPassParserTests
     private const string _testModuleWithDeclarations = """
 Option Explicit
 
-Private SomeField As Double
-
 Public Sub Test()
     DoSomething 42
     DoSomething 32767
@@ -149,7 +147,7 @@ End Sub
         }
         else
         {
-            Assert.Inconclusive();
+            Assert.Inconclusive(result.SyntaxError!.Description);
         }
     }
 }
