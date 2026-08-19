@@ -7,6 +7,7 @@ using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.AST.Statements;
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace RDCore.Parsing;
 
@@ -38,14 +39,19 @@ internal class PrecompilerNodeBuilder(Uri rootUri, SyntaxNodeId nodeId) : NodeBu
 internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompilationBaseListener, ISyntaxNodeProvider
 {
     private readonly Uri _rootUri = sourceUri;
-    private readonly Stack<PrecompilerNodeBuilder> _builderStack = new([new(sourceUri, new($"{sourceUri}/trivia/cc", []))]);
+    private readonly Stack<PrecompilerNodeBuilder> _builderStack = new([new(sourceUri, new($"{sourceUri}/conditional", []))]);
 
-    private readonly List<SyntaxNode> _nodes = [];
     private PrecompilerNodeBuilder CurrentBuilder => _builderStack.Peek();
 
     private SyntaxNodeId GetCurrentNodeId() => CurrentBuilder.NodeId.Add(CurrentBuilder.ChildCount);
 
-    public ImmutableArray<SyntaxNode> SyntaxNodes => [.. _nodes];
+    public ImmutableArray<SyntaxNode> SyntaxNodes => BuildModuleNode();
+
+    public ImmutableArray<SyntaxNode> BuildModuleNode()
+    {
+        Debug.Assert(_builderStack.Count == 1);
+        return [.. CurrentBuilder.GetChildren];
+    }
 
     private void OnEnterParent() => _builderStack.Push(new(_rootUri, GetCurrentNodeId()));
     private void OnExitParent(Func<PrecompilerNodeBuilder, SyntaxNode> provider)
@@ -54,16 +60,26 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         CurrentBuilder.AddChild(node);
     }
 
-    /* NOTE: Conditional compilation nodes must exist in the AST at their source location.
-     * The final AST must include a copy of each trivia node with an ID that correctly positions it in the tree structure.
-     * Because neither conditionally-compiled branch is semantically meaningful at this layer, no information is collected about here them.
-     * The declaration pass can then easily identify AST nodes enclosed within a conditional compilation block.
-     * 
-     * Eventually the PrecompilerTriviaNode would be replaced with a conditional-compilation expression subtree that the semantic layer can evaluate.
-    */ 
-
     public override void EnterCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context) 
         => OnEnterParent();
     public override void ExitCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context) 
         => OnExitParent(provider => new PrecompilerTriviaNode(GetCurrentNodeId(), context.GetSourceLocation(_rootUri), [], context.GetText()));
+
+    public override void EnterCcIf([NotNull] VBAConditionalCompilationParser.CcIfContext context)
+        => OnEnterParent();
+    public override void ExitCcIf([NotNull] VBAConditionalCompilationParser.CcIfContext context)
+        => OnExitParent(provider => provider.BuildPrecompilerConditional(context));
+
+    public override void EnterCcIfBlock([NotNull] VBAConditionalCompilationParser.CcIfBlockContext context)
+        => OnEnterParent();
+    public override void ExitCcIfBlock([NotNull] VBAConditionalCompilationParser.CcIfBlockContext context)
+        => OnExitParent(provider => provider.BuildPrecompilerConditional(context));
+
+    public override void EnterCcExpression([NotNull] VBAConditionalCompilationParser.CcExpressionContext context)
+        => OnEnterParent();
+    public override void ExitCcExpression([NotNull] VBAConditionalCompilationParser.CcExpressionContext context)
+        => OnExitParent(provider => provider.BuildConditionalExpression(context));
+
+    public override void ExitCcVarLhs([NotNull] VBAConditionalCompilationParser.CcVarLhsContext context)
+        => CurrentBuilder.AddChild(new PrecompilerNameExpressionNode(GetCurrentNodeId(), context.GetSourceLocation(_rootUri), context.name().GetText()));
 }

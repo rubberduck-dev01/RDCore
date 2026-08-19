@@ -44,7 +44,7 @@ Private Sub DoSomething(ByVal SomeValue As Long)
 #EndIf
 
     On Error GoTo CleanFail
-    Debug.Print Multiplier * SomeValue + OtherValue
+    Debug.Print MultiplierValue * SomeValue + OtherValue
 
 CleanExit:
     Exit Sub
