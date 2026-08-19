@@ -9,47 +9,37 @@ using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.Errors;
 using RDCore.SDK.Model.Source;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace RDCore.Parsing;
 
-internal record class ModuleParseResult
+internal interface ISyntaxNodeProvider : IParseTreeListener
 {
-    public static ModuleParseResult Success(ModuleNode node) => new() { SyntaxTree = node };
-    public static ModuleParseResult Failed(SourceLocation location, string verbose) => new() 
-    {
-        SyntaxError = VBSyntaxErrorInfo.For(VBCompileErrorId.SyntaxError, location, verbose) 
-    };
-
-    public ModuleNode? SyntaxTree { get; init; }
-    public ModuleNode? ConditionalCompilationTree { get; init; }
-    public VBSyntaxErrorInfo? SyntaxError { get; init; }
-
-    public bool IsSuccess => SyntaxTree is not null && SyntaxError is null;
+    ImmutableArray<SyntaxNode> SyntaxNodes { get; }
 }
 
 internal interface IModuleParser
 {
-    ModuleParseResult Parse(Uri uri, ModuleType moduleType, Stream content);
+    ModuleParseResult Parse(Uri uri, ModuleType moduleType, string content);
 }
 
-internal class ModuleParser() : IModuleParser
+internal partial class ModuleParser() : IModuleParser
 {
-    public ModuleParseResult Parse(Uri uri, ModuleType moduleType, Stream content)
+    public ModuleParseResult Parse(Uri uri, ModuleType moduleType, string content)
     {
-        var input = new AntlrInputStream(content);
-        var lexer = new VBALexer(input);
-        var tokenStream = new CommonTokenStream(lexer);
-
-        var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), [], moduleType);
-        var listener = new DeclarationsParseTreeListener(uri, node);
         var errorListener = new ErrorListener(uri);
+        var precompilerTrivia = ParsePrecompilerNodes(content, errorListener, [new PrecompilerDirectiveListener(uri)]);
+
+        var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), precompilerTrivia, moduleType);
+        var listener = new DeclarationsParseTreeListener(uri, node);
         try
         {
-            ParseWithFallback(tokenStream, errorListener, [listener]);
+            var sanitized = PrecompilerNodePattern().Replace(content, match => new string(' ', match.Length));
+            ParseWithFallback(sanitized, errorListener, [listener]);
 
             var ast = listener.BuildModuleNode();
             return ast.Children.Length > 0 
-                ? ModuleParseResult.Success(ast) with { SyntaxError = errorListener.Errors.FirstOrDefault() }
+                ? ModuleParseResult.Success(ast) with { SyntaxErrors = errorListener.Errors, PrecompilerTrivia = [..precompilerTrivia.OfType<PrecompilerTriviaNode>()] }
                 : ModuleParseResult.Failed(node.SourceLocation, errorListener.Errors.FirstOrDefault()?.Verbose ?? string.Empty);
             ;
         }
@@ -60,9 +50,13 @@ internal class ModuleParser() : IModuleParser
         }
     }
 
-    private static void ParsePrecompilationTokens(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners)
+    private static ImmutableArray<SyntaxNode> ParsePrecompilerNodes(string source, ErrorListener errorListener, ISyntaxNodeProvider[] listeners)
     {
-        var parser = new VBAConditionalCompilationParser(tokenStream);
+        var stream = new AntlrInputStream(source);
+        var lexer = new VBALexer(stream);
+        var tokens = new CommonTokenStream(lexer);
+        var parser = new VBAConditionalCompilationParser(tokens);
+
         parser.Interpreter.PredictionMode = PredictionMode.Ll;
         parser.AddErrorListener(errorListener);
         foreach (var listener in listeners)
@@ -70,21 +64,26 @@ internal class ModuleParser() : IModuleParser
             parser.AddParseListener(listener);
         }
         parser.compilationUnit();
+        return [.. listeners.SelectMany(provider => provider.SyntaxNodes)];
     }
 
-    private static void ParseWithFallback(CommonTokenStream tokenStream, ErrorListener errorListener, IParseTreeListener[] listeners)
+    private static void ParseWithFallback(string content, ErrorListener errorListener, IParseTreeListener[] listeners)
     {
+        var stream = new AntlrInputStream(content);
+        var lexer = new VBALexer(stream);
+        var tokens = new CommonTokenStream(lexer);
+
         try
         {
-            ParseFast(tokenStream, errorListener, listeners);
+            ParseFast(tokens, errorListener, listeners);
         }
         catch (InputMismatchException)
         {
-            ParseSlow(tokenStream, errorListener, listeners);
+            ParseSlow(tokens, errorListener, listeners);
         }
         catch (RecognitionException)
         {
-            ParseSlow(tokenStream, errorListener, listeners);
+            ParseSlow(tokens, errorListener, listeners);
         }
     }
 
@@ -105,6 +104,9 @@ internal class ModuleParser() : IModuleParser
         }
         parser.startRule();
     }
+
+    [GeneratedRegex(@"^[ \t]*#.*$", RegexOptions.Multiline)]
+    private static partial Regex PrecompilerNodePattern();
 }
 
 internal class ErrorListener(Uri uri) : IAntlrErrorListener<IToken>

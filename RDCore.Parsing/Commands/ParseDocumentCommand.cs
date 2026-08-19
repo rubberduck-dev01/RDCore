@@ -18,8 +18,8 @@ internal sealed class ParseDocumentCommand(ICommandParamsParser<ParseDocumentPar
     {
         if (args?.DocumentUri is Uri uri)
         {
-            using var stream = fileService.OpenRead(uri.AbsolutePath);
-            var result = moduleParser.Parse(uri, args.ModuleType, stream);
+            var content = fileService.ReadAllText(uri.AbsolutePath);
+            var result = moduleParser.Parse(uri, args.ModuleType, content);
             if (result.IsSuccess)
             {
                 

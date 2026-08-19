@@ -1,4 +1,4 @@
-parser grammar VBAConditionalCompilationParser;
+grammar VBAConditionalCompilation;
 
 options {
     tokenVocab = VBALexer;
