@@ -36,11 +36,11 @@ public record class BinaryOrLogicalOperatorRuntimeSemantics(
         {
             VBNumericTypedValue lhsNumeric when lhs.TypeInfo is IIntegralNumericType && rhs is VBNullValue 
                 => RuntimeSemanticsEvaluationResult.Success(
-                    VBTypedValueFactory.CreateValue(frame.EffectiveType, (double)lhsNumeric.ManagedValue.RuntimeValue!.BoxedValue)),
+                    VBTypedValueFactory.CreateValue(frame.EffectiveType, (double)lhsNumeric.UnderlyingValue.RuntimeValue!.BoxedValue)),
 
             VBNullValue when rhs is VBNumericTypedValue rhsNumeric && rhsNumeric.TypeInfo is IIntegralNumericType 
                 => RuntimeSemanticsEvaluationResult.Success(
-                    VBTypedValueFactory.CreateValue(frame.EffectiveType, (double)rhsNumeric.ManagedValue.RuntimeValue!.BoxedValue)),
+                    VBTypedValueFactory.CreateValue(frame.EffectiveType, (double)rhsNumeric.UnderlyingValue.RuntimeValue!.BoxedValue)),
 
             _ => RuntimeSemanticsEvaluationResult.InternalError()
         };

@@ -28,7 +28,8 @@ internal partial class ModuleParser() : IModuleParser
     public ModuleParseResult Parse(Uri uri, ModuleType moduleType, string content)
     {
         var errorListener = new ErrorListener(uri);
-        var precompilerTrivia = ParsePrecompilerNodes(content, errorListener, [new PrecompilerDirectiveListener(uri)]);
+        var directiveListener = new PrecompilerDirectiveListener(uri);
+        var precompilerTrivia = ParsePrecompilerNodes(content, errorListener, [directiveListener]);
 
         var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), precompilerTrivia, moduleType);
         var listener = new DeclarationsParseTreeListener(uri, node);
@@ -39,7 +40,7 @@ internal partial class ModuleParser() : IModuleParser
 
             var ast = listener.BuildModuleNode();
             return ast.Children.Length > 0 
-                ? ModuleParseResult.Success(ast) with { SyntaxErrors = errorListener.Errors, PrecompilerTrivia = [..precompilerTrivia.OfType<PrecompilerTriviaNode>()] }
+                ? ModuleParseResult.Success(ast) with { SyntaxErrors = errorListener.Errors, PrecompilerTrivia = precompilerTrivia }
                 : ModuleParseResult.Failed(node.SourceLocation, errorListener.Errors.FirstOrDefault()?.Verbose ?? string.Empty);
             ;
         }
@@ -52,7 +53,11 @@ internal partial class ModuleParser() : IModuleParser
 
     private static ImmutableArray<SyntaxNode> ParsePrecompilerNodes(string source, ErrorListener errorListener, ISyntaxNodeProvider[] listeners)
     {
-        var stream = new AntlrInputStream(source);
+        // ignore everything that is NOT a precompiler node,
+        // because grammar matches everything as a ccBlock otherwise.
+        var sanitized = NoPrecompilerNodePattern().Replace(source, match => new string(' ', match.Length));
+
+        var stream = new AntlrInputStream(sanitized);
         var lexer = new VBALexer(stream);
         var tokens = new CommonTokenStream(lexer);
         var parser = new VBAConditionalCompilationParser(tokens);
@@ -107,6 +112,9 @@ internal partial class ModuleParser() : IModuleParser
 
     [GeneratedRegex(@"^[ \t]*#.*$", RegexOptions.Multiline)]
     private static partial Regex PrecompilerNodePattern();
+
+    [GeneratedRegex(@"^(?![ \t]*#.*).*$", RegexOptions.Multiline)]
+    private static partial Regex NoPrecompilerNodePattern();
 }
 
 internal class ErrorListener(Uri uri) : IAntlrErrorListener<IToken>

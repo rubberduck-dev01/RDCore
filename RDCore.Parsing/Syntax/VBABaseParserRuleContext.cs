@@ -33,7 +33,7 @@ public abstract class VBABaseParserRuleContext : ParserRuleContext
     /// would only be safe to surface in the context of a full-document parse.
     /// </remarks>
     public SourceRange SourceRange => new(
-            _offset + new SourcePosition(Start?.Line ?? 0, Start?.Column ?? 0),
-            _offset + new SourcePosition(Stop?.Line ?? 0, Stop?.Column ?? 0));
+            _offset + new SourcePosition(Start?.Line - 1 ?? 0, Start?.Column ?? 0),
+            _offset + new SourcePosition(Stop?.Line - 1 ?? 0, Stop?.Column ?? 0));
     public SourceLocation GetSourceLocation(Uri documentUri) => new(documentUri, SourceRange);
 }

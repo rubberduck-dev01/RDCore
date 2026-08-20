@@ -140,11 +140,11 @@ public record class VBStringLetCoercionRuntimeSemantics(
     }
 
     private static LetCoercionResult CoerceToVBBoolean(VBNumericTypedValue value, LetCoercionStackFrame frame)
-        => LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue((double)value.ManagedValue.RuntimeValue!.BoxedValue != 0), [frame]);
+        => LetCoercionResult.Success(VBTypedValueFactory.CreateBooleanValue((double)value.UnderlyingValue.RuntimeValue!.BoxedValue != 0), [frame]);
 
     private static LetCoercionResult CoerceToVBString(VBNumericTypedValue value, CultureInfo cultureInfo)
     {
-        var numericValue = (double)value.ManagedValue.RuntimeValue!.BoxedValue;
+        var numericValue = (double)value.UnderlyingValue.RuntimeValue!.BoxedValue;
         if (numericValue == 0)
         {
             return LetCoercionResult.Success(VBTypedValueFactory.CreateStringValue(VBStringValue.Zero));

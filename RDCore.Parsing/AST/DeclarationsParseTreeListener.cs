@@ -370,6 +370,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     }
 
     private int _parameterIndex = 0;
+
     public override void EnterArgList([NotNull] VBAParser.ArgListContext context)
     {
         _parameterIndex = 0;

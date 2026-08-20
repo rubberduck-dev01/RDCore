@@ -34,3 +34,4 @@ public record class PrecompilerConstantDeclarationNode(SyntaxNodeId Identity, So
 /// <param name="Name">The name of the referenced precompiler constant.</param>
 public record class PrecompilerNameExpressionNode(SyntaxNodeId Identity, SourceLocation Location, string Name)
     : SyntaxNode(Identity, Location, []);
+

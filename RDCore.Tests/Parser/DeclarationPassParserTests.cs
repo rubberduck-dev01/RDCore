@@ -1,6 +1,7 @@
 using RDCore.Parsing;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
+using RDCore.SDK.Model.AST.Directives;
 using System.Text.Json;
 
 namespace RDCore.Tests.Parser;
@@ -22,6 +23,30 @@ public class DeclarationPassParserTests
         // assert
         Assert.IsFalse(result.IsSuccess);
         Assert.IsNotEmpty(result.SyntaxErrors);
+    }
+
+    [TestMethod]
+    public void PrecompilerTrivia_IsIncludedInResult()
+    {
+        const string content = """
+            Option Explicit
+            #Const DEBUG = 1
+            #If DEBUG Then
+            Dim Foo As Long
+            #Else
+            Dim Foo As Double
+            #End If
+            """;
+        var uri = TestUri.TestModuleUri();
+        var sut = new ModuleParser();
+
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
+
+        Assert.IsNotNull(result.SyntaxTree);
+        Assert.HasCount(1, result.SyntaxTree.Children.OfType<ModuleOptionDirectiveNode>());
+        Assert.HasCount(2, result.SyntaxTree.Children.OfType<VariableDeclarationNode>());
+
+        Assert.HasCount(1, result.PrecompilerTrivia.OfType<PrecompilerConstantDeclarationNode>());
     }
 
     private const string _testModuleWithDeclarations = """
