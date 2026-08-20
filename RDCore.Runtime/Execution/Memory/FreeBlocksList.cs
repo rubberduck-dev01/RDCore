@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace RDCore.Runtime.Execution.Memory;
+﻿namespace RDCore.Runtime.Execution.Memory;
 
 internal record class FreeBlocksList
 {
@@ -48,6 +46,7 @@ internal record class FreeBlocksList
             }
             else
             {
+                _largestBlockSize = merged.Size;
                 _blocks.Add(merged);
             }
         }

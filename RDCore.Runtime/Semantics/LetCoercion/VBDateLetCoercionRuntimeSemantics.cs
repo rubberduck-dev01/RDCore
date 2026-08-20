@@ -38,8 +38,8 @@ public record class VBDateLetCoercionRuntimeSemantics(
                     ((VBNumericTypedValue)Provider.EvaluateLetCoercionSemantics(resolver, expression, 
                         frame with { 
                             // we must first create the VBDoubleValue for the managed SerialValue:
-                            SourceValue = VBTypedValueFactory.CreateValue(VBDoubleType.TypeInfo, (double)sourceDateValue.ManagedValue.RuntimeValue!.BoxedValue) 
-                        }).Result!).ManagedValue.RuntimeValue!)),
+                            SourceValue = VBTypedValueFactory.CreateValue(VBDoubleType.TypeInfo, (double)sourceDateValue.UnderlyingValue.RuntimeValue!.BoxedValue) 
+                        }).Result!).UnderlyingValue.RuntimeValue!)),
 
             VBNumericTypedValue or VBBooleanValue when frame.DestinationTypeDesc.Target is VBDateType
                 // result is the source value let-coerced to Double, then the Double is interpreted as a standard SerialValue.
@@ -48,7 +48,7 @@ public record class VBDateLetCoercionRuntimeSemantics(
                         // we must first create the VBDoubleValue for the managed SerialValue:
                         frame with { 
                             DestinationTypeDesc = VBTypedValueFactory.DescribeType(VBDoubleType.TypeInfo) 
-                        }).Result!).ManagedValue.RuntimeValue!)),
+                        }).Result!).UnderlyingValue.RuntimeValue!)),
 
             _ => LetCoercionResult.NotApplicable(frame)
         };

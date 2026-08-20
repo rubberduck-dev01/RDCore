@@ -96,8 +96,8 @@ moduleOption :
 ;
 
 moduleDeclarationsElement :
-    whiteSpace?
-    (attributeStmt
+    whiteSpace? 
+    ( attributeStmt
     | declareStmt
     | defDirective
     | enumerationStmt 
@@ -138,8 +138,7 @@ unterminatedBlock : blockStmt (endOfStatement blockStmt)*;
 
 blockStmt : 
     statementLabelDefinition whiteSpace? mainBlockStmt?
-    | mainBlockStmt 
-;
+    | mainBlockStmt;
 
 mainBlockStmt :
     fileStmt
@@ -691,7 +690,7 @@ lExpression :
     | lExpression mandatoryLineContinuation? DOT mandatoryLineContinuation? printMethod (whiteSpace outputList)?    # objectPrintExpr
     | lExpression mandatoryLineContinuation? DOT mandatoryLineContinuation? unrestrictedIdentifier                  # memberAccessExpr
     | lExpression mandatoryLineContinuation? dictionaryAccess mandatoryLineContinuation? unrestrictedIdentifier     # dictionaryAccessExpr
-    | ME                                                                            .                               # instanceExpr
+    | ME                                                                                                            # instanceExpr
     | identifier                                                                                                    # simpleNameExpr
     | DOT mandatoryLineContinuation? unrestrictedIdentifier                                                         # withMemberAccessExpr
     | dictionaryAccess mandatoryLineContinuation? unrestrictedIdentifier                                            # withDictionaryAccessExpr

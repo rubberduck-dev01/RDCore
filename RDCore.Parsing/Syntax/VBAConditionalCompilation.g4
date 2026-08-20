@@ -1,4 +1,4 @@
-parser grammar VBAConditionalCompilationParser;
+grammar VBAConditionalCompilation;
 
 options {
     tokenVocab = VBALexer;
@@ -36,24 +36,25 @@ hashEndIf : HASH END_IF;
 physicalLine : ~(NEWLINE | EOF)* (NEWLINE | EOF);
 
 ccExpression :
-    LPAREN whiteSpace* ccExpression whiteSpace* RPAREN
-    | ccExpression whiteSpace* POW whiteSpace* ccExpression
-    | MINUS whiteSpace* ccExpression
-    | ccExpression whiteSpace* (MULT | DIV) whiteSpace* ccExpression
-    | ccExpression whiteSpace* INTDIV whiteSpace* ccExpression
-    | ccExpression whiteSpace* MOD whiteSpace* ccExpression
-    | ccExpression whiteSpace* (PLUS | MINUS) whiteSpace* ccExpression
-    | ccExpression whiteSpace* AMPERSAND whiteSpace* ccExpression
-    | ccExpression whiteSpace* (EQ | NEQ | LT | GT | LEQ | GEQ | LIKE | IS) whiteSpace* ccExpression
-    | NOT whiteSpace* ccExpression
-    | ccExpression whiteSpace* AND whiteSpace* ccExpression
-    | ccExpression whiteSpace* OR whiteSpace* ccExpression
-    | ccExpression whiteSpace* XOR whiteSpace* ccExpression
-    | ccExpression whiteSpace* EQV whiteSpace* ccExpression
-    | ccExpression whiteSpace* IMP whiteSpace* ccExpression
-    | intrinsicFunction
-    | literal
-    | name;
+    LPAREN whiteSpace* ccExpression whiteSpace* RPAREN                                                     # parenthesizedExpr
+    | ccExpression whiteSpace* POW whiteSpace* ccExpression                                                # powOp
+    | MINUS whiteSpace* ccExpression                                                                       # unaryMinusOp
+    | ccExpression whiteSpace* (MULT | DIV) whiteSpace* ccExpression                                       # multOp
+    | ccExpression whiteSpace* INTDIV whiteSpace* ccExpression                                             # intDivOp
+    | ccExpression whiteSpace* MOD whiteSpace* ccExpression                                                # modOp
+    | ccExpression whiteSpace* (PLUS | MINUS) whiteSpace* ccExpression                                     # addOp
+    | ccExpression whiteSpace* AMPERSAND whiteSpace* ccExpression                                          # concatOp
+    | ccExpression whiteSpace* (EQ | NEQ | LT | GT | LEQ | GEQ | LIKE | IS) whiteSpace* ccExpression       # relationalOp
+    | NOT whiteSpace* ccExpression                                                                         # logicalNotOp
+    | ccExpression whiteSpace* AND whiteSpace* ccExpression                                                # logicalAndOp
+    | ccExpression whiteSpace* OR whiteSpace* ccExpression                                                 # logicalOrOp
+    | ccExpression whiteSpace* XOR whiteSpace* ccExpression                                                # logicalXorOp
+    | ccExpression whiteSpace* EQV whiteSpace* ccExpression                                                # logicalEqvOp
+    | ccExpression whiteSpace* IMP whiteSpace* ccExpression                                                # logicalImpOp
+    | intrinsicFunction                                                                                    # intrinsicCallExpr
+    | literal                                                                                              # literalExpr
+    | name                                                                                                 # nameExpr
+;
 
 intrinsicFunction : intrinsicFunctionName LPAREN whiteSpace* ccExpression whiteSpace* RPAREN;
 

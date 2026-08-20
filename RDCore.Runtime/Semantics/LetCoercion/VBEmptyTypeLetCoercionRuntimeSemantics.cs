@@ -26,11 +26,11 @@ public record class VBEmptyTypeLetCoercionRuntimeSemantics(IVerboseMessageBuilde
         frame.DestinationTypeDesc.Target switch
         {
             VBNumericType numericType => LetCoercionResult.Success(
-                VBTypedValueFactory.CreateValue(new VBTypeDescValue(numericType), ((VBNumericTypedValue)frame.SourceValue).ManagedValue.RuntimeValue!)),
+                VBTypedValueFactory.CreateValue(new VBTypeDescValue(numericType), ((VBNumericTypedValue)frame.SourceValue).UnderlyingValue.RuntimeValue!)),
         
             VBBooleanType => LetCoercionResult.Success(VBBooleanValue.False),
 
-            VBDateType => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(new VBTypeDescValue(VBDateType.TypeInfo), VBDateType.Zero.ManagedValue.RuntimeValue!)),
+            VBDateType => LetCoercionResult.Success(VBTypedValueFactory.CreateValue(new VBTypeDescValue(VBDateType.TypeInfo), VBDateType.Zero.UnderlyingValue.RuntimeValue!)),
             VBFixedStringType fixedStringDestinationType => LetCoercionResult.Success(
                 VBTypedValueFactory.CreateValue(fixedStringDestinationType)!),
 

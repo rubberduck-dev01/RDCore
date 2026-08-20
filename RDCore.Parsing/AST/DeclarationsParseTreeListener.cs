@@ -18,14 +18,16 @@ namespace RDCore.Parsing.AST;
 /// A <em>listener</em> that builds the AST nodes representing all the directives and declarations in a module.
 /// </summary>
 /// <param name="moduleNode">The root AST module node.</param>
-internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNode) : VBAParserBaseListener
+internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNode) : VBAParserBaseListener, ISyntaxNodeProvider
 {
     private readonly Uri _rootUri = sourceUri;
     private readonly ModuleNode _root = moduleNode;
-    private readonly Stack<NodeBuilder> _builderStack = new([new(sourceUri, moduleNode.Identity)]);
-    private NodeBuilder CurrentBuilder => _builderStack.Peek();
+    private readonly Stack<DeclarationNodeBuilder> _builderStack = new([new(sourceUri, moduleNode.Identity)]);
+    private DeclarationNodeBuilder CurrentBuilder => _builderStack.Peek();
 
     private SyntaxNodeId GetCurrentNodeId() => CurrentBuilder.NodeId.Add(CurrentBuilder.ChildCount);
+
+    public ImmutableArray<SyntaxNode> SyntaxNodes => [BuildModuleNode()];
 
     public ModuleNode BuildModuleNode()
     {
@@ -34,7 +36,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     }
 
     private void OnEnterParent() => _builderStack.Push(new(_rootUri, GetCurrentNodeId()));
-    private void OnExitParent(Func<NodeBuilder, SyntaxNode> provider)
+    private void OnExitParent(Func<DeclarationNodeBuilder, SyntaxNode> provider)
     {
         var node = provider.Invoke(_builderStack.Pop());
         CurrentBuilder.AddChild(node);
@@ -175,7 +177,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         _isPropertyWriterMember = isPropertyWriter;
         OnEnterParent();
     }
-    private void OnExitProcedure(Func<NodeBuilder, SyntaxNode> provider)
+    private void OnExitProcedure(Func<DeclarationNodeBuilder, SyntaxNode> provider)
     {
         OnExitParent(provider);
         _isInsideProcedure = false;
@@ -368,6 +370,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     }
 
     private int _parameterIndex = 0;
+
     public override void EnterArgList([NotNull] VBAParser.ArgListContext context)
     {
         _parameterIndex = 0;
@@ -381,7 +384,7 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
 
         if (_isPropertyWriterMember)
         {
-            if (CurrentBuilder.GetChildren.Last() is ParameterDeclarationNode node
+            if (CurrentBuilder.LastChild is ParameterDeclarationNode node
                 && node.ParameterKind != ParameterKind.ExplicitByVal)
             {
                 // we cannot do this before knowing how many parameters there are,

@@ -1,55 +1,58 @@
-using NSubstitute;
-using NSubstitute.ClearExtensions;
 using RDCore.Parsing;
-using RDCore.Parsing.PreProcessing;
-using RDCore.Parsing.PreProcessing.Legacy;
 using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
-using System.Text;
+using RDCore.SDK.Model.AST.Directives;
 using System.Text.Json;
 
-namespace RDCore.Tests;
+namespace RDCore.Tests.Parser;
 
 [TestClass]
 public class DeclarationPassParserTests
 {
-    private readonly ICompilationArgumentsProvider _compilationArgsProvider = Substitute.For<ICompilationArgumentsProvider>();
-
-    private readonly VBAPreprocessorParser _preprocessorParser = new();
-
-    [TestInitialize]
-    public void InitializeFileMock()
-    {
-        _compilationArgsProvider.PredefinedCompilationConstants.Returns(provider => new VBAPredefinedCompilationConstants(vbVersion: 7));
-        _compilationArgsProvider.UserDefinedCompilationArguments(Arg.Any<Uri>()).Returns(provider => []);
-    }
-
-    [TestCleanup]
-    public void Cleanup()
-    {
-        _compilationArgsProvider.ClearSubstitute();
-    }
-
     [TestMethod]
     public void InvalidContent_ReturnsErrorResult()
     {
         // arrange
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("invalid content"));
+        var content = "invalid content";
 
         // act
-        var result = sut.Parse(uri, ModuleType.StdModule, stream);
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
 
         // assert
         Assert.IsFalse(result.IsSuccess);
-        Assert.IsNotNull(result.SyntaxError);
+        Assert.IsNotEmpty(result.SyntaxErrors);
+    }
+
+    [TestMethod]
+    public void PrecompilerTrivia_IsIncludedInResult()
+    {
+        const string content = """
+            Option Explicit
+            #Const DEBUG = 1
+            #If DEBUG Then
+            Dim Foo As Long
+            #Else
+            Dim Foo As Double
+            #End If
+            """;
+        var uri = TestUri.TestModuleUri();
+        var sut = new ModuleParser();
+
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
+
+        Assert.IsNotNull(result.SyntaxTree);
+        Assert.HasCount(1, result.SyntaxTree.Children.OfType<ModuleOptionDirectiveNode>());
+        Assert.HasCount(2, result.SyntaxTree.Children.OfType<VariableDeclarationNode>());
+
+        Assert.HasCount(1, result.PrecompilerTrivia.OfType<PrecompilerConstantDeclarationNode>());
     }
 
     private const string _testModuleWithDeclarations = """
 Option Explicit
 
-Private SomeField As Double
+#Const DEBUG = 1
 
 Public Sub Test()
     DoSomething 42
@@ -60,11 +63,13 @@ End Sub
 Private Sub DoSomething(ByVal SomeValue As Long)
     Const MultiplierValue = 2
 
+#If DEBUG Then
     Dim OtherValue As Integer
     OtherValue = IIf(SomeValue > 32767, 0, 10)
+#EndIf
 
     On Error GoTo CleanFail
-    Debug.Print Multiplier * SomeValue + OtherValue
+    Debug.Print MultiplierValue * SomeValue + OtherValue
 
 CleanExit:
     Exit Sub
@@ -82,10 +87,9 @@ End Sub
         var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
 
         // act
-        var result = sut.Parse(uri, ModuleType.StdModule, stream);
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
 
         // assert
         Assert.IsNotNull(result.SyntaxTree);
@@ -99,10 +103,9 @@ End Sub
         var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
 
         // act
-        var result = sut.Parse(uri, ModuleType.StdModule, stream);
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
         var localVariables = result.SyntaxTree!.Children.OfType<MemberDeclarationNode>()
             .SelectMany(member => member.Children.OfType<VariableDeclarationNode>())
             .ToArray();
@@ -118,10 +121,9 @@ End Sub
         var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
 
         // act
-        var result = sut.Parse(uri, ModuleType.StdModule, stream);
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
         var localConstants = result.SyntaxTree!.Children.OfType<MemberDeclarationNode>()
             .SelectMany(member => member.Children.OfType<ConstantDeclarationNode>())
             .ToArray();
@@ -137,10 +139,9 @@ End Sub
         var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
 
         // act
-        var result = sut.Parse(uri, ModuleType.StdModule, stream);
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
         var lineLabels = result.SyntaxTree!.Children.OfType<MemberDeclarationNode>()
             .SelectMany(member => member.Children.OfType<LineLabelNode>())
             .ToArray();
@@ -155,10 +156,9 @@ End Sub
         var content = _testModuleWithDeclarations;
         var uri = new Uri("file://C:/RDCore.Tests/Parser/TestModule.bas");
         var sut = new ModuleParser();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
 
         // act
-        var result = sut.Parse(uri, ModuleType.StdModule, stream);
+        var result = sut.Parse(uri, ModuleType.StdModule, content);
         if (result.IsSuccess)
         {
             var ast = result.SyntaxTree!;
@@ -170,7 +170,7 @@ End Sub
         }
         else
         {
-            Assert.Inconclusive();
+            Assert.Inconclusive(result.SyntaxErrors[0]!.Description);
         }
     }
 }
