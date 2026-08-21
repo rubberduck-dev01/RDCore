@@ -32,7 +32,7 @@ internal partial class ModuleParser() : IModuleParser
         var precompilerTrivia = ParsePrecompilerNodes(content, errorListener, [directiveListener]);
 
         var node = new ModuleNode(new SyntaxNodeId(uri.AbsolutePath, []), new(uri, SourceRange.Empty), precompilerTrivia, moduleType);
-        var listener = new DeclarationsParseTreeListener(uri, node);
+        var listener = new DeclarationsParseTreeListener(uri, node, precompilerTrivia);
         try
         {
             var sanitized = PrecompilerNodePattern().Replace(content, match => new string(' ', match.Length));
