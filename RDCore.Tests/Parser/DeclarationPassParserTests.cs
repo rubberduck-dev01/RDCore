@@ -33,6 +33,7 @@ public class DeclarationPassParserTests
             #Const DEBUG = 1
             #If DEBUG Then
             Dim Foo As Long
+            Dim Bar As Integer
             #Else
             Dim Foo As Double
             #End If
@@ -44,9 +45,10 @@ public class DeclarationPassParserTests
 
         Assert.IsNotNull(result.SyntaxTree);
         Assert.HasCount(1, result.SyntaxTree.Children.OfType<ModuleOptionDirectiveNode>());
-        Assert.HasCount(2, result.SyntaxTree.Children.OfType<VariableDeclarationNode>());
+        Assert.HasCount(3, result.SyntaxTree.Children.OfType<VariableDeclarationNode>());
 
-        Assert.HasCount(1, result.PrecompilerTrivia.OfType<PrecompilerConstantDeclarationNode>());
+        // ccBlock matches itself
+        Assert.HasCount(1, result.PrecompilerTrivia.OfType<PrecompilerTriviaNode>());
     }
 
     private const string _testModuleWithDeclarations = """

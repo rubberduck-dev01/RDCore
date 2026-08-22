@@ -21,11 +21,10 @@ namespace RDCore.Parsing.AST;
 /// A <em>listener</em> that builds the AST nodes representing all the directives and declarations in a module.
 /// </summary>
 /// <param name="moduleNode">The root AST module node.</param>
-internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNode, ImmutableArray<SyntaxNode> precompilerNodes) : VBAParserBaseListener, ISyntaxNodeProvider
+internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNode) : VBAParserBaseListener, ISyntaxNodeProvider
 {
     private readonly Uri _rootUri = sourceUri;
     private readonly ModuleNode _root = moduleNode;
-    private readonly Queue<SyntaxNode> _precompilerNodes = new(precompilerNodes);
     private readonly Stack<DeclarationNodeBuilder> _builderStack = new([new(sourceUri, moduleNode.Identity)]);
     private DeclarationNodeBuilder CurrentBuilder => _builderStack.Peek();
 
@@ -36,54 +35,19 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
     public ModuleNode BuildModuleNode()
     {
         Debug.Assert(_builderStack.Count == 1);
-        Debug.Assert(_precompilerNodes.Count == 0);
         return _root with { Children = [.. CurrentBuilder.GetChildren] };
     }
 
-    private int _lastExitLine1b = 0;
-
+    private Stack<SyntaxNode> _precompilerParentStack = [];
     private void OnEnterParent()
     {
-        while (_precompilerNodes.TryPeek(out var precompilerNode) && 
-            precompilerNode.SourceLocation.Range.Start.Line <= _lastExitLine1b)
-        {
-            _ = _precompilerNodes.Dequeue();
-            OnEnterPrecompilerNode(precompilerNode);
-        }
-
         _builderStack.Push(new(_rootUri, GetCurrentNodeId()));
-    }
-
-    bool _hasParentPrecompilerBlock = false;
-    private void OnEnterPrecompilerNode(SyntaxNode node)
-    {
-        _hasParentPrecompilerBlock = false;
-        if (node is PrecompilerIfBlockStatementNode)
-        {
-            _hasParentPrecompilerBlock = true;
-            _builderStack.Push(new(_rootUri, node.Children[0].Identity));
-        }
-        else if (node is PrecompilerElseIfBlockStatementNode)
-        {
-            _hasParentPrecompilerBlock = true;
-            _builderStack.Push(new(_rootUri, node.Identity));
-        }
-        else if (node is PrecompilerElseBlockStatementNode)
-        {
-            _hasParentPrecompilerBlock = true;
-            _builderStack.Push(new(_rootUri, node.Identity));
-        }
     }
 
     private void OnExitParent(Func<DeclarationNodeBuilder, SyntaxNode> provider)
     {
         var node = provider.Invoke(_builderStack.Pop());
         CurrentBuilder.AddChild(node);
-
-        if (_hasParentPrecompilerBlock && _builderStack.Count > 1)
-        {
-            _builderStack.Pop();
-        }
     }
 
     private bool _isInsideProcedure = false;
@@ -98,13 +62,6 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
             mappings.Select(map => new DefTypePrefixMapping(map.from, map.to))).ToImmutableArray();
         CurrentBuilder.AddChild(new TypeDefDirectiveNode(GetCurrentNodeId(), location, token, prefixMappings));
     }
-
-
-    public override void ExitEveryRule([NotNull] ParserRuleContext context)
-    {
-        _lastExitLine1b = context.Stop?.Line ?? context.Start.Line; // Antlr token line is 1-based
-    }
-
 
     public override void EnterAttributeStmt([NotNull] VBAParser.AttributeStmtContext context)
         => OnEnterParent();

@@ -16,18 +16,11 @@ namespace RDCore.Parsing;
 
 internal class PrecompilerNodeBuilder(Uri rootUri, SyntaxNodeId nodeId) : NodeBuilder(rootUri, nodeId)
 {
-    public SyntaxNode BuildPrecompilerConstDeclaration(VBAConditionalCompilationParser.CcConstContext context, ConstKind kind, AccessModifier modifier)
-    {
-        var name = context.ccVarLhs().name().nameValue().GetText();
+    public SyntaxNode BuildPrecompilerConstDeclaration(VBAConditionalCompilationParser.CcConstContext context, ConstKind kind)
+        => new PrecompilerConstantDeclarationNode(NodeId, context.GetSourceLocation(_rootUri), kind, [.. _children]);
 
-        return new PrecompilerConstantDeclarationNode(
-            NodeId,
-            context.GetSourceLocation(_rootUri),
-            name,
-            kind,
-            [.. _children],
-            modifier);
-    }
+    public SyntaxNode BuildPrecompilerBlock(VBAConditionalCompilationParser.CcBlockContext context)
+        => new PrecompilerTriviaNode(NodeId, context.GetSourceLocation(_rootUri), [.. _children], context.GetText());
 
     public SyntaxNode BuildConditionalExpression(VBAConditionalCompilationParser.CcExpressionContext context)
         => new ConditionalExpressionNode(NodeId, context.GetSourceLocation(_rootUri), [.. _children]);
@@ -63,10 +56,10 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         CurrentBuilder.AddChild(node);
     }
     private void OnExpression(SyntaxNode node) => CurrentBuilder.AddChild(node);
-    //public override void EnterCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context) 
-    //    => OnEnterParent();
-    //public override void ExitCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context) 
-    //    => OnExitParent(provider => new PrecompilerTriviaNode(GetCurrentNodeId(), context.GetSourceLocation(_rootUri), [..CurrentBuilder.GetChildren], context.GetText()));
+    public override void EnterCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context)
+        => OnEnterParent();
+    public override void ExitCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context)
+        => OnExitParent(provider => provider.BuildPrecompilerBlock(context));
 
     public override void EnterCcIf([NotNull] VBAConditionalCompilationParser.CcIfContext context)
         => OnEnterParent();
@@ -91,7 +84,7 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
     public override void EnterCcConst([NotNull] VBAConditionalCompilationParser.CcConstContext context)
         => OnEnterParent();
     public override void ExitCcConst([NotNull] VBAConditionalCompilationParser.CcConstContext context)
-        => OnExitParent(provider => provider.BuildPrecompilerConstDeclaration(context, ConstKind.ModuleMember, AccessModifier.Implicit));
+        => OnExitParent(provider => provider.BuildPrecompilerConstDeclaration(context, ConstKind.ModuleMember));
 
 
     public override void EnterCcExpression([NotNull] VBAConditionalCompilationParser.CcExpressionContext context)
@@ -99,6 +92,11 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
     public override void ExitCcExpression([NotNull] VBAConditionalCompilationParser.CcExpressionContext context)
         => OnExitParent(provider => provider.BuildConditionalExpression(context));
 
+    public override void ExitNameExpr([NotNull] VBAConditionalCompilationParser.NameExprContext context)
+    {
+        var node = new PrecompilerNameExpressionNode(GetCurrentNodeId(), context.GetSourceLocation(_rootUri), context.name().nameValue().GetText());
+        OnExpression(node);
+    }
     public override void EnterAddOp([NotNull] VBAConditionalCompilationParser.AddOpContext context)
         => OnEnterParent();
     public override void ExitAddOp([NotNull] VBAConditionalCompilationParser.AddOpContext context)
