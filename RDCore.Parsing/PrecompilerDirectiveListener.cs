@@ -8,7 +8,9 @@ using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.AST.Statements;
 using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Bindings;
 using RDCore.SDK.Model.Values.Intrinsic;
+using RDCore.SDK.Model.Values.Runtime;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -16,18 +18,11 @@ namespace RDCore.Parsing;
 
 internal class PrecompilerNodeBuilder(Uri rootUri, SyntaxNodeId nodeId) : NodeBuilder(rootUri, nodeId)
 {
-    public SyntaxNode BuildPrecompilerConstDeclaration(VBAConditionalCompilationParser.CcConstContext context, ConstKind kind, AccessModifier modifier)
-    {
-        var name = context.ccVarLhs().name().nameValue().GetText();
+    public SyntaxNode BuildPrecompilerConstDeclaration(VBAConditionalCompilationParser.CcConstContext context, ConstKind kind)
+        => new PrecompilerConstantDeclarationNode(NodeId, context.GetSourceLocation(_rootUri), kind, [.. _children]);
 
-        return new PrecompilerConstantDeclarationNode(
-            NodeId,
-            context.GetSourceLocation(_rootUri),
-            name,
-            kind,
-            [.. _children],
-            modifier);
-    }
+    public SyntaxNode BuildPrecompilerBlock(VBAConditionalCompilationParser.CcBlockContext context)
+        => new PrecompilerTriviaNode(NodeId, context.GetSourceLocation(_rootUri), [.. _children], context.GetText());
 
     public SyntaxNode BuildConditionalExpression(VBAConditionalCompilationParser.CcExpressionContext context)
         => new ConditionalExpressionNode(NodeId, context.GetSourceLocation(_rootUri), [.. _children]);
@@ -63,10 +58,10 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         CurrentBuilder.AddChild(node);
     }
     private void OnExpression(SyntaxNode node) => CurrentBuilder.AddChild(node);
-    //public override void EnterCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context) 
-    //    => OnEnterParent();
-    //public override void ExitCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context) 
-    //    => OnExitParent(provider => new PrecompilerTriviaNode(GetCurrentNodeId(), context.GetSourceLocation(_rootUri), [..CurrentBuilder.GetChildren], context.GetText()));
+    public override void EnterCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context)
+        => OnEnterParent();
+    public override void ExitCcBlock([NotNull] VBAConditionalCompilationParser.CcBlockContext context)
+        => OnExitParent(provider => provider.BuildPrecompilerBlock(context));
 
     public override void EnterCcIf([NotNull] VBAConditionalCompilationParser.CcIfContext context)
         => OnEnterParent();
@@ -91,7 +86,7 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
     public override void EnterCcConst([NotNull] VBAConditionalCompilationParser.CcConstContext context)
         => OnEnterParent();
     public override void ExitCcConst([NotNull] VBAConditionalCompilationParser.CcConstContext context)
-        => OnExitParent(provider => provider.BuildPrecompilerConstDeclaration(context, ConstKind.ModuleMember, AccessModifier.Implicit));
+        => OnExitParent(provider => provider.BuildPrecompilerConstDeclaration(context, ConstKind.ModuleMember));
 
 
     public override void EnterCcExpression([NotNull] VBAConditionalCompilationParser.CcExpressionContext context)
@@ -99,6 +94,11 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
     public override void ExitCcExpression([NotNull] VBAConditionalCompilationParser.CcExpressionContext context)
         => OnExitParent(provider => provider.BuildConditionalExpression(context));
 
+    public override void ExitNameExpr([NotNull] VBAConditionalCompilationParser.NameExprContext context)
+    {
+        var node = new PrecompilerNameExpressionNode(GetCurrentNodeId(), context.GetSourceLocation(_rootUri), context.name().nameValue().GetText());
+        OnExpression(node);
+    }
     public override void EnterAddOp([NotNull] VBAConditionalCompilationParser.AddOpContext context)
         => OnEnterParent();
     public override void ExitAddOp([NotNull] VBAConditionalCompilationParser.AddOpContext context)
@@ -207,10 +207,10 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         {
             var rawValue = Int64.Parse(intNode.Symbol.Text);
             VBTypedValue value = (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
-                ? new VBIntegerValue(Convert.ToInt16(rawValue))
+                ? new VBIntegerValue(new ConstantBindingHandle(new VBRuntimeValue<short>(Convert.ToInt16(rawValue))))
                 : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
-                    ? new VBLongValue(Convert.ToInt32(rawValue))
-                    : new VBDoubleValue(Convert.ToDouble(rawValue));
+                    ? new VBLongValue(new ConstantBindingHandle(new VBRuntimeValue<int>(Convert.ToInt32(rawValue))))
+                    : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(Convert.ToDouble(rawValue))));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.STRINGLITERAL() is ITerminalNode stringNode)
@@ -221,35 +221,35 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         {
             var rawValue = Double.Parse(floatNode.Symbol.Text);
             VBTypedValue value = (rawValue <= Single.MaxValue && rawValue >= Single.MinValue)
-                ? new VBSingleValue(Convert.ToSingle(rawValue))
-                : new VBDoubleValue(rawValue);
+                ? new VBSingleValue(new ConstantBindingHandle(new VBRuntimeValue<Single>(Convert.ToSingle(rawValue))))
+                : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(rawValue)));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.DATELITERAL() is ITerminalNode dateNode)
         {
             if (DateTime.TryParse(dateNode.Symbol.Text.Trim('#'), out var rawValue))
             {
-                OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, new VBDateValue(rawValue.ToOADate())));
+                OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, new VBDateValue(new ConstantBindingHandle(new VBRuntimeValue<double>(rawValue.ToOADate())))));
             }
         }
         else if (context.HEXLITERAL() is ITerminalNode hexNode)
         {
             var rawValue = Convert.ToInt64(hexNode.Symbol.Text[2..], fromBase: 16);
             VBTypedValue value = (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue) 
-                ? new VBIntegerValue(Convert.ToInt16(rawValue))
+                ? new VBIntegerValue(new ConstantBindingHandle(new VBRuntimeValue<short>(Convert.ToInt16(rawValue))))
                 : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue) 
-                    ? new VBLongValue(Convert.ToInt32(rawValue))
-                : new VBDoubleValue(Convert.ToDouble(rawValue));
+                    ? new VBLongValue(new ConstantBindingHandle(new VBRuntimeValue<int>(Convert.ToInt32(rawValue))))
+                : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(Convert.ToDouble(rawValue))));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.OCTLITERAL() is ITerminalNode octNode)
         {
             var rawValue = Convert.ToInt64(octNode.Symbol.Text[2..], fromBase: 8);
             VBTypedValue value = (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
-                ? new VBIntegerValue(Convert.ToInt16(rawValue)) 
-                : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue) 
-                    ? new VBLongValue(Convert.ToInt32(rawValue))
-                    : new VBDoubleValue(Convert.ToDouble(rawValue));
+                ? new VBIntegerValue(new ConstantBindingHandle(new VBRuntimeValue<short>(Convert.ToInt16(rawValue))))
+                : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
+                    ? new VBLongValue(new ConstantBindingHandle(new VBRuntimeValue<int>(Convert.ToInt32(rawValue))))
+                : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(Convert.ToDouble(rawValue))));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.NOTHING() is not null)

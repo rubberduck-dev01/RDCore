@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using RDCore.SDK.Client;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
@@ -10,6 +13,8 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RDCore.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+[assembly: ProvidesCorePlatformClientCapability<ParseFullDocument>]
+
 namespace RDCore.Parsing;
 
 public class Program
@@ -49,7 +54,11 @@ public class RDCoreParserApp : RDCoreServerApp
     {
     }
 
-    protected override void RegisterServerCapabilities(ILanguageServer server, ClientCapabilities clientCapabilities)
+    protected override void RegisterServerCapabilities(ILanguageServer server, CorePlatformClientCapabilities clientCapabilities)
     {
+        clientCapabilities.Parsing = new()
+        {
+            ParseFullDocument = new(IsSupported: true)
+        };
     }
 }

@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using RDCore.Parsing.Syntax;
 using RDCore.SDK.Model;
@@ -6,11 +7,13 @@ using RDCore.SDK.Model.AST.Abstract;
 using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Directives;
 using RDCore.SDK.Model.AST.Expressions;
+using RDCore.SDK.Model.AST.Statements;
 using RDCore.SDK.Model.Source;
 using RDCore.SDK.Model.Values.Abstract;
 using RDCore.SDK.Model.Values.Intrinsic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace RDCore.Parsing.AST;
 
@@ -35,7 +38,12 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         return _root with { Children = [.. CurrentBuilder.GetChildren] };
     }
 
-    private void OnEnterParent() => _builderStack.Push(new(_rootUri, GetCurrentNodeId()));
+    private Stack<SyntaxNode> _precompilerParentStack = [];
+    private void OnEnterParent()
+    {
+        _builderStack.Push(new(_rootUri, GetCurrentNodeId()));
+    }
+
     private void OnExitParent(Func<DeclarationNodeBuilder, SyntaxNode> provider)
     {
         var node = provider.Invoke(_builderStack.Pop());

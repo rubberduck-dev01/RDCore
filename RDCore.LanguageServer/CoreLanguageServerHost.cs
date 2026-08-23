@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Commands;
 
@@ -10,7 +11,8 @@ namespace RDCore.LanguageServer;
 /// </summary>
 internal sealed class CoreLanguageServerHost() : RDCoreLanguageServerHost<CoreLanguageServerApp>()
 {
-    protected override void ConfigureAdditionalExternalServices(IServiceCollection services,IConfiguration configuration)
+    protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<IPlatformCompositionService, PlatformCompositionService>();
     }
 }
