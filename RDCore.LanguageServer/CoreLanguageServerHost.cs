@@ -12,6 +12,8 @@ internal sealed class CoreLanguageServerHost() : RDCorePlatformServerHost<CoreLa
 {
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IPlatformCompositionService, PlatformCompositionService>();
+        services
+            .AddSingleton<IPlatformCompositionService, PlatformCompositionService>()
+            .AddSingleton<IPlatformOrchestrationService, PlatformOrchestrationService>();
     }
 }

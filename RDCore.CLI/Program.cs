@@ -54,7 +54,7 @@ internal class RDCoreConsoleClientApp(
     ILogger<RDCoreConsoleClientApp> logger) 
     : RDCoreClientApp(serverProcess, fileSystem, healthCheckService, transportLayer, logger)
 {
-    protected override CoreServerComponent ClientComponent => CoreServerComponent.ClientApp;
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.ClientApp;
 
     protected override void ConfigureServices(IServiceCollection services)
     {

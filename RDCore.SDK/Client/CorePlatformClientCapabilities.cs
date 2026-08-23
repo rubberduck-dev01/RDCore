@@ -6,7 +6,7 @@ namespace RDCore.SDK.Client;
 /// <summary>
 /// Describes all core platform capabilities.
 /// </summary>
-public class CorePlatformClientCapabilities : ClientCapabilities
+public class CorePlatformClientCapabilities
 {
     /// <summary>
     /// The core platform capabilities of the parser process.

@@ -15,7 +15,7 @@ public class RDCoreExtensionServerApp(
     ILogger<RDCoreExtensionServerApp> logger)
     : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
-    protected override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {

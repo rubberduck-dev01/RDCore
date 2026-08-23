@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDCore.SDK.Client;
 namespace RDCore.SDK;
 
 /// <summary>
@@ -6,6 +7,10 @@ namespace RDCore.SDK;
 /// </summary>
 public interface IRDCoreApp : IDisposable
 {
+    /// <summary>
+    /// Identifies the type of RDCore platform application.
+    /// </summary>
+    CoreServerComponent PlatformComponent { get; }
     /// <summary>
     /// Bootstraps and starts the application.
     /// </summary>

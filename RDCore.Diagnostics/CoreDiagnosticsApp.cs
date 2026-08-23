@@ -29,7 +29,7 @@ internal class CoreDiagnosticsApp : RDCoreServerApp
     {
     }
 
-    protected override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {

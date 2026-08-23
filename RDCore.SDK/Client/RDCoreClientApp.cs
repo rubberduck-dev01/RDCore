@@ -55,7 +55,7 @@ public abstract class RDCoreClientApp(
     /// <remarks>
     /// If <see cref="CoreServerComponent.Extension"/>, <see cref="ExtensionInfo"/> should not be <c>null</c>.
     /// </remarks>
-    protected abstract CoreServerComponent ClientComponent { get; }
+    public abstract CoreServerComponent PlatformComponent { get; }
     /// <summary>
     /// The extension manifest for this <see cref="CoreServerComponent.Extension"/> component.
     /// </summary>
@@ -110,7 +110,7 @@ public abstract class RDCoreClientApp(
         _platform = platform;
         ServerToken = new CancellationTokenSource();
         var manifest = platform.GetManifest();
-        var path = ClientComponent switch
+        var path = PlatformComponent switch
         {
             CoreServerComponent.EnvironmentHost => manifest.HostService,
             CoreServerComponent.LanguageServer => manifest.LangService,

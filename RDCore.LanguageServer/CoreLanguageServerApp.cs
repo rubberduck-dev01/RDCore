@@ -18,12 +18,20 @@ namespace RDCore.LanguageServer;
 internal sealed class CoreLanguageServerApp(
     //IOptions<SdkServerOptions> options,
     IServerStateProvider serverStateProvider,
+    IPlatformCompositionService composition,
+    IPlatformOrchestrationService orchestration,
     IHealthCheckService<CoreLanguageServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<CoreLanguageServerApp> logger)
     : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
-    protected override CoreServerComponent PlatformComponent => CoreServerComponent.LanguageServer;
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.LanguageServer;
+
+    protected override async Task BeforeRunAsync()
+    {
+        var platform = composition.GetManifest();
+        orchestration.RegisterCoreComponent(CoreServerComponent.EnvironmentHost, );
+    }
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {

@@ -53,7 +53,7 @@ public abstract class RDCoreServerApp(
 {
     protected IServerStateProvider ServerStateProvider { get; } = serverStateProvider;
 
-    protected abstract CoreServerComponent PlatformComponent { get; }
+    public abstract CoreServerComponent PlatformComponent { get; }
     private OmniSharpLanguageServer? Server { get; set; }
 
     private Task? WaitForClientConnectionTask { get; set; }
@@ -68,9 +68,12 @@ public abstract class RDCoreServerApp(
     public ILanguageServer LanguageServer => Server 
         ?? throw new ServerProtocolSdkException(Exceptions.LanguageServerProtocolSdkException_ServerNotInitialized);
 
+    protected async virtual Task BeforeRunAsync() { }
+
     public async Task RunAsync(IServiceProvider externalServiceProvider)
     {
         LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageServerStarting);
+        await BeforeRunAsync();
 
         Server = await OmniSharpLanguageServer.From(ConfigureServer, externalServiceProvider, ServerStateProvider.ProcessTokenSource.Token);
 
