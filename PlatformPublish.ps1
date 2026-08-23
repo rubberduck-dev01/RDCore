@@ -1,5 +1,6 @@
 ﻿[CmdletBinding()]
 param(
+    [switch]$Silent,
     [string]$Configuration = "Debug",
     [string]$PlatformRoot = "artifacts\rdcore-dev"
 )
@@ -42,10 +43,12 @@ Write-Host "Validate paths:"
 Write-Host "📁 Staging: " $StagingRoot
 Write-Host "📁 Platform:" $PlatformRoot
 
-$Confirmation = Read-Host "(Y/y)es to proceed: "
-if ($Confirmation -ne "Y"){
-  throw "Operation was cancelled by the user."
+if (-not $Silent) {
+    $Confirmation = Read-Host "(Y/y)es to proceed: "
+    if ($Confirmation -ne "Y"){
+      throw "Operation was cancelled by the user."
   
+    }
 }
 Write-Host "✅ User confirmation cleared."
 
@@ -90,14 +93,14 @@ foreach ($project in $Projects)
 
     New-Item $publishPath -ItemType Directory -Force | Out-Null
 
-    Write-Host "🚀 Publishing $($project.Name): $($projPath)"
-
     dotnet publish $projPath --configuration $Configuration --output $publishPath
 
     if ($LASTEXITCODE -ne 0)
     {
         throw "Publish failed for $($project.Name)"
     }
+
+    Write-Host "🚀 $($project.Name) was published successfully."
 }
 
 Write-Host ""
@@ -132,25 +135,14 @@ $Manifest = @{
     platformVersion = "0.1"
     generatedUtc = (Get-Date).ToUniversalTime().ToString("O")
 
-    services = @{
-        runtimeHost = @{
-            path = "RDCore.CLI/rdc.exe"
-        }
-
-        languageServer = @{
-            path = "LanguageServer/RDCore.LanguageServer.exe"
-        }
-
-        parser = @{
-            path = "RDCore.Parsing/RDCore.ParseServer.exe"
-        }
-    }
+    hostService = "RDCore.CLI/rdc.exe"
+    langService = "RDCore.LanguageServer/RDCore.LanguageServer.exe"
+    parseServer = "RDCore.Parsing/RDCore.ParseServer.exe"
 
     extensionsDirectory = "Extensions"
 } | ConvertTo-Json -Depth 10
 
 $ManifestPath = Join-Path $PlatformRoot "rdcore.json"
-
 $Manifest | Set-Content $ManifestPath -Encoding UTF8
 
 Write-Host ""
