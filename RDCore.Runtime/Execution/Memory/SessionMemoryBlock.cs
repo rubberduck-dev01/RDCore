@@ -1,4 +1,6 @@
-﻿namespace RDCore.Runtime.Execution.Memory;
+﻿using RDCore.SDK.Runtime.Shared;
+
+namespace RDCore.Runtime.Execution.Memory;
 
 /// <summary>
 /// Represents a block of memory space allocated inside a <em>memory segment</em>.

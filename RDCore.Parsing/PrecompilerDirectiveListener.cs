@@ -8,7 +8,9 @@ using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Model.AST.Expressions;
 using RDCore.SDK.Model.AST.Statements;
 using RDCore.SDK.Model.Values.Abstract;
+using RDCore.SDK.Model.Values.Bindings;
 using RDCore.SDK.Model.Values.Intrinsic;
+using RDCore.SDK.Model.Values.Runtime;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -205,10 +207,10 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         {
             var rawValue = Int64.Parse(intNode.Symbol.Text);
             VBTypedValue value = (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
-                ? new VBIntegerValue(Convert.ToInt16(rawValue))
+                ? new VBIntegerValue(new ConstantBindingHandle(new VBRuntimeValue<short>(Convert.ToInt16(rawValue))))
                 : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
-                    ? new VBLongValue(Convert.ToInt32(rawValue))
-                    : new VBDoubleValue(Convert.ToDouble(rawValue));
+                    ? new VBLongValue(new ConstantBindingHandle(new VBRuntimeValue<int>(Convert.ToInt32(rawValue))))
+                    : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(Convert.ToDouble(rawValue))));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.STRINGLITERAL() is ITerminalNode stringNode)
@@ -219,35 +221,35 @@ internal class PrecompilerDirectiveListener(Uri sourceUri) : VBAConditionalCompi
         {
             var rawValue = Double.Parse(floatNode.Symbol.Text);
             VBTypedValue value = (rawValue <= Single.MaxValue && rawValue >= Single.MinValue)
-                ? new VBSingleValue(Convert.ToSingle(rawValue))
-                : new VBDoubleValue(rawValue);
+                ? new VBSingleValue(new ConstantBindingHandle(new VBRuntimeValue<Single>(Convert.ToSingle(rawValue))))
+                : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(rawValue)));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.DATELITERAL() is ITerminalNode dateNode)
         {
             if (DateTime.TryParse(dateNode.Symbol.Text.Trim('#'), out var rawValue))
             {
-                OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, new VBDateValue(rawValue.ToOADate())));
+                OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, new VBDateValue(new ConstantBindingHandle(new VBRuntimeValue<double>(rawValue.ToOADate())))));
             }
         }
         else if (context.HEXLITERAL() is ITerminalNode hexNode)
         {
             var rawValue = Convert.ToInt64(hexNode.Symbol.Text[2..], fromBase: 16);
             VBTypedValue value = (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue) 
-                ? new VBIntegerValue(Convert.ToInt16(rawValue))
+                ? new VBIntegerValue(new ConstantBindingHandle(new VBRuntimeValue<short>(Convert.ToInt16(rawValue))))
                 : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue) 
-                    ? new VBLongValue(Convert.ToInt32(rawValue))
-                : new VBDoubleValue(Convert.ToDouble(rawValue));
+                    ? new VBLongValue(new ConstantBindingHandle(new VBRuntimeValue<int>(Convert.ToInt32(rawValue))))
+                : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(Convert.ToDouble(rawValue))));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.OCTLITERAL() is ITerminalNode octNode)
         {
             var rawValue = Convert.ToInt64(octNode.Symbol.Text[2..], fromBase: 8);
             VBTypedValue value = (rawValue <= Int16.MaxValue && rawValue >= Int16.MinValue)
-                ? new VBIntegerValue(Convert.ToInt16(rawValue)) 
-                : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue) 
-                    ? new VBLongValue(Convert.ToInt32(rawValue))
-                    : new VBDoubleValue(Convert.ToDouble(rawValue));
+                ? new VBIntegerValue(new ConstantBindingHandle(new VBRuntimeValue<short>(Convert.ToInt16(rawValue))))
+                : (rawValue <= Int32.MaxValue && rawValue >= Int32.MinValue)
+                    ? new VBLongValue(new ConstantBindingHandle(new VBRuntimeValue<int>(Convert.ToInt32(rawValue))))
+                : new VBDoubleValue(new ConstantBindingHandle(new VBRuntimeValue<double>(Convert.ToDouble(rawValue))));
             OnExpression(new LiteralExpressionNode(GetCurrentNodeId(), location, value));
         }
         else if (context.NOTHING() is not null)

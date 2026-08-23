@@ -1,4 +1,6 @@
-﻿namespace RDCore.Runtime.Execution.Memory;
+﻿using RDCore.SDK.Runtime.Shared;
+
+namespace RDCore.Runtime.Execution.Memory;
 
 /// <summary>
 /// Represents a reserved segment of contiguous managed memory.
