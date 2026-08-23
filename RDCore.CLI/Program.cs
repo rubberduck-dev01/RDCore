@@ -46,7 +46,7 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 }
 
 internal class RDCoreConsoleClientApp(
-    IRDCoreLanguageServerProcess serverProcess,
+    IRDCoreServerProcess serverProcess,
     IHealthCheckService<RDCoreConsoleClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<RDCoreConsoleClientApp> logger) 
