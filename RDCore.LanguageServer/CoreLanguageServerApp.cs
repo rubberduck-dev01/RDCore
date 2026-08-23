@@ -23,6 +23,8 @@ internal sealed class CoreLanguageServerApp(
     ILogger<CoreLanguageServerApp> logger)
     : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
+    protected override CoreServerComponent PlatformComponent => CoreServerComponent.LanguageServer;
+
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {
     }

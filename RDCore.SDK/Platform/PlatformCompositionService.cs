@@ -1,5 +1,7 @@
-﻿using System;
+﻿using RDCore.SDK.Extensibility;
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Text;
 using System.Text.Json;
@@ -22,4 +24,5 @@ public interface IPlatformCompositionService
 {
     string RootPath { get; }
     PlatformManifest GetManifest();
+    ImmutableArray<ExtensionInfo> GetExtensions();
 }

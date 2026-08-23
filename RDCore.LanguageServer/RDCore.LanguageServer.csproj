@@ -9,10 +9,9 @@
     <ApplicationIcon>logo.ico</ApplicationIcon>
     <AssemblyTitle>RDCore.LanguageServer</AssemblyTitle>
     <Authors>9562-7303 Québec inc.</Authors>
-    <Copyright>Copyright © 2026 ${Authors}</Copyright>
+    <Copyright>Copyright © 2026 9562-7303 Québec inc.</Copyright>
     <Product>RDCore</Product>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <BaseOutputPath>C:\dev\repos\rubberduck-dev01\RDCore\publish\RDCore.CLI</BaseOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -54,6 +53,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RDCore.SDK\RDCore.SDK.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

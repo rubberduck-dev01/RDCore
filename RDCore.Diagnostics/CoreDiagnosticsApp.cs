@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
@@ -10,7 +9,7 @@ using RDCore.SDK.Server.Services.States;
 
 namespace RDCore.Diagnostics;
 
-internal class CoreDiagnosticsAppHost() : RDCoreLanguageServerHost<CoreDiagnosticsApp>()
+internal class CoreDiagnosticsAppHost() : RDCorePlatformServerHost<CoreDiagnosticsApp>()
 {
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -29,6 +28,8 @@ internal class CoreDiagnosticsApp : RDCoreServerApp
         : base(serverStateProvider, healthCheckService, transportLayer, logger)
     {
     }
+
+    protected override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {

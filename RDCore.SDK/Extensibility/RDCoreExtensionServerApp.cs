@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
@@ -16,6 +15,8 @@ public class RDCoreExtensionServerApp(
     ILogger<RDCoreExtensionServerApp> logger)
     : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
+    protected override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
+
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {
         // TODO

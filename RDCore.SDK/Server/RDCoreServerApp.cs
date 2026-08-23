@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -7,6 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using RDCore.SDK.Client;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Handlers;
 using RDCore.SDK.Server.Handlers.Lifecycle;
 using RDCore.SDK.Server.Services;
@@ -15,6 +17,7 @@ using System.Reflection;
 
 using OmniSharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 namespace RDCore.SDK.Server;
+
 
 /// <summary>
 /// A server-side (LSP) RDCore app.
@@ -42,7 +45,7 @@ public interface IRDCoreServerApp : IRDCoreApp
 /// 🧩 Since RDCore extensions are LSP servers, this is the base class for most RDCore applications.
 /// </remarks>
 public abstract class RDCoreServerApp(
-//    IOptions<SdkServerOptions> options,
+    //IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IHealthCheckService<RDCoreServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
@@ -50,6 +53,7 @@ public abstract class RDCoreServerApp(
 {
     protected IServerStateProvider ServerStateProvider { get; } = serverStateProvider;
 
+    protected abstract CoreServerComponent PlatformComponent { get; }
     private OmniSharpLanguageServer? Server { get; set; }
 
     private Task? WaitForClientConnectionTask { get; set; }

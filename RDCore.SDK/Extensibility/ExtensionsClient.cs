@@ -165,15 +165,5 @@ public class ExtensionsClient(
             builder.AppendLine($"[{check}:{(int)check}:X2] {verbose}");
         }
     }
-
-    /// <summary>
-    /// Asynchronously starts and attempts to connect with the <em>server process</em> for the specified <see cref="ExtensionInfo"/>.
-    /// </summary>
-    /// <param name="extension">The deserialized <em>manifest</em> of the extension to start.</param>
-    /// <returns>An asynchronous <see cref="Task"/> that completes when the specified extension was successfully started and connected, or failed to do so.</returns>
-    public async Task StartAsync(ExtensionInfo extension)
-    {
-        // TODO
-    }
 }
 

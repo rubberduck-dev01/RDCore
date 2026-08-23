@@ -26,7 +26,7 @@ public class Program
     }
 }
 
-public class RDCoreParserAppHost : RDCoreLanguageServerHost<RDCoreParserApp> 
+public class RDCoreParserAppHost : RDCorePlatformServerHost<RDCoreParserApp> 
 {
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -45,6 +45,8 @@ public class RDCoreParserApp : RDCoreServerApp
         base(serverStateProvider, healthCheckService, transportLayer, logger)
     {
     }
+
+    protected override CoreServerComponent PlatformComponent => CoreServerComponent.ParsingServer;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {

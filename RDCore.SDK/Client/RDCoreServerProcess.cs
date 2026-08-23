@@ -13,9 +13,9 @@ namespace RDCore.SDK.Client;
 public interface IRDCoreServerProcess : IDisposable
 {
     /// <summary>
-    /// Finds and runs the language server executable with command-line arguments mapping the specified <c>LanguageClientSettings</c>.
+    /// Runs a server executable with command-line arguments mapping the specified <c>LanguageClientSettings</c>.
     /// </summary>
-    void Start(CancellationTokenSource tokenSource);
+    void Start(string relativePath, CancellationTokenSource tokenSource);
     /// <summary>
     /// Stops awaiting LSP server process exit to restart it.
     /// </summary>
@@ -23,6 +23,33 @@ public interface IRDCoreServerProcess : IDisposable
     /// This method should be invoked during the <c>Shutdown</c> LSP <em>server lifecycle</em> handler.
     /// </remarks>
     void Shutdown();
+}
+
+public enum CoreServerComponent
+{
+    /// <summary>
+    /// Application is a RD-VBA runtime environment host component.
+    /// </summary>
+    EnvironmentHost,
+    /// <summary>
+    /// Application is a RDCore platform orchestration and RD-VBA language server.
+    /// </summary>
+    LanguageServer,
+    /// <summary>
+    /// Application is a parsing server component.
+    /// </summary>
+    ParsingServer,
+    /// <summary>
+    /// Application is a platform extension server component.
+    /// </summary>
+    Extension,
+    /// <summary>
+    /// Application is a LSP client.
+    /// </summary>
+    /// <remarks>
+    /// This application type cannot be started from a server app.
+    /// </remarks>
+    ClientApp,
 }
 
 /// <summary>
@@ -65,7 +92,7 @@ public class RDCoreServerProcess(
 
     public void Shutdown() => _serverProcess?.Kill();
 
-    public void Start(CancellationTokenSource tokenSource)
+    public void Start(string relativePath, CancellationTokenSource tokenSource)
     {
         if (_serverProcess is Process running)
         {
@@ -73,8 +100,7 @@ public class RDCoreServerProcess(
             throw new ServerAlreadyRunningException(running.Id);
         }
 
-        var manifest = Platform.GetManifest();
-        var fullPath = FileSystem.Path.Combine(Platform.RootPath, manifest.LangService);
+        var fullPath = FileSystem.Path.Combine(Platform.RootPath, relativePath);
         
         var args = CommandLine.UnParserExtensions.FormatCommandLine(CommandLine.Parser.Default, 
             new SdkAppCommandLineArgs

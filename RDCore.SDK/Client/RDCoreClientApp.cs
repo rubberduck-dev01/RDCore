@@ -1,13 +1,18 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using RDCore.SDK.Extensibility;
+using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Handlers;
 using RDCore.SDK.Server.Handlers.Lifecycle;
 using RDCore.SDK.Server.Services;
+using System.IO.Abstractions;
 using System.Reflection;
 
 using OmniSharpLanguageClient = OmniSharp.Extensions.LanguageServer.Client.LanguageClient;
@@ -39,10 +44,23 @@ public interface IRDCoreClientApp : IRDCoreApp
 /// </remarks>
 public abstract class RDCoreClientApp(
     IRDCoreServerProcess serverProcess,
+    IFileSystem fileSystem,
     IHealthCheckService<RDCoreClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<RDCoreClientApp> logger) : IRDCoreClientApp
 {
+    /// <summary>
+    /// The type of platform client.
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="CoreServerComponent.Extension"/>, <see cref="ExtensionInfo"/> should not be <c>null</c>.
+    /// </remarks>
+    protected abstract CoreServerComponent ClientComponent { get; }
+    /// <summary>
+    /// The extension manifest for this <see cref="CoreServerComponent.Extension"/> component.
+    /// </summary>
+    public ExtensionInfo? ExtensionInfo { get; init; }
+
     private CancellationTokenSource? ServerToken { get; set; }
     private OmniSharpLanguageClient? Client { get; set; }
     //private IServiceProvider? ExternalServiceProvider { get; set; }
@@ -66,7 +84,7 @@ public abstract class RDCoreClientApp(
         LogIfEnabled(LogLevel.Information, TraceMessages.LanguageClientStarting);
 
         //ExternalServiceProvider = provider;
-        await StartLanguageClientAsync();
+        await StartLanguageClientAsync(provider.GetRequiredService<IPlatformCompositionService>());
     }
 
     /// <summary>
@@ -86,20 +104,31 @@ public abstract class RDCoreClientApp(
         };
     }
 
-    private async Task StartLanguageClientAsync()
+    private IPlatformCompositionService? _platform;
+    private async Task StartLanguageClientAsync(IPlatformCompositionService platform)
     {
+        _platform = platform;
         ServerToken = new CancellationTokenSource();
+        var manifest = platform.GetManifest();
+        var path = ClientComponent switch
+        {
+            CoreServerComponent.EnvironmentHost => manifest.HostService,
+            CoreServerComponent.LanguageServer => manifest.LangService,
+            CoreServerComponent.ParsingServer => manifest.ParseServer,
+            CoreServerComponent.Extension => fileSystem.Path.Combine(manifest.ExtensionsDirectory, ExtensionInfo!.Name),
+            _ => throw new NotSupportedException()
+        };
 
         // start the process first:
-        serverProcess.Start(ServerToken);
+        serverProcess.Start(path, ServerToken);
 
         // by the time we're configured on this side, the server pipe should be ready:
         Client = await OmniSharpLanguageClient.From(ConfigureClient, ServerToken.Token);
     }
 
-    private void HandleUnhealthyServer()
+    private void HandleUnhealthyServer(IPlatformCompositionService platform)
         // server process died: start a new one and monitor it:
-        => StartLanguageClientAsync().RunSynchronously();
+        => StartLanguageClientAsync(platform).RunSynchronously();
 
     protected abstract ClientCapabilities ConfigureClientCapabilities(ClientCapabilities capabilities);
 
@@ -191,7 +220,7 @@ public abstract class RDCoreClientApp(
         {
             if (request.ProcessId.Value <= int.MaxValue)
             {
-                healthCheckService.Start(Convert.ToInt32(request.ProcessId.Value), HandleUnhealthyServer);
+                healthCheckService.Start(Convert.ToInt32(request.ProcessId.Value), () => HandleUnhealthyServer(_platform!));
             }
             else
             {

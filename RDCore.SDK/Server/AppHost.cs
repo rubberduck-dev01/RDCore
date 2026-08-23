@@ -17,7 +17,7 @@ namespace RDCore.SDK.Server;
 /// A <c>RDCore.SDK</c> application host.
 /// </summary>
 /// <remarks>
-/// 👉 This class is inherited by both <see cref="RDCoreLanguageServerHost{TApp}"/> and <see cref="RDCoreLanguageClientHost{TApp}"/>
+/// 👉 This class is inherited by both <see cref="RDCorePlatformServerHost{TApp}"/> and <see cref="RDCoreLanguageClientHost{TApp}"/>
 /// to encapsulate a common interface to simplify implementing any kind of SDK application.<br/>
 /// </remarks>
 /// <typeparam name="TApp">The type of <see cref="IRDCoreApp"/> being hosted.</typeparam>

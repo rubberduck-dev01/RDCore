@@ -16,7 +16,7 @@ namespace RDCore.SDK.Server;
 /// <item>Implement (<c>override</c>) <see cref="AppHost{TApp}.ConfigureExternalLogging(IServiceCollection, ILoggingBuilder, IConfiguration)"/> to override the default <see cref="ILoggingBuilder"/> providers.</item>
 /// </list>
 /// </remarks>
-public class RDCoreLanguageServerHost<TApp>() : AppHost<TApp>() 
+public class RDCorePlatformServerHost<TApp>() : AppHost<TApp>() 
     where TApp : class, IRDCoreServerApp
 {
     /// <summary>

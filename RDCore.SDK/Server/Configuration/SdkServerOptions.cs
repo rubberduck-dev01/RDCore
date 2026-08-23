@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using Microsoft.Extensions.Logging;
+using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
 
 namespace RDCore.SDK.Server.Configuration;
@@ -96,6 +97,13 @@ public record class SdkAppCommandLineArgs
 public record class SdkAppOptions
 {
     /// <summary>
+    /// ServerApp options.
+    /// </summary>
+    /// <remarks>
+    /// Configures a platform server application within the RDCore platform.
+    /// </remarks>
+    public SdkServerAppOptions ServerApp { get; set; } = new();
+    /// <summary>
     /// LSP Server options.
     /// </summary>
     /// <remarks>
@@ -110,6 +118,14 @@ public record class SdkAppOptions
     /// Platform options.
     /// </summary>
     public SdkPlatformOptions Platform { get; set; } = new();
+}
+
+public record class SdkServerAppOptions
+{
+    /// <summary>
+    /// The platform server component type for this application.
+    /// </summary>
+    public CoreServerComponent Component { get; set; } = CoreServerComponent.Extension;
 }
 
 /// <summary>

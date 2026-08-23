@@ -38,7 +38,6 @@ internal class DeclarationsParseTreeListener(Uri sourceUri, ModuleNode moduleNod
         return _root with { Children = [.. CurrentBuilder.GetChildren] };
     }
 
-    private Stack<SyntaxNode> _precompilerParentStack = [];
     private void OnEnterParent()
     {
         _builderStack.Push(new(_rootUri, GetCurrentNodeId()));

@@ -9,6 +9,7 @@ using RDCore.CLI.Themes.Model;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Services;
+using System.IO.Abstractions;
 
 namespace RDCore.CLI;
 
@@ -47,11 +48,14 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 
 internal class RDCoreConsoleClientApp(
     IRDCoreServerProcess serverProcess,
+    IFileSystem fileSystem,
     IHealthCheckService<RDCoreConsoleClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<RDCoreConsoleClientApp> logger) 
-    : RDCoreClientApp(serverProcess, healthCheckService, transportLayer, logger)
+    : RDCoreClientApp(serverProcess, fileSystem, healthCheckService, transportLayer, logger)
 {
+    protected override CoreServerComponent ClientComponent => CoreServerComponent.ClientApp;
+
     protected override void ConfigureServices(IServiceCollection services)
     {
     }

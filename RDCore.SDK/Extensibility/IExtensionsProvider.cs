@@ -23,12 +23,6 @@ public interface IExtensionsProvider
     /// </summary>
     IEnumerable<ExtensionInfo> Discover();
     /// <summary>
-    /// Asynchronously starts and attempts to connect with the <em>server process</em> for the specified <see cref="ExtensionInfo"/>.
-    /// </summary>
-    /// <param name="extension">The deserialized <em>manifest</em> of the extension to start.</param>
-    /// <returns>An asynchronous <see cref="Task"/> that completes when the specified extension was successfully started and connected, or failed to do so.</returns>
-    Task StartAsync(ExtensionInfo extension);
-    /// <summary>
     /// Enables the specified <see cref="ExtensionInfo"/> if the manifest and associated executable pass validation.
     /// </summary>
     /// <param name="extension">The deserialized <em>manifest</em> of the extension to enable.</param>
