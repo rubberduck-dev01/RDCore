@@ -13,10 +13,13 @@ using System.Runtime.CompilerServices;
 // for warnings about antlr-generated parser rule context types not requiring CLSCompliantAttribute because not present on assembly.
 [assembly: CLSCompliant(false)]
 
-
+// expose internals to RDCore.Tests and CastleWindsor proxies:
 [assembly: InternalsVisibleTo("RDCore.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+
+// list all the platform capabilities provided by this server here:
 [assembly: ProvidesCorePlatformClientCapability<ParseFullDocument>]
+
 
 namespace RDCore.Parsing;
 
