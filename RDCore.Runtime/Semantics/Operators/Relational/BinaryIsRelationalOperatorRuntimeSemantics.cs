@@ -58,9 +58,7 @@ public record class BinaryIsRelationalOperatorRuntimeSemantics(
         {
             return RuntimeSemanticsEvaluationResult.Success(
                 VBTypedValueFactory.CreateBooleanValue(
-                    ReferenceEquals(
-                        lhs.UnderlyingValue.RuntimeReference!.Value.Value, 
-                        rhs.UnderlyingValue.RuntimeReference!.Value.Value)));
+                    Equals(lhs.UnderlyingValue.RuntimeReference!.Value.Value, rhs.UnderlyingValue.RuntimeReference!.Value.Value)));
         }
 
         return RuntimeSemanticsEvaluationResult.InternalError();

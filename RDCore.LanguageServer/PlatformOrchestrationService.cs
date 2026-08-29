@@ -1,5 +1,6 @@
 ﻿using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
+using RDCore.SDK.Platform;
 
 namespace RDCore.LanguageServer;
 
@@ -9,11 +10,11 @@ internal interface IPlatformOrchestrationService
     public IRDCoreClientApp ParsingService { get; }
     public IEnumerable<IRDCoreClientApp> Extensions { get; }
 
-    public bool RegisterCoreComponent(CoreServerComponent component, IRDCoreClientApp client);
-    bool RegisterExtension(ExtensionInfo manifest, IRDCoreClientApp client);
+    public IPlatformOrchestrationService RegisterCoreComponent(Func<IRDCoreServerProxyFactory, IRDCoreClientApp> client);
+    IPlatformOrchestrationService RegisterExtension(ExtensionInfo manifest, Func<IRDCoreServerProxyFactory, IRDCoreClientApp> client);
 }
 
-internal sealed class PlatformOrchestrationService : IPlatformOrchestrationService
+internal sealed class PlatformOrchestrationService(IRDCoreServerProxyFactory factory) : IPlatformOrchestrationService
 {
     private IRDCoreClientApp? _runtimeEnvironment;
     public IRDCoreClientApp RuntimeEnvironment => _runtimeEnvironment!;
@@ -21,30 +22,26 @@ internal sealed class PlatformOrchestrationService : IPlatformOrchestrationServi
     private IRDCoreClientApp? _parsingService;
     public IRDCoreClientApp ParsingService => _parsingService!;
 
-    private Dictionary<ExtensionInfo, IRDCoreClientApp> _extensions = [];
+    private readonly Dictionary<ExtensionInfo, IRDCoreClientApp> _extensions = [];
     public IEnumerable<IRDCoreClientApp> Extensions => _extensions.Values;
 
-    public bool RegisterCoreComponent(CoreServerComponent component, IRDCoreClientApp client)
+    public IPlatformOrchestrationService RegisterCoreComponent(Func<IRDCoreServerProxyFactory, IRDCoreClientApp> client)
     {
-        switch (component)
+        var component = client(factory);
+        switch (component.PlatformComponent)
         {
             case CoreServerComponent.EnvironmentHost:
-                if (_runtimeEnvironment is not null)
-                {
-                    return false;
-                }
-                _runtimeEnvironment = client;
-                return true;
-
+                _runtimeEnvironment = component;
+                break;
             case CoreServerComponent.ParsingServer:
-                if (_parsingService is not null)
-                {
-                    return false;
-                }
-                _parsingService = client;
-                return true;
+                _parsingService = component;
+                break;
         }
-        return false;
+        return this;
     }
-    public bool RegisterExtension(ExtensionInfo manifest, IRDCoreClientApp client) => _extensions.TryAdd(manifest, client);
+    public IPlatformOrchestrationService RegisterExtension(ExtensionInfo manifest, Func<IRDCoreServerProxyFactory, IRDCoreClientApp> client)
+    {
+        _extensions[manifest] = client(factory);
+        return this;
+    }
 }

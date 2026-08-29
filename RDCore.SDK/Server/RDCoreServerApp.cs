@@ -184,7 +184,7 @@ public abstract class RDCoreServerApp(
     /// </remarks>
     /// <param name="server">The initializing <c>OmniSharp</c> LSP server instance.</param>
     /// <param name="clientCapabilities">The <em>client capabilities</em> reported by the client.</param>
-    protected abstract void RegisterServerCapabilities(ILanguageServer server, CorePlatformClientCapabilities clientCapabilities);
+    protected abstract void RegisterServerCapabilities(ILanguageServer server, ClientCapabilities clientCapabilities);
 
     private async Task HandleLanguageServerStartedAsync(ILanguageServer server, CancellationToken token) => OnLanguageServerStarted(server);
 
@@ -217,7 +217,7 @@ public abstract class RDCoreServerApp(
             LogIfEnabled(LogLevel.Warning, TraceMessages.InitializeMissingClientProcessId);
         }
 
-        if (request.Capabilities is CorePlatformClientCapabilities capabilities)
+        if (request.Capabilities is ClientCapabilities capabilities)
         {
             RegisterServerCapabilities(server, capabilities);
         }

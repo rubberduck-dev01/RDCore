@@ -1,5 +1,6 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using System.Text.Json.Serialization;
 
 namespace RDCore.SDK.Client;
 
@@ -26,6 +27,16 @@ public class ParserCapabilities
     public ParseFullDocument ParseFullDocument { get; set; } = new();
 }
 
+public static class RDCorePlatformProtocol
+{
+    /// <summary>
+    /// Requests an AST from the parser for a full document.
+    /// </summary>
+    public const string ParseFullDocument = "rdcore/parser/document";
+}
+
+[JsonDerivedType(typeof(ParseFullDocument))]
+[JsonPolymorphic]
 public abstract record class CorePlatformClientCapability(bool IsSupported = true);
 
 /// <summary>

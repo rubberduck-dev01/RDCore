@@ -1,15 +1,17 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 using System.Runtime.CompilerServices;
+
+// for warnings about antlr-generated parser rule context types not requiring CLSCompliantAttribute because not present on assembly.
+[assembly: CLSCompliant(false)]
+
 
 [assembly: InternalsVisibleTo("RDCore.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -34,19 +36,15 @@ public class RDCoreParserAppHost : RDCorePlatformServerHost<RDCoreParserApp>
     }
 }
 
-public class RDCoreParserApp : RDCoreServerApp
-{
-    public RDCoreParserApp(
+public class RDCoreParserApp(
         //IOptions<SdkServerOptions> options, 
-        IServerStateProvider serverStateProvider, 
-        IHealthCheckService<RDCoreParserApp> healthCheckService, 
-        ILanguageServerProtocolTransportLayer transportLayer, 
-        ILogger<RDCoreParserApp> logger) :
-        base(serverStateProvider, healthCheckService, transportLayer, logger)
-    {
-    }
-
-    protected override CoreServerComponent PlatformComponent => CoreServerComponent.ParsingServer;
+        IServerStateProvider serverStateProvider,
+        IHealthCheckService<RDCoreParserApp> healthCheckService,
+        ILanguageServerProtocolTransportLayer transportLayer,
+        ILogger<RDCoreParserApp> logger) 
+    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
+{
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.ParsingServer;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {
@@ -56,11 +54,11 @@ public class RDCoreParserApp : RDCoreServerApp
     {
     }
 
-    protected override void RegisterServerCapabilities(ILanguageServer server, CorePlatformClientCapabilities clientCapabilities)
+    protected override void RegisterServerCapabilities(ILanguageServer server, ClientCapabilities clientCapabilities)
     {
-        clientCapabilities.Parsing = new()
-        {
-            ParseFullDocument = new(IsSupported: true)
-        };
+        //clientCapabilities.Parsing = new()
+        //{
+        //    ParseFullDocument = new(IsSupported: true)
+        //};
     }
 }

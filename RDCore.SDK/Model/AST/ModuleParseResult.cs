@@ -4,9 +4,9 @@ using RDCore.SDK.Model.Errors;
 using RDCore.SDK.Model.Source;
 using System.Collections.Immutable;
 
-namespace RDCore.Parsing;
+namespace RDCore.SDK.Model.AST;
 
-internal record class ModuleParseResult
+public record class ModuleParseResult
 {
     public static ModuleParseResult Success(ModuleNode node) => new() { SyntaxTree = node };
     public static ModuleParseResult Failed(SourceLocation location, string verbose) => new() 

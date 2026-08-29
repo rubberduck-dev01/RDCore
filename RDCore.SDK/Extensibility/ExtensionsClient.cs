@@ -96,7 +96,7 @@ public class ExtensionsClient(
 
         // TODO read company (publisher) and description metadata (if empty) from assembly attributes.
 
-        return new(name, title, version, string.Empty, string.Empty, description, signature);
+        return new(name, title, version, string.Empty, string.Empty, description, signature, []);
     }
 
     /// <summary>

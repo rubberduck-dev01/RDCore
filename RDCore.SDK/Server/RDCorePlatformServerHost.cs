@@ -31,8 +31,6 @@ public class RDCorePlatformServerHost<TApp>() : AppHost<TApp>()
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
         ServerStateProvider = new ServerStateProvider(configuration);
-        services
-            .AddSingleton<IServerCommandProvider, ServerCommandProvider>()
-            .AddSingleton<ExecuteCommandHandler>();
+        services.AddSingleton<ExecuteCommandHandler>();
     }
 }
