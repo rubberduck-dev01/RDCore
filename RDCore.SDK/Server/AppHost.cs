@@ -3,7 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Client;
+using RDCore.SDK.Extensibility;
+using RDCore.SDK.Platform;
 using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
@@ -155,6 +158,9 @@ public abstract class AppHost<TApp>() : IDisposable
             .AddTransient<IHealthCheckService<TApp>, HealthCheckService<TApp>>()
             .AddTransient<ILanguageServerProtocolTransportLayer, RDCorePlatformDefaultTransportLayer>()
             .AddSingleton<IFileSystem, FileSystem>()
+            .AddSingleton<IPlatformCompositionService, PlatformCompositionService>()
+            .AddSingleton<IExtensionsProvider, ExtensionsClient>()
+            .AddSingleton<IExtensionManifestValidationService, ExtensionManifestValidationService>()
             .AddLogging(builder => ConfigureExternalLogging(services, builder, configuration));
     }
 
