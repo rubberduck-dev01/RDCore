@@ -8,7 +8,8 @@ using System.IO.Abstractions;
 namespace RDCore.Parsing.Handlers;
 
 [Method(RDCorePlatformProtocol.ParseFullDocument)]
-internal class ParseFullDocumentHandler(IFile fileService, IModuleParser moduleParser) : RDCoreRequestHandler<ParseDocumentParams, ModuleParseResult>
+internal class ParseFullDocumentHandler(IFile fileService, IModuleParser moduleParser)
+    : RDCoreRequestHandler<ParseDocumentParams, ModuleParseResult>
 {
     protected override async Task<ModuleParseResult> HandleAsync(ParseDocumentParams request, CancellationToken token)
     {

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using RDCore.Parsing.Handlers;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Services;
@@ -48,6 +49,7 @@ public class RDCoreParserApp(
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {
+        builder.WithHandler<ParseFullDocumentHandler>();
     }
 
     protected override void Dispose(bool disposing)
