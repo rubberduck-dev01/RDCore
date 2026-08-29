@@ -112,10 +112,11 @@ public abstract class RDCoreClientApp(
         var manifest = platform.GetManifest();
         var path = PlatformComponent switch
         {
-            CoreServerComponent.EnvironmentHost => manifest.HostService,
-            CoreServerComponent.LanguageServer => manifest.LangService,
-            CoreServerComponent.ParsingServer => manifest.ParseServer,
-            CoreServerComponent.Extension => fileSystem.Path.Combine(manifest.ExtensionsDirectory, ExtensionInfo!.Name),
+            CoreServerComponent.ClientApp => manifest.LangService,
+            //CoreServerComponent.EnvironmentHost => manifest.HostService,
+            //CoreServerComponent.LanguageServer => manifest.LangService,
+            //CoreServerComponent.ParsingServer => manifest.ParseServer,
+            //CoreServerComponent.Extension => fileSystem.Path.Combine(manifest.ExtensionsDirectory, ExtensionInfo!.Name),
             _ => throw new NotSupportedException()
         };
 

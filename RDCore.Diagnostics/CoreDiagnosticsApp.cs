@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 
@@ -19,12 +21,12 @@ internal class CoreDiagnosticsAppHost() : RDCorePlatformServerHost<CoreDiagnosti
 
 
 internal class CoreDiagnosticsApp(
-        //IOptions<SdkServerOptions> options, 
+        IOptions<SdkAppOptions> options, 
         IServerStateProvider serverStateProvider,
         IHealthCheckService<CoreDiagnosticsApp> healthCheckService,
         ILanguageServerProtocolTransportLayer transportLayer,
         ILogger<CoreDiagnosticsApp> logger) 
-    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
+    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 

@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.Parsing.Handlers;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 using System.Runtime.CompilerServices;
@@ -41,12 +43,12 @@ public class RDCoreParserAppHost : RDCorePlatformServerHost<RDCoreParserApp>
 }
 
 public class RDCoreParserApp(
-        //IOptions<SdkServerOptions> options, 
+        IOptions<SdkAppOptions> options, 
         IServerStateProvider serverStateProvider,
         IHealthCheckService<RDCoreParserApp> healthCheckService,
         ILanguageServerProtocolTransportLayer transportLayer,
         ILogger<RDCoreParserApp> logger) 
-    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
+    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.ParsingServer;
 

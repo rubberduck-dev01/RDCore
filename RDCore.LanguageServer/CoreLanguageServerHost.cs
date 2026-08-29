@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Services;
 
 namespace RDCore.LanguageServer;
 
@@ -13,6 +14,8 @@ internal sealed class CoreLanguageServerHost() : RDCorePlatformServerHost<CoreLa
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddTransient<IHealthCheckService<RDCoreServerProxy>, HealthCheckService<RDCoreServerProxy>>()
+            .AddSingleton<IRDCoreServerProxyFactory, RDCoreServerProxyFactory>()
             .AddSingleton<IPlatformCompositionService, PlatformCompositionService>()
             .AddSingleton<IPlatformOrchestrationService, PlatformOrchestrationService>();
     }

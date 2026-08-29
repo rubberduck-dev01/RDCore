@@ -61,6 +61,31 @@ public abstract class AppHost<TApp>() : IDisposable
     protected virtual Task BeforeAppStartAsync(IServiceProvider provider) => Task.CompletedTask;
 
     /// <summary>
+    /// Builds the host, resolves and runs the <c>TApp</c> application.
+    /// </summary>
+    /// <remarks>
+    /// Overrides should invoke the base implementation to run the base protocol.
+    /// </remarks>
+    protected virtual async Task BuildAndRunAsync(HostApplicationBuilder builder, string[] args)
+    {
+        _host = builder.Build();
+        _app = _host.Services.GetRequiredService<TApp>();
+
+        await BeforeAppStartAsync(_host.Services);
+
+        try
+        {
+            _hostTask = _host.StartAsync();
+            await _app.RunAsync(_host.Services);
+            await _hostTask;
+        }
+        finally
+        {
+            await _host.StopAsync();
+        }
+    }
+
+    /// <summary>
     /// Runs the <c>RDCore.SDK</c> client/server application.
     /// </summary>
     /// <remarks>
@@ -74,29 +99,14 @@ public abstract class AppHost<TApp>() : IDisposable
         try
         {
             var builder = Host.CreateApplicationBuilder();
-
             var configuration = builder.Configuration;
-            configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             Configure(configuration, builder.Services, args);
 
             ConfigureExternalServices(builder.Services, configuration);
             ConfigureAdditionalExternalServices(builder.Services, configuration);
 
-            _host = builder.Build();
-            _app = _host.Services.GetRequiredService<TApp>();
-
-            await BeforeAppStartAsync(_host.Services);
-
-            try
-            {
-                _hostTask = _host.StartAsync();
-                await _app.RunAsync(_host.Services);
-                await _hostTask;
-            }
-            finally
-            {
-                await _host.StopAsync();
-            }
+            await BuildAndRunAsync(builder, args);
         }
         catch (OperationCanceledException)
         {

@@ -41,7 +41,7 @@ public record class SdkAppCommandLineArgs
     [Option('k', "healthcheck-timeout")]
     public int? HealthCheckIntervalSeconds { get; init; }
     /// <summary>
-    /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.HealthCheckIntervalSeconds"/> setting.
+    /// A <em>command-line argument</em> that overrides the <see cref="TransportOptions.Type"/> setting.
     /// </summary>
     [Option('m', "mode")]
     public ServerTransportLayerMode Type { get; init; }
@@ -85,7 +85,7 @@ public record class SdkAppCommandLineArgs
     /// A <em>command-line argument</em> that overrides the <see cref="SdkWorkspaceOptions.WorkspaceUri"/> setting.
     /// </summary>
     /// <remarks>
-    /// 👉 This argument is required for starting a server app.
+    /// 👉 This argument is required for starting a language server app.
     /// </remarks>
     [Option('w', "workspace")]
     public string? WorkspaceUri { get; init; }
@@ -252,7 +252,7 @@ public record class SdkPlatformOptions
 /// </summary>
 public record class ExtensionsOptions
 {
-    private const string _defaultExtensionsLocation = "../extensions";
+    private const string _defaultExtensionsLocation = "Extensions";
     private const string _defaultExtensionManifestName = "extension.manifest.json";
 
     /// <summary>

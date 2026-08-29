@@ -17,8 +17,17 @@ public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        using var host = new RDCoreConsoleClientHost();
-        return await host.RunAsync(args);
+        try
+        {
+            using var host = new RDCoreConsoleClientHost();
+            return await host.RunAsync(args);
+        }
+        catch(Exception exception)
+        {
+            Console.WriteLine(exception);
+        }
+        Console.ReadLine();
+        return -1;
     }
 }
 

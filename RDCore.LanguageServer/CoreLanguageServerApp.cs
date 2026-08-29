@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Client;
 using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 
@@ -18,7 +20,7 @@ namespace RDCore.LanguageServer;
 /// <strong>orchestrating communications</strong> between the IDE editor and the applications and services of the RDCore platform.
 /// </remarks>
 internal sealed class CoreLanguageServerApp(
-    //IOptions<SdkServerOptions> options,
+    IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IPlatformCompositionService composition,
     IPlatformOrchestrationService orchestration,
@@ -26,7 +28,7 @@ internal sealed class CoreLanguageServerApp(
     IHealthCheckService<CoreLanguageServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<CoreLanguageServerApp> logger)
-    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
+    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.LanguageServer;
 

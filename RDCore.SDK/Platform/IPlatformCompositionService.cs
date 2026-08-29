@@ -16,7 +16,6 @@ namespace RDCore.SDK.Platform;
 
 public interface IPlatformCompositionService
 {
-    string RootPath { get; }
     PlatformManifest GetManifest();
     ImmutableArray<ExtensionInfo> GetExtensions();
 }
@@ -24,11 +23,8 @@ public interface IPlatformCompositionService
 public class PlatformCompositionService(IFileSystem fileSystem, IExtensionsProvider extensions) : IPlatformCompositionService
 {
     private static readonly string _manifestFileName = "rdcore.json";
-    private readonly string _rootPath = fileSystem.Directory.GetParent(Assembly.GetEntryAssembly()!.Location)!.FullName;
     private PlatformManifest? _cached;
     private ImmutableArray<ExtensionInfo>? _extensions;
-
-    public string RootPath => _rootPath;
 
     public ImmutableArray<ExtensionInfo> GetExtensions()
     {
@@ -40,9 +36,9 @@ public class PlatformCompositionService(IFileSystem fileSystem, IExtensionsProvi
     {
         if (_cached is null)
         {
-            var path = fileSystem.Path.Combine(_rootPath, _manifestFileName);
+            var path = fileSystem.Path.Combine(fileSystem.Directory.GetParent(fileSystem.Directory.GetCurrentDirectory())!.FullName, _manifestFileName);
             var content = fileSystem.File.ReadAllText(path);
-            _cached = JsonSerializer.Deserialize<PlatformManifest>(content)
+            _cached = JsonSerializer.Deserialize<PlatformManifest>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                 ?? throw new InvalidOperationException();
         }
         return _cached;

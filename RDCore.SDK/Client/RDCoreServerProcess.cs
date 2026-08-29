@@ -100,7 +100,7 @@ public class RDCoreServerProcess(
             throw new ServerAlreadyRunningException(running.Id);
         }
 
-        var fullPath = FileSystem.Path.Combine(Platform.RootPath, relativePath);
+        var fullPath = FileSystem.Path.Combine(FileSystem.Directory.GetParent(FileSystem.Directory.GetCurrentDirectory())!.FullName, relativePath);
         
         var args = CommandLine.UnParserExtensions.FormatCommandLine(CommandLine.Parser.Default, 
             new SdkAppCommandLineArgs

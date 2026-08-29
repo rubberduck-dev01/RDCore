@@ -28,7 +28,8 @@ public class ExtensionsClient(
     private readonly Dictionary<string, ExtensionInfo> _extensions = [];
     private readonly Dictionary<ExtensionInfo, IRDCoreClientApp> _clients = [];
 
-    private IDirectoryInfo ExtensionsFolder => fileSystem.DirectoryInfo.New(options.Value.Platform.Extensions.Path);
+    private IDirectoryInfo ExtensionsFolder => fileSystem.DirectoryInfo.New(
+        fileSystem.Path.Combine(fileSystem.Directory.GetCurrentDirectory(), options.Value.Platform.Extensions.Path));
 
     /// <summary>
     /// Enables the specified <see cref="ExtensionInfo"/> if the manifest and associated executable pass validation.

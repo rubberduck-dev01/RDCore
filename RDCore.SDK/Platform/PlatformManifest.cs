@@ -2,12 +2,12 @@
 
 public record class PlatformManifest
 {
-    public string PlatformVersion { get; init; } = string.Empty;
-    public DateTime GeneratedUtc { get; init; } = default;
+    public string PlatformVersion { get; set; } = string.Empty;
+    public DateTime GeneratedUtc { get; set; } = default;
 
-    public string ExtensionsDirectory { get; init; } = string.Empty;
+    public string ExtensionsDirectory { get; set; } = string.Empty;
 
-    public string HostService { get; init; } = string.Empty;
-    public string LangService { get; init; } = string.Empty;
-    public string ParseServer { get; init; } = string.Empty;
+    public string HostService { get; set; } = string.Empty;
+    public string LangService { get; set; } = string.Empty;
+    public string ParseServer { get; set; } = string.Empty;
 }
