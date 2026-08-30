@@ -39,8 +39,13 @@ public sealed class RDCorePlatformDefaultTransportLayer(IOptions<SdkAppOptions> 
         => new(Options.Value.Platform.Transport.PipeConfig.PipeName, PipeDirection.InOut,
             Options.Value.Platform.Transport.PipeConfig.MaximumInstances,
             PipeTransmissionMode.Byte, // NOTE: 'Message' transmission mode is only supported with Windows pipes.
-            System.IO.Pipes.PipeOptions.CurrentUserOnly);
+            // NOTE: 'Asynchronous' is REQUIRED here. Both sides wrap this single duplex handle
+            // as *both* PipeReader (input) and PipeWriter (output). On a non-overlapped handle
+            // Windows serializes I/O on the file object, so the JSON-RPC input read-loop blocks
+            // every outgoing write -- the 'initialize' request never leaves the client.
+            System.IO.Pipes.PipeOptions.CurrentUserOnly | System.IO.Pipes.PipeOptions.Asynchronous);
 
     public NamedPipeClientStream ConfigureClient(string pipeName) 
-        => new(".", pipeName, PipeDirection.InOut, System.IO.Pipes.PipeOptions.CurrentUserOnly);
+        => new(".", pipeName, PipeDirection.InOut,
+            System.IO.Pipes.PipeOptions.CurrentUserOnly | System.IO.Pipes.PipeOptions.Asynchronous);
 }
