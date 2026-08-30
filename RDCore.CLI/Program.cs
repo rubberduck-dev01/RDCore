@@ -3,8 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Server;
 using RDCore.CLI.App.Commands;
 using RDCore.CLI.App.Messages;
 using RDCore.CLI.Themes.Model;
@@ -38,8 +41,7 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 {
     protected async override Task BuildAndRunAsync(HostApplicationBuilder builder, string[] args)
     {
-        var options = Parser.Default.ParseArguments<SdkAppCommandLineArgs>(args);
-        if (options?.Value.WorkspaceUri is not null)
+        if (args.Any())
         {
             // we can only build and run the protocol client if we have a workspace.
             await base.BuildAndRunAsync(builder, args);
@@ -57,13 +59,14 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
             .AddSingleton<IAppThemeService, AppThemeService>()
             .AddSingleton<IAppThemeLoaderService, AppThemeLoaderService>()
             .AddSingleton<IConsoleMessageWriter, DefaultConsoleMessageWriter>()
-            .AddSingleton<ILoggerProvider, RDCoreConsoleLoggerProvider>()
+            //.AddSingleton<ILoggerProvider, RDCoreConsoleLoggerProvider>()
             .AddSingleton<ShowSplashCommand>();
     }
 
     protected override void ConfigureExternalLogging(IServiceCollection services, ILoggingBuilder builder, IConfiguration configuration)
     {
-        builder.SetMinimumLevel(Enum.Parse<LogLevel>(configuration["Server:TraceLevel"] ?? "None"));
+        builder.AddSimpleConsole(options => options.ColorBehavior = LoggerColorBehavior.Enabled);
+        builder.SetMinimumLevel(LogLevel.Trace /*Enum.Parse<LogLevel>(configuration["Server:TraceLevel"] ?? "None")*/);
     }
 
     protected override async Task BeforeAppStartAsync(IServiceProvider provider)
@@ -74,11 +77,12 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 }
 
 internal class RDCoreConsoleClientApp(
+    IOptions<SdkAppOptions> options,
     IRDCoreServerProcess serverProcess,
     IHealthCheckService<RDCoreConsoleClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<RDCoreConsoleClientApp> logger)
-    : RDCoreClientApp(serverProcess, healthCheckService, transportLayer, logger)
+    : RDCoreClientApp(options, serverProcess, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.ClientApp;
 

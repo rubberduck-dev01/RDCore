@@ -1,16 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
-using RDCore.SDK.Model.AST;
-using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Platform;
-using RDCore.SDK.Platform.Protocol;
 using RDCore.SDK.Server;
-using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 
@@ -38,6 +32,8 @@ internal sealed class CoreLanguageServerApp(
     protected override async Task BeforeRunAsync(string[] args)
     {
         var platform = composition.GetManifest();
+        LogIfEnabled(LogLevel.Information, "✅ Acquired platform manifest");
+
         orchestration.RegisterCoreComponent(factory =>
             factory.Create(CoreServerComponent.ParsingServer,
                 new CorePlatformClientCapabilities
@@ -49,13 +45,15 @@ internal sealed class CoreLanguageServerApp(
                 }));
         //.RegisterCoreComponent(factory => factory.Create(CoreServerComponent.EnvironmentHost, TODO));
 
+        LogIfEnabled(LogLevel.Information, "✅ Registered RDCore platform components");
+
         var loadExtensionTasks = extensionsProvider.Discover().Select(extension => Task.Run(() =>
         {
             orchestration.RegisterExtension(extension, factory => factory.Create(CoreServerComponent.Extension,
                 new() /*TODO provide the extension capabilities here*/));
         }));
-
         await Task.WhenAll(loadExtensionTasks);
+        LogIfEnabled(LogLevel.Information, "✅ Registered RDCore platform extensions");
     }
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
@@ -118,15 +116,16 @@ internal sealed class CoreLanguageServerApp(
 
     protected override void OnLanguageServerStarted(ILanguageServer server)
     {
+        LogIfEnabled(LogLevel.Information, "Language Server app started.");
         // TODO some ParsingClientService should be responsible for caching ASTs.
-        var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        var uri = new Uri(RDCoreUriNamespaces.RDCoreWorkspaceUri + "/dev-temp1/module1.bas");
-        var request = new ParseDocumentParams
-        {
-            ModuleType = ModuleType.StdModule,
-            DocumentUri = uri
-        };
-        _ = orchestration.ParsingService.SendRequestAsync<ParseDocumentParams, ModuleParseResult>(request, tokenSource.Token);
+        //var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        ////var uri = new Uri(RDCoreUriNamespaces.RDCoreWorkspaceUri + "/dev-temp1/module1.bas");
+        //var request = new ParseDocumentParams
+        //{
+        //    ModuleType = ModuleType.StdModule,
+        //    DocumentUri = uri
+        //};
+        //_ = orchestration.ParsingService.SendRequestAsync<ParseDocumentParams, ModuleParseResult>(request, tokenSource.Token);
     }
 
     protected override void Dispose(bool disposing) { }

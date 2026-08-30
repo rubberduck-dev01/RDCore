@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -9,10 +10,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using RDCore.SDK.Extensibility;
 using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Handlers;
 using RDCore.SDK.Server.Handlers.Lifecycle;
 using RDCore.SDK.Server.Services;
-using System.IO.Abstractions;
 using System.Reflection;
 
 using OmniSharpLanguageClient = OmniSharp.Extensions.LanguageServer.Client.LanguageClient;
@@ -38,6 +39,7 @@ public interface IRDCoreClientApp : IRDCoreApp
 /// 🧩 Most RDCore apps are server-side, but if you were making an IDE or a CLI app, this would be your LSP app.
 /// </remarks>
 public abstract class RDCoreClientApp(
+    IOptions<SdkAppOptions> options,
     IRDCoreServerProcess serverProcess,
     IHealthCheckService<RDCoreClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
@@ -118,7 +120,7 @@ public abstract class RDCoreClientApp(
         };
 
         // start the process first:
-        serverProcess.Start(path, transportLayer.PipeName, ServerToken);
+        await serverProcess.StartAsync(path, options.Value.Platform.Transport.PipeConfig.PipeName, ServerToken);
 
         // by the time we're configured on this side, the server pipe should be ready:
         Client = await OmniSharpLanguageClient.From(ConfigureClient, ServerToken.Token);

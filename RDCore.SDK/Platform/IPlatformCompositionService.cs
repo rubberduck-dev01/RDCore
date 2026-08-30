@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using System.Collections.Immutable;
 using System.IO.Abstractions;
@@ -32,13 +33,14 @@ public class PlatformCompositionService(IFileSystem fileSystem, IExtensionsProvi
         return _extensions.Value;
     }
 
+    private static JsonSerializerOptions _serializationOptions = new(){ PropertyNameCaseInsensitive = true };
     public PlatformManifest GetManifest()
     {
         if (_cached is null)
         {
             var path = fileSystem.Path.Combine(fileSystem.Directory.GetParent(fileSystem.Directory.GetCurrentDirectory())!.FullName, _manifestFileName);
             var content = fileSystem.File.ReadAllText(path);
-            _cached = JsonSerializer.Deserialize<PlatformManifest>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            _cached = JsonSerializer.Deserialize<PlatformManifest>(content, _serializationOptions)
                 ?? throw new InvalidOperationException();
         }
         return _cached;
@@ -64,6 +66,7 @@ public class RDCoreServerProxy : RDCoreClientApp
     private readonly Action<IServiceCollection> _configureServices;
 
     public RDCoreServerProxy(
+        IOptions<SdkAppOptions> options,
         CoreServerComponent platformComponent, 
         CorePlatformClientCapabilities capabilities,
         Action<IRDCoreLSPHandlerConfigurationBuilder> configureHandlers,
@@ -73,7 +76,7 @@ public class RDCoreServerProxy : RDCoreClientApp
         IHealthCheckService<RDCoreClientApp> healthCheckService, 
         ILanguageServerProtocolTransportLayer transportLayer, 
         ILogger<RDCoreClientApp> logger) 
-        : base(serverProcess, healthCheckService, transportLayer, logger)
+        : base(options, serverProcess, healthCheckService, transportLayer, logger)
     {
         _platformComponent = platformComponent;
         _capabilities = capabilities;

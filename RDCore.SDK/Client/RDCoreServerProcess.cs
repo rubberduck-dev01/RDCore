@@ -15,7 +15,7 @@ public interface IRDCoreServerProcess : IDisposable
     /// <summary>
     /// Runs a server executable with command-line arguments mapping the specified <c>LanguageClientSettings</c>.
     /// </summary>
-    void Start(string relativePath, string pipeName, CancellationTokenSource tokenSource);
+    Task StartAsync(string relativePath, string pipeName, CancellationTokenSource tokenSource);
     /// <summary>
     /// Stops awaiting LSP server process exit to restart it.
     /// </summary>
@@ -91,7 +91,7 @@ public class RDCoreServerProcess(
 
     public void Shutdown() => _serverProcess?.Kill();
 
-    public void Start(string relativePath, string pipeName, CancellationTokenSource tokenSource)
+    public async Task StartAsync(string relativePath, string pipeName, CancellationTokenSource tokenSource)
     {
         if (_serverProcess is Process running)
         {
@@ -99,28 +99,28 @@ public class RDCoreServerProcess(
             throw new ServerAlreadyRunningException(running.Id);
         }
 
-        var fullPath = FileSystem.Path.Combine(FileSystem.Directory.GetParent(FileSystem.Directory.GetCurrentDirectory())!.FullName, relativePath.Replace('/', '\\'));
-        
-        var args = CommandLine.UnParserExtensions.FormatCommandLine(CommandLine.Parser.Default, 
-            new SdkAppCommandLineArgs
+        var fullPath = FileSystem.Path.Combine(
+            FileSystem.Directory.GetParent(FileSystem.Directory.GetCurrentDirectory())!.FullName, 
+            relativePath.Replace('/', '\\'));
+        var args = new SdkAppCommandLineArgs
             {
                 ClientProcessId = Environment.ProcessId,
                 PipeName =  pipeName,
                 TraceLevel = LogLevel.Trace, // Enum.Parse<LogLevel>(Configuration["Configuration:Server:TraceLevel"] ?? "None"),
                 Verbose = true, //Convert.ToBoolean(Configuration["Configuration:Server:Verbose"]),
-                WorkspaceUri = Configuration["Configuration:Workspace:WorkspaceUri"],
-            });
+                WorkspaceUri = Configuration["Configuration:Workspace:WorkspaceUri"]!,
+            };
 
-        var info = CreateProcessStartInfo(fullPath, args);
+        var info = CreateProcessStartInfo(fullPath, $"--ClientProcessId {args.ClientProcessId} --PipeName {args.PipeName} --WorkspaceUri {args.WorkspaceUri} --TraceLevel {args.TraceLevel} --Verbose {args.Verbose}");
         if (Logger.IsEnabled(LogLevel.Debug))
         {
-            Logger.LogDebug("[ProcessStartInfo]\n\tPath:'{path}'\n\tWorkingDirectory:'{workdir}'\n\tArguments:'{args}'", fullPath, info.WorkingDirectory, info.Arguments); // TODO REMOVE
+            Logger.LogDebug("[ProcessStartInfo]\n\tPath:'{path}'\n\tWorkingDirectory:'{workdir}'\n\tArguments:'{args}'", fullPath, info.WorkingDirectory, info.Arguments);
         }
 
         _serverProcess = Process.Start(info) ?? throw new ServerNotFoundException(fullPath);
         _waitForExit = _serverProcess.WaitForExitAsync(_tokenSource.Token);
 
-        Task.Delay(TimeSpan.FromSeconds(5)).Wait();
+        await Task.Delay(TimeSpan.FromSeconds(5));
         if (_serverProcess.HasExited)
         {
             // server process was started but unexpectedly exited.
@@ -130,7 +130,7 @@ public class RDCoreServerProcess(
 
     private ProcessStartInfo CreateProcessStartInfo(string validPath, string args) => new()
     {
-        FileName = FileSystem.Path.GetFileName(validPath),
+        FileName = validPath,
         WorkingDirectory = FileSystem.Path.GetDirectoryName(validPath),
         Arguments = args,
         CreateNoWindow = true,

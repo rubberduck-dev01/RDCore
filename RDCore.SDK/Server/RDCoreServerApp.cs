@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -25,13 +26,8 @@ namespace RDCore.SDK.Server;
 /// </summary>
 public interface IRDCoreServerApp : IRDCoreApp
 {
-    /// <summary>
-    /// The <c>OmniSharp</c> <em>language server</em>, once initialized.
-    /// </summary>
-    /// <remarks>
-    /// ⚠️ This property <strong>will throw</strong> if used before initialization.
-    /// </remarks>
-    ILanguageServer LanguageServer { get; }
+    Task<TResult> SendRequestAsync<TParams, TResult>(TParams request, CancellationToken token) where TParams : IRequest<TResult>;
+    Task SendNotificationAsync<TParams>(TParams notification, CancellationToken token) where TParams : IRequest;
 }
 
 /// <summary>
@@ -55,18 +51,17 @@ public abstract class RDCoreServerApp(
 
     public abstract CoreServerComponent PlatformComponent { get; }
     private OmniSharpLanguageServer? Server { get; set; }
+    public async Task<TResult> SendRequestAsync<TParams, TResult>(TParams request, CancellationToken token) where TParams : IRequest<TResult>
+        => await Server!.SendRequest(request, token);
+
+    public Task SendNotificationAsync<TParams>(TParams notification, CancellationToken token) where TParams : IRequest
+    {
+        token.ThrowIfCancellationRequested();
+        Server!.SendNotification(notification);
+        return Task.CompletedTask;
+    }
 
     private Task? WaitForClientConnectionTask { get; set; }
-
-    /// <summary>
-    /// Gets the encapsulated <c>OmniSharp</c> language server interface.
-    /// </summary>
-    /// <remarks>
-    /// ⚠️ <strong><em>Temporal coupling</em>: this property getter will throw</strong> if it is used before <c>RunAsync</c> is called.
-    /// </remarks>
-    /// <exception cref="ServerProtocolSdkException">Thrown </exception>
-    public ILanguageServer LanguageServer => Server 
-        ?? throw new ServerProtocolSdkException(Exceptions.LanguageServerProtocolSdkException_ServerNotInitialized);
 
     protected async virtual Task BeforeRunAsync(string[] args) { }
 
@@ -118,7 +113,6 @@ public abstract class RDCoreServerApp(
 
     private void ConfigureServer(LanguageServerOptions options)
     {
-        WaitForClientConnectionTask = transportLayer.GetWaitForClientConnectionTaskAsync(options, ServerStateProvider.ProcessTokenSource.Token);
         options
             // basic server app information:
             .WithServerInfo(GetServerInfo())
@@ -140,6 +134,15 @@ public abstract class RDCoreServerApp(
                 builder.AddLanguageProtocolLogging();
             });
         });
+
+        try
+        {
+            WaitForClientConnectionTask = transportLayer.GetWaitForClientConnectionTaskAsync(options, ServerStateProvider.ProcessTokenSource.Token);
+        }
+        catch (Exception exception)
+        {
+            LogIfEnabled(LogLevel.Error, exception.ToString());
+        }
 
         LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageServerConfigurationCompleted);
     }
@@ -195,10 +198,14 @@ public abstract class RDCoreServerApp(
     /// <strong>The client owns the file system</strong> for any document that is currently <em>opened</em>.<br/>
     /// ❌ <strong>DO NOT</strong> configure any server-side <see cref="System.IO.FileSystemWatcher"/>.
     /// </remarks>
-    protected virtual void OnLanguageServerStarted(ILanguageServer server) { }
+    protected virtual void OnLanguageServerStarted(ILanguageServer server) 
+    {
+        LogIfEnabled(LogLevel.Information, "✅ Language server started.");
+    }
 
     private async Task HandleLanguageServerInitializeAsync(ILanguageServer server, InitializeParams request, CancellationToken token)
     {
+        LogIfEnabled(LogLevel.Information, "Received LSP/Initialize request.");
         ServerStateProvider.OnInitialize();
         if (request.ProcessId is not null)
         {

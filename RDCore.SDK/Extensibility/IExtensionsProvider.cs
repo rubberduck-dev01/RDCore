@@ -1,6 +1,4 @@
-﻿using RDCore.SDK.Extensibility;
-
-namespace RDCore.LanguageServer.Extensibility;
+﻿namespace RDCore.SDK.Extensibility;
 
 /// <summary>
 /// A service that can discover and manage platform extensions.

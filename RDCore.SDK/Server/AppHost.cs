@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
 using RDCore.SDK.Platform;
@@ -70,14 +69,26 @@ public abstract class AppHost<TApp>() : IDisposable
     {
         _host = builder.Build();
         _app = _host.Services.GetRequiredService<TApp>();
+        LogIfEnabled(LogLevel.Information, "Application resolved successfully. Starting server host...");
 
         await BeforeAppStartAsync(_host.Services);
 
         try
         {
+            
             _hostTask = _host.StartAsync();
+            LogIfEnabled(LogLevel.Information, "Server host started; starting server application...");
+
             await _app.RunAsync(_host.Services, args);
             await _hostTask;
+        }
+        catch (OperationCanceledException)
+        {
+            LogIfEnabled(LogLevel.Information, "Operation was cancelled.");
+        }
+        catch (Exception exception)
+        {
+            LogIfEnabled(LogLevel.Error, exception.ToString());
         }
         finally
         {
@@ -101,6 +112,7 @@ public abstract class AppHost<TApp>() : IDisposable
             var builder = Host.CreateApplicationBuilder();
             var configuration = builder.Configuration;
             configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            configuration.AddCommandLine(args);
             Configure(configuration, builder.Services, args);
 
             ConfigureExternalServices(builder.Services, configuration);
@@ -138,16 +150,11 @@ public abstract class AppHost<TApp>() : IDisposable
     /// <returns>The effective <see cref="SdkAppOptions"/> configuration.</returns>
     protected virtual void Configure(IConfiguration configuration, IServiceCollection services, string[] args) 
     {
-        var overrides = CommandLine.Parser.Default.ParseArguments<SdkAppCommandLineArgs>(args);
-        var canOverride = !overrides.Errors.Any();
-
+        //var commandLineArgs = CommandLine.Parser.Default.ParseArguments<SdkAppCommandLineArgs>(args);
         var config = configuration.GetSection("Configuration");
         services.Configure<SdkAppOptions>(config);
 
-        if (canOverride)
-        {
-            config.Bind(overrides);
-        }
+        config["Platform:Transport:PipeConfig:PipeName"] = configuration["PipeName"];
     }
 
     /// <summary>

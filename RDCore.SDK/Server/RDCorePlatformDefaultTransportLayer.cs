@@ -57,6 +57,10 @@ public sealed class RDCorePlatformDefaultTransportLayer(IOptions<TransportOption
     {
         // server should have received the pipe name from command-line configuration:
         var pipeName = Options.PipeConfig.PipeName;
+        if (Logger.IsEnabled(LogLevel.Information))
+        {
+            Logger.LogInformation("ℹ️ Establishing bidirectional named pipe connection '{pipeName}'...", pipeName);
+        }
 
         NamedPipeServerStream = new NamedPipeServerStream(pipeName, PipeDirection.InOut,
             Options.PipeConfig.MaximumInstances,

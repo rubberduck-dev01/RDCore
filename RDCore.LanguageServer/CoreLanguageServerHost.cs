@@ -23,6 +23,7 @@ internal sealed class CoreLanguageServerHost() : RDCorePlatformServerHost<CoreLa
 
     protected override void ConfigureExternalLogging(IServiceCollection services, ILoggingBuilder builder, IConfiguration configuration)
     {
+        builder.AddFile("..\\Logs\\RDCore.LanguageServer.log");
         base.ConfigureExternalLogging(services, builder, configuration);
     }
 }
