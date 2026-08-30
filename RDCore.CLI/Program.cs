@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CommandLine;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -8,6 +10,7 @@ using RDCore.CLI.App.Messages;
 using RDCore.CLI.Themes.Model;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using System.IO.Abstractions;
 
@@ -33,6 +36,21 @@ public class Program
 
 internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsoleClientApp>()
 {
+    protected async override Task BuildAndRunAsync(HostApplicationBuilder builder, string[] args)
+    {
+        var options = Parser.Default.ParseArguments<SdkAppCommandLineArgs>(args);
+        if (options?.Value.WorkspaceUri is not null)
+        {
+            // we can only build and run the protocol client if we have a workspace.
+            await base.BuildAndRunAsync(builder, args);
+        }
+        else
+        {
+            // TODO REPL / command/program mode
+            throw new NotSupportedException("This mode is not supported yet; workspace root uri argument is not optional.");
+        }
+    }
+
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
         services
@@ -57,11 +75,10 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 
 internal class RDCoreConsoleClientApp(
     IRDCoreServerProcess serverProcess,
-    IFileSystem fileSystem,
     IHealthCheckService<RDCoreConsoleClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
-    ILogger<RDCoreConsoleClientApp> logger) 
-    : RDCoreClientApp(serverProcess, fileSystem, healthCheckService, transportLayer, logger)
+    ILogger<RDCoreConsoleClientApp> logger)
+    : RDCoreClientApp(serverProcess, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.ClientApp;
 

@@ -21,12 +21,11 @@ internal class CoreDiagnosticsAppHost() : RDCorePlatformServerHost<CoreDiagnosti
 
 
 internal class CoreDiagnosticsApp(
-        IOptions<SdkAppOptions> options, 
         IServerStateProvider serverStateProvider,
         IHealthCheckService<CoreDiagnosticsApp> healthCheckService,
         ILanguageServerProtocolTransportLayer transportLayer,
-        ILogger<CoreDiagnosticsApp> logger) 
-    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
+        ILogger<CoreDiagnosticsApp> logger)
+    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 

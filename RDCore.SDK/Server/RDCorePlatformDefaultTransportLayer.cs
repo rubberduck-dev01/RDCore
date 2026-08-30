@@ -6,6 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using RDCore.SDK.Server.Configuration;
 using System.IO.Pipelines;
 using System.IO.Pipes;
+using System.Reflection.Metadata;
 
 namespace RDCore.SDK.Server;
 
@@ -14,7 +15,6 @@ namespace RDCore.SDK.Server;
 /// </summary>
 public interface ILanguageServerProtocolTransportLayer : IDisposable
 {
-
     /// <summary>
     /// Gets a <c>Task</c> that completes then the server establishes a transport-level connection with a client.
     /// </summary>
@@ -26,6 +26,10 @@ public interface ILanguageServerProtocolTransportLayer : IDisposable
     /// </summary>
     /// <param name="options">The <see cref="LanguageClientOptions"/> to configure the LSP client.</param>
     void ConfigureClient(LanguageClientOptions options);
+    /// <summary>
+    /// Gets the random pipe name used for this client instance.
+    /// </summary>
+    string PipeName { get; }
 }
 
 
@@ -51,7 +55,9 @@ public sealed class RDCorePlatformDefaultTransportLayer(IOptions<TransportOption
 
     public Task GetWaitForClientConnectionTaskAsync(LanguageServerOptions options, CancellationToken processToken)
     {
+        // server should have received the pipe name from command-line configuration:
         var pipeName = Options.PipeConfig.PipeName;
+
         NamedPipeServerStream = new NamedPipeServerStream(pipeName, PipeDirection.InOut,
             Options.PipeConfig.MaximumInstances,
             PipeTransmissionMode.Byte, // NOTE: 'Message' transmission mode is only supported with Windows pipes.
@@ -64,17 +70,24 @@ public sealed class RDCorePlatformDefaultTransportLayer(IOptions<TransportOption
 
         if (Logger.IsEnabled(LogLevel.Trace))
         {
-            Logger.LogTrace("⏳ Named pipe '{pipeName}' initialized; asynchronously awaiting client connection...", pipeName);
+            Logger.LogTrace("⏳ SERVER - Connection established through named pipe '{pipeName}'; asynchronously awaiting client connection...", pipeName);
         }
         return NamedPipeServerStream.WaitForConnectionAsync(processToken);
     }
 
+    public string PipeName { get; } = Options.Value.PipeConfig.PipeName;
+
     public void ConfigureClient(LanguageClientOptions options)
     {
-        var pipeName = Options.PipeConfig.PipeName;
-        NamedPipeClientStream = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, System.IO.Pipes.PipeOptions.CurrentUserOnly);
+        NamedPipeClientStream = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut, System.IO.Pipes.PipeOptions.CurrentUserOnly);
+
         options
             .WithInput(PipeReader.Create(NamedPipeClientStream))
             .WithOutput(PipeWriter.Create(NamedPipeClientStream));
+
+        if (Logger.IsEnabled(LogLevel.Trace))
+        {
+            Logger.LogTrace("⏳ CLIENT - Named pipe '{pipeName}' configuration completed.", PipeName);
+        }
     }
 }

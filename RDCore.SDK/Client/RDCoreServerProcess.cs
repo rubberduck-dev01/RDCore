@@ -15,7 +15,7 @@ public interface IRDCoreServerProcess : IDisposable
     /// <summary>
     /// Runs a server executable with command-line arguments mapping the specified <c>LanguageClientSettings</c>.
     /// </summary>
-    void Start(string relativePath, CancellationTokenSource tokenSource);
+    void Start(string relativePath, string pipeName, CancellationTokenSource tokenSource);
     /// <summary>
     /// Stops awaiting LSP server process exit to restart it.
     /// </summary>
@@ -63,7 +63,6 @@ public enum CoreServerComponent
 /// <param name="Logger">A standard <see cref="ILogger"/>.</param>
 public class RDCoreServerProcess(
     IFileSystem FileSystem,
-    IPlatformCompositionService Platform,
     IConfiguration Configuration,
     ILogger<RDCoreServerProcess> Logger) : IRDCoreServerProcess
 {
@@ -92,7 +91,7 @@ public class RDCoreServerProcess(
 
     public void Shutdown() => _serverProcess?.Kill();
 
-    public void Start(string relativePath, CancellationTokenSource tokenSource)
+    public void Start(string relativePath, string pipeName, CancellationTokenSource tokenSource)
     {
         if (_serverProcess is Process running)
         {
@@ -100,15 +99,15 @@ public class RDCoreServerProcess(
             throw new ServerAlreadyRunningException(running.Id);
         }
 
-        var fullPath = FileSystem.Path.Combine(FileSystem.Directory.GetParent(FileSystem.Directory.GetCurrentDirectory())!.FullName, relativePath);
+        var fullPath = FileSystem.Path.Combine(FileSystem.Directory.GetParent(FileSystem.Directory.GetCurrentDirectory())!.FullName, relativePath.Replace('/', '\\'));
         
         var args = CommandLine.UnParserExtensions.FormatCommandLine(CommandLine.Parser.Default, 
             new SdkAppCommandLineArgs
             {
                 ClientProcessId = Environment.ProcessId,
-                PipeName =  Configuration["Configuration:Platform:Transport:PipeConfig:PipeName"],
-                TraceLevel = Enum.Parse<LogLevel>(Configuration["Configuration:Server:TraceLevel"] ?? "None"),
-                Verbose = Convert.ToBoolean(Configuration["Configuration:Server:Verbose"]),
+                PipeName =  pipeName,
+                TraceLevel = LogLevel.Trace, // Enum.Parse<LogLevel>(Configuration["Configuration:Server:TraceLevel"] ?? "None"),
+                Verbose = true, //Convert.ToBoolean(Configuration["Configuration:Server:Verbose"]),
                 WorkspaceUri = Configuration["Configuration:Workspace:WorkspaceUri"],
             });
 
@@ -121,6 +120,7 @@ public class RDCoreServerProcess(
         _serverProcess = Process.Start(info) ?? throw new ServerNotFoundException(fullPath);
         _waitForExit = _serverProcess.WaitForExitAsync(_tokenSource.Token);
 
+        Task.Delay(TimeSpan.FromSeconds(5)).Wait();
         if (_serverProcess.HasExited)
         {
             // server process was started but unexpectedly exited.

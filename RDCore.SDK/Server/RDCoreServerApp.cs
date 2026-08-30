@@ -46,7 +46,6 @@ public interface IRDCoreServerApp : IRDCoreApp
 /// 🧩 Since RDCore extensions are LSP servers, this is the base class for most RDCore applications.
 /// </remarks>
 public abstract class RDCoreServerApp(
-    IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IHealthCheckService<RDCoreServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
@@ -69,12 +68,12 @@ public abstract class RDCoreServerApp(
     public ILanguageServer LanguageServer => Server 
         ?? throw new ServerProtocolSdkException(Exceptions.LanguageServerProtocolSdkException_ServerNotInitialized);
 
-    protected async virtual Task BeforeRunAsync() { }
+    protected async virtual Task BeforeRunAsync(string[] args) { }
 
-    public async Task RunAsync(IServiceProvider externalServiceProvider)
+    public async Task RunAsync(IServiceProvider externalServiceProvider, string[] args)
     {
         LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageServerStarting);
-        await BeforeRunAsync();
+        await BeforeRunAsync(args);
 
         Server = await OmniSharpLanguageServer.From(ConfigureServer, externalServiceProvider, ServerStateProvider.ProcessTokenSource.Token);
 

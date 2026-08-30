@@ -4,7 +4,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Client;
+using RDCore.SDK.Extensibility;
+using RDCore.SDK.Model.AST;
+using RDCore.SDK.Model.AST.Declarations;
 using RDCore.SDK.Platform;
+using RDCore.SDK.Platform.Protocol;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
@@ -20,7 +24,6 @@ namespace RDCore.LanguageServer;
 /// <strong>orchestrating communications</strong> between the IDE editor and the applications and services of the RDCore platform.
 /// </remarks>
 internal sealed class CoreLanguageServerApp(
-    IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IPlatformCompositionService composition,
     IPlatformOrchestrationService orchestration,
@@ -28,11 +31,11 @@ internal sealed class CoreLanguageServerApp(
     IHealthCheckService<CoreLanguageServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<CoreLanguageServerApp> logger)
-    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
+    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.LanguageServer;
 
-    protected override async Task BeforeRunAsync()
+    protected override async Task BeforeRunAsync(string[] args)
     {
         var platform = composition.GetManifest();
         orchestration.RegisterCoreComponent(factory =>
@@ -44,14 +47,15 @@ internal sealed class CoreLanguageServerApp(
                         ParseFullDocument = new ParseFullDocument(true)
                     }
                 }));
-            //.RegisterCoreComponent(factory => factory.Create(CoreServerComponent.EnvironmentHost, TODO));
+        //.RegisterCoreComponent(factory => factory.Create(CoreServerComponent.EnvironmentHost, TODO));
 
-        var extensions = extensionsProvider.Discover();
-        foreach (var extension in extensions)
+        var loadExtensionTasks = extensionsProvider.Discover().Select(extension => Task.Run(() =>
         {
-            orchestration.RegisterExtension(extension, factory => factory.Create(CoreServerComponent.Extension, 
+            orchestration.RegisterExtension(extension, factory => factory.Create(CoreServerComponent.Extension,
                 new() /*TODO provide the extension capabilities here*/));
-        }
+        }));
+
+        await Task.WhenAll(loadExtensionTasks);
     }
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
@@ -115,7 +119,14 @@ internal sealed class CoreLanguageServerApp(
     protected override void OnLanguageServerStarted(ILanguageServer server)
     {
         // TODO some ParsingClientService should be responsible for caching ASTs.
-        //orchestration.ParsingService.LanguageClient.ExecuteCommandWithResponse<ModuleParseResult>();
+        var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var uri = new Uri(RDCoreUriNamespaces.RDCoreWorkspaceUri + "/dev-temp1/module1.bas");
+        var request = new ParseDocumentParams
+        {
+            ModuleType = ModuleType.StdModule,
+            DocumentUri = uri
+        };
+        _ = orchestration.ParsingService.SendRequestAsync<ParseDocumentParams, ModuleParseResult>(request, tokenSource.Token);
     }
 
     protected override void Dispose(bool disposing) { }

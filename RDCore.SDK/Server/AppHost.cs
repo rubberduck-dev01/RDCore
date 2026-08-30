@@ -76,7 +76,7 @@ public abstract class AppHost<TApp>() : IDisposable
         try
         {
             _hostTask = _host.StartAsync();
-            await _app.RunAsync(_host.Services);
+            await _app.RunAsync(_host.Services, args);
             await _hostTask;
         }
         finally
@@ -211,9 +211,7 @@ public abstract class AppHost<TApp>() : IDisposable
         {
             builder.SetMinimumLevel(config);
         }
-#if DEBUG
         builder.AddDebug();
-#endif
     }
 
     /// <summary>

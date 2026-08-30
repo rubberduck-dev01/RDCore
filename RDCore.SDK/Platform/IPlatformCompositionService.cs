@@ -73,7 +73,7 @@ public class RDCoreServerProxy : RDCoreClientApp
         IHealthCheckService<RDCoreClientApp> healthCheckService, 
         ILanguageServerProtocolTransportLayer transportLayer, 
         ILogger<RDCoreClientApp> logger) 
-        : base(serverProcess, fileSystem, healthCheckService, transportLayer, logger)
+        : base(serverProcess, healthCheckService, transportLayer, logger)
     {
         _platformComponent = platformComponent;
         _capabilities = capabilities;

@@ -23,13 +23,8 @@ namespace RDCore.SDK.Client;
 /// </summary>
 public interface IRDCoreClientApp : IRDCoreApp
 {
-    /// <summary>
-    /// The <c>OmniSharp</c> <em>language client</em>, once initialized.
-    /// </summary>
-    /// <remarks>
-    /// ⚠️ This property <strong>will throw</strong> if used before initialization.
-    /// </remarks>
-    ILanguageClient LanguageClient { get; }
+    Task<TResult> SendRequestAsync<TParams, TResult>(TParams request, CancellationToken token) where TParams : IRequest<TResult>;
+    Task SendNotificationAsync<TParams>(TParams notification, CancellationToken token) where TParams: IRequest;
 }
 
 /// <summary>
@@ -44,7 +39,6 @@ public interface IRDCoreClientApp : IRDCoreApp
 /// </remarks>
 public abstract class RDCoreClientApp(
     IRDCoreServerProcess serverProcess,
-    IFileSystem fileSystem,
     IHealthCheckService<RDCoreClientApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<RDCoreClientApp> logger) : IRDCoreClientApp
@@ -65,23 +59,26 @@ public abstract class RDCoreClientApp(
     private OmniSharpLanguageClient? Client { get; set; }
     //private IServiceProvider? ExternalServiceProvider { get; set; }
 
-    /// <summary>
-    /// The <c>OmniSharp</c> <em>language client</em>, once initialized.
-    /// </summary>
-    /// <remarks>
-    /// ⚠️ This property <strong>will throw</strong> if used before initialization.
-    /// </remarks>
-    /// <exception cref="ServerProtocolSdkException"></exception>
-    public ILanguageClient LanguageClient => Client
-        ?? throw new ServerProtocolSdkException(Exceptions.LanguageServerProtocolSdkException_ClientNotInitialized);
+    public async Task<TResult> SendRequestAsync<TParams, TResult>(TParams request, CancellationToken token) where TParams : IRequest<TResult> 
+        => await Client!.SendRequest(request, token);
+
+    public Task SendNotificationAsync<TParams>(TParams notification, CancellationToken token) where TParams : IRequest
+    {
+        token.ThrowIfCancellationRequested();
+        Client!.SendNotification(notification);
+        return Task.CompletedTask;
+    }
+
+    protected async virtual Task BeforeRunAsync(string[] args) { }
 
     /// <summary>
     /// Bootstraps and starts the application.
     /// </summary>
     /// <param name="provider">An <see cref="IServiceProvider"/> to configure the application.</param>
-    public async Task RunAsync(IServiceProvider provider)
+    public async Task RunAsync(IServiceProvider provider, string[] args)
     {
         LogIfEnabled(LogLevel.Information, TraceMessages.LanguageClientStarting);
+        await BeforeRunAsync(args);
 
         //ExternalServiceProvider = provider;
         await StartLanguageClientAsync(provider.GetRequiredService<IPlatformCompositionService>());
@@ -121,7 +118,7 @@ public abstract class RDCoreClientApp(
         };
 
         // start the process first:
-        serverProcess.Start(path, ServerToken);
+        serverProcess.Start(path, transportLayer.PipeName, ServerToken);
 
         // by the time we're configured on this side, the server pipe should be ready:
         Client = await OmniSharpLanguageClient.From(ConfigureClient, ServerToken.Token);

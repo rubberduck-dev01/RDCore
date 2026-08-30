@@ -11,12 +11,11 @@ using RDCore.SDK.Server.Services.States;
 namespace RDCore.SDK.Extensibility;
 
 public class RDCoreExtensionServerApp(
-    IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IHealthCheckService<RDCoreExtensionServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<RDCoreExtensionServerApp> logger)
-    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
+    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 

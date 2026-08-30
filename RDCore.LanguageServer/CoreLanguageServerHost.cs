@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
 using RDCore.SDK.Server.Services;
@@ -18,5 +19,10 @@ internal sealed class CoreLanguageServerHost() : RDCorePlatformServerHost<CoreLa
             .AddSingleton<IRDCoreServerProxyFactory, RDCoreServerProxyFactory>()
             .AddSingleton<IPlatformCompositionService, PlatformCompositionService>()
             .AddSingleton<IPlatformOrchestrationService, PlatformOrchestrationService>();
+    }
+
+    protected override void ConfigureExternalLogging(IServiceCollection services, ILoggingBuilder builder, IConfiguration configuration)
+    {
+        base.ConfigureExternalLogging(services, builder, configuration);
     }
 }
