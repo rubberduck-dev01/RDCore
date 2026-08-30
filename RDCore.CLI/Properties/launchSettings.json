@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "RDCore.CLI": {
-      "commandName": "Project",
-      "workingDirectory": "C:\\dev\\repos\\rubberduck-dev01\\RDCore\\artifacts\\rdcore-dev\\RDCore.CLI",
-      "remoteDebugEnabled": false
-    }
-  }
-}
