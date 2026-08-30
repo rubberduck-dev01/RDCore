@@ -208,7 +208,7 @@ public abstract class AppHost<TApp>() : IDisposable
     /// </remarks>
     protected virtual void ConfigureExternalLogging(IServiceCollection services, ILoggingBuilder builder, IConfiguration configuration)
     {
-        var traceLevelConfig = configuration["Server:TraceLevel"];
+        var traceLevelConfig = configuration["Configuration:Server:TraceLevel"];
         if (Enum.TryParse<LogLevel>(traceLevelConfig, out var config))
         {
             builder.SetMinimumLevel(config);
