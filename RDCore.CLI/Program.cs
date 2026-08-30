@@ -41,17 +41,23 @@ internal class RDCoreConsoleClientHost() : RDCoreLanguageClientHost<RDCoreConsol
 {
     protected async override Task BuildAndRunAsync(HostApplicationBuilder builder, string[] args)
     {
-        if (args.Any())
-        {
-            // we can only build and run the protocol client if we have a workspace.
-            await base.BuildAndRunAsync(builder, args);
-        }
-        else
+        if (args.Length == 0)
         {
             // TODO REPL / command/program mode
             throw new NotSupportedException("This mode is not supported yet; workspace root uri argument is not optional.");
         }
+        else
+        {
+            // we can only build and run the protocol client if we have a workspace.
+            await base.BuildAndRunAsync(builder, args);
+        }
     }
+
+    protected override IEnumerable<(string, string?)> ConfigureOverrides(string[] initialArgs, SdkAppCommandLineArgs baseArgs) 
+        => [
+            ("CLI:UnsafeDevMode", baseArgs.UnsafeDevMode?.ToString() ?? false.ToString()),
+            // ...
+        ];
 
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -104,6 +110,7 @@ internal class RDCoreConsoleClientApp(
     protected override async Task OnLanguageClientStartedAsync(ILanguageClient client, CancellationToken token)
     {
         // TODO
+        LogIfEnabled(LogLevel.Information, "Requesting syntax trees...");
     }
 
     protected override void Dispose(bool disposing) { }

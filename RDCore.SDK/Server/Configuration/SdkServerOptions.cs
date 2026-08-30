@@ -23,72 +23,72 @@ public record class SdkAppCommandLineArgs
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.ConnectTimeoutSeconds"/> setting.
     /// </summary>
-    [Option('c')]
+    [Option('c', "connect-timeout")]
     public int? ConnectTimeoutSeconds { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkWorkspaceOptions.DefaultLocation"/> setting.
     /// </summary>
-    [Option('d')]
+    [Option('d', "default-workspace")]
     public string? DefaultLocation { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the application startup sequence and outputs command-line arguments documentation instead.
     /// </summary>
-    [Option('h')]
+    [Option('h', "help")]
     public bool? Help { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.HealthCheckIntervalSeconds"/> setting.
     /// </summary>
-    [Option('k')]
+    [Option('k', "healthcheck-interval")]
     public int? HealthCheckIntervalSeconds { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="TransportOptions.Type"/> setting.
     /// </summary>
-    [Option('m')]
-    public ServerTransportLayerMode Type { get; set; }
+    [Option('m', "transport-mode")]
+    public ServerTransportLayerMode? Type { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="NamedPipeTransportOptions.PipeName"/> setting.
     /// </summary>
-    [Option('n')]
-    public string PipeName { get; set; }
+    [Option('n', "pipe-name")]
+    public string? PipeName { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that provides the <see cref="SdkServerOptions.ClientProcessId"/> owner process ID to a server app.
     /// </summary>
     /// <remarks>
     /// 👉 This argument is required for starting a server app.
     /// </remarks>
-    [Option('p')]
-    public int ClientProcessId { get; set; }
+    [Option('p', "client-process-id")]
+    public int? ClientProcessId { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.ShutdownTimeoutSeconds"/> setting.
     /// </summary>
-    [Option('s')]
+    [Option('s', "shutdown-timeout")]
     public int? ShutdownTimeoutSeconds { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.TraceLevel"/> setting.
     /// </summary>
-    [Option('t')]
-    public LogLevel TraceLevel { get; set; }
+    [Option('t', "trace-level")]
+    public LogLevel? TraceLevel { get; set; }
     /// <summary>
     /// A <em>command-line switch</em> that overrides the <see cref="SdkServerOptions.TraceLevel"/> setting.
     /// </summary>
     /// <remarks>
     /// 👉 This switch has <strong>no alias</strong> and does not appear in <em>help documentation</em>.
     /// </remarks>
-    [Option(Hidden = true)]
+    [Option("unsafe-dev-mode", Hidden = true)]
     public bool? UnsafeDevMode { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkServerOptions.Verbose"/> setting.
     /// </summary>
-    [Option('v')]
-    public bool Verbose { get; set; }
+    [Option('v', "verbose")]
+    public bool? Verbose { get; set; }
     /// <summary>
     /// A <em>command-line argument</em> that overrides the <see cref="SdkWorkspaceOptions.WorkspaceUri"/> setting.
     /// </summary>
     /// <remarks>
     /// 👉 This argument is required for starting a language server app.
     /// </remarks>
-    [Option('w')]
-    public string WorkspaceUri { get; set; }
+    [Option('w', "workspace")]
+    public string? WorkspaceUri { get; set; }
 }
 
 /// <summary>
@@ -360,7 +360,7 @@ public record class NamedPipeTransportOptions
     /// <remarks>
     /// 🧩 This setting is required in <strong>both <em>client</em> and <em>server</em> applications</strong> and <strong>MUST</strong> be different for each loaded SDK application.
     /// </remarks>
-    public string PipeName { get; set; }
+    public string PipeName { get; set; } = null!;
     /// <summary>
     /// The maximum number of pipe instances that can run concurrently.
     /// </summary>

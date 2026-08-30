@@ -9,6 +9,7 @@ using RDCore.SDK.Platform;
 using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Reflection;
 using System.Text;
@@ -69,15 +70,14 @@ public abstract class AppHost<TApp>() : IDisposable
     {
         _host = builder.Build();
         _app = _host.Services.GetRequiredService<TApp>();
-        LogIfEnabled(LogLevel.Information, "Application resolved successfully. Starting server host...");
+        LogIfEnabled(LogLevel.Information, "Application resolved successfully. Starting application host...");
 
         await BeforeAppStartAsync(_host.Services);
 
         try
-        {
-            
+        {            
             _hostTask = _host.StartAsync();
-            LogIfEnabled(LogLevel.Information, "Server host started; starting server application...");
+            LogIfEnabled(LogLevel.Information, "Host started; starting application...");
 
             await _app.RunAsync(_host.Services, args);
             await _hostTask;
@@ -112,7 +112,6 @@ public abstract class AppHost<TApp>() : IDisposable
             var builder = Host.CreateApplicationBuilder();
             var configuration = builder.Configuration;
             configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            configuration.AddCommandLine(args);
             Configure(configuration, builder.Services, args);
 
             ConfigureExternalServices(builder.Services, configuration);
@@ -148,14 +147,7 @@ public abstract class AppHost<TApp>() : IDisposable
     /// 🧩 The base implementation binds and configures <c>appsettings.json</c> options, with command-line arguments as overrides.
     /// </remarks>
     /// <returns>The effective <see cref="SdkAppOptions"/> configuration.</returns>
-    protected virtual void Configure(IConfiguration configuration, IServiceCollection services, string[] args) 
-    {
-        //var commandLineArgs = CommandLine.Parser.Default.ParseArguments<SdkAppCommandLineArgs>(args);
-        var config = configuration.GetSection("Configuration");
-        services.Configure<SdkAppOptions>(config);
-
-        config["Platform:Transport:PipeConfig:PipeName"] = configuration["PipeName"];
-    }
+    protected abstract void Configure(IConfigurationBuilder configuration, IServiceCollection services, string[] args);
 
     /// <summary>
     /// Configures only the services needed to resolve the <see cref="IRDCoreApp"/> instance.
@@ -168,6 +160,9 @@ public abstract class AppHost<TApp>() : IDisposable
     /// </remarks>
     protected virtual void ConfigureExternalServices(IServiceCollection services, IConfiguration configuration)
     {
+        var config = configuration.GetSection("Configuration");
+        services.Configure<SdkAppOptions>(config);
+
         services
             .AddTransient<TApp>()
             .AddTransient<IServerStateProvider, ServerStateProvider>()

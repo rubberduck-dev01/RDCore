@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Handlers;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
+using System.Diagnostics;
 
 namespace RDCore.SDK.Server;
 
@@ -28,6 +30,18 @@ public class RDCorePlatformServerHost<TApp>() : AppHost<TApp>()
     /// </summary>
     public override int ExitCode => ServerStateProvider.State.ExitCode;
 
+    protected override void Configure(IConfigurationBuilder configuration, IServiceCollection services, string[] args)
+    {
+        var commandLineArgs = CommandLine.Parser.Default.ParseArguments<SdkAppCommandLineArgs>(args);
+        var overrides = new Dictionary<string, string?>
+        {
+            ["Configuration:Platform:Transport:PipeConfig:PipeName"] = commandLineArgs.Value.PipeName ?? throw new ArgumentNullException("args[PipeName]"),
+            ["Configuration:Workspace:WorkspaceUri"] = commandLineArgs.Value.WorkspaceUri ?? throw new ArgumentNullException("args[WorkspaceUri]"),
+            ["Configuration:Server:TraceLevel"] = commandLineArgs.Value.TraceLevel?.ToString() ?? LogLevel.Trace.ToString(),
+            ["Configuration:Server:Verbose"] = commandLineArgs.Value.Verbose?.ToString() ?? false.ToString(),
+        };
+        configuration.AddInMemoryCollection(overrides);
+    }
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
         ServerStateProvider = new ServerStateProvider(configuration);

@@ -6,7 +6,7 @@
     "RDCore.Platform": {
       "commandName": "Executable",
       "executablePath": "C:\\dev\\repos\\rubberduck-dev01\\RDCore\\artifacts\\rdcore-dev\\RDCore.CLI\\rdc.exe",
-      "commandLineArgs": "--workspaceuri C:\\\\dev\\\\workspaces\\\\Test",
+      "commandLineArgs": "--workspace C:\\\\dev\\\\workspaces\\\\Test",
       "workingDirectory": "C:\\dev\\repos\\rubberduck-dev01\\RDCore\\artifacts\\rdcore-dev\\RDCore.CLI"
     }
   }

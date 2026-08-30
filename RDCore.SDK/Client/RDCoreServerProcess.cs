@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RDCore.SDK.Platform;
+using Microsoft.Extensions.Options;
 using RDCore.SDK.Server.Configuration;
 using System.Diagnostics;
 using System.IO.Abstractions;
@@ -63,7 +63,7 @@ public enum CoreServerComponent
 /// <param name="Logger">A standard <see cref="ILogger"/>.</param>
 public class RDCoreServerProcess(
     IFileSystem FileSystem,
-    IConfiguration Configuration,
+    IOptions<SdkAppOptions> Options,
     ILogger<RDCoreServerProcess> Logger) : IRDCoreServerProcess
 {
     private readonly CancellationTokenSource _tokenSource = new();
@@ -102,16 +102,11 @@ public class RDCoreServerProcess(
         var fullPath = FileSystem.Path.Combine(
             FileSystem.Directory.GetParent(FileSystem.Directory.GetCurrentDirectory())!.FullName, 
             relativePath.Replace('/', '\\'));
-        var args = new SdkAppCommandLineArgs
-            {
-                ClientProcessId = Environment.ProcessId,
-                PipeName =  pipeName,
-                TraceLevel = LogLevel.Trace, // Enum.Parse<LogLevel>(Configuration["Configuration:Server:TraceLevel"] ?? "None"),
-                Verbose = true, //Convert.ToBoolean(Configuration["Configuration:Server:Verbose"]),
-                WorkspaceUri = Configuration["Configuration:Workspace:WorkspaceUri"]!,
-            };
+        var workspace = Options.Value.Workspace.WorkspaceUri;
+        var trace = LogLevel.Trace; // Options.Value.Server.TraceLevel;
+        var verbose = true; //Options.Value.Server.Verbose;
 
-        var info = CreateProcessStartInfo(fullPath, $"--ClientProcessId {args.ClientProcessId} --PipeName {args.PipeName} --WorkspaceUri {args.WorkspaceUri} --TraceLevel {args.TraceLevel} --Verbose {args.Verbose}");
+        var info = CreateProcessStartInfo(fullPath, $"-p {Environment.ProcessId} -n {pipeName} -w \"{workspace}\" -t {trace} {(verbose ? "-v" : null)}");
         if (Logger.IsEnabled(LogLevel.Debug))
         {
             Logger.LogDebug("[ProcessStartInfo]\n\tPath:'{path}'\n\tWorkingDirectory:'{workdir}'\n\tArguments:'{args}'", fullPath, info.WorkingDirectory, info.Arguments);

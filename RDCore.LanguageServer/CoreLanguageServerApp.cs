@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
@@ -47,13 +48,26 @@ internal sealed class CoreLanguageServerApp(
 
         LogIfEnabled(LogLevel.Information, "✅ Registered RDCore platform components");
 
-        var loadExtensionTasks = extensionsProvider.Discover().Select(extension => Task.Run(() =>
+        try
         {
-            orchestration.RegisterExtension(extension, factory => factory.Create(CoreServerComponent.Extension,
-                new() /*TODO provide the extension capabilities here*/));
-        }));
-        await Task.WhenAll(loadExtensionTasks);
-        LogIfEnabled(LogLevel.Information, "✅ Registered RDCore platform extensions");
+            foreach (var extension in extensionsProvider.Discover())
+            {
+                LogIfEnabled(LogLevel.Information, $"🧩 Validating discovered platform extension: {extension.Title}...");
+                orchestration.RegisterExtension(extension, factory => factory.Create(CoreServerComponent.Extension,
+                    new() /*TODO provide the extension capabilities here*/));
+            }
+            //var loadExtensionTasks = extensionsProvider.Discover().Select(extension => Task.Run(() =>
+            //{
+            //    orchestration.RegisterExtension(extension, factory => factory.Create(CoreServerComponent.Extension,
+            //        new() /*TODO provide the extension capabilities here*/));
+            //}));
+            //await Task.WhenAll(loadExtensionTasks);
+            LogIfEnabled(LogLevel.Information, "✅ Registered RDCore platform extensions");
+        }
+        catch (Exception exception)
+        {
+            LogIfEnabled(LogLevel.Error, $"Platform extensions could not be loaded.\n{exception}");
+        }
     }
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
@@ -114,9 +128,22 @@ internal sealed class CoreLanguageServerApp(
         };
     }
 
+    protected override Task OnLanguageServerInitializeAsync(ILanguageServer server, InitializeParams request, CancellationToken cancellationToken)
+    {
+        LogIfEnabled(LogLevel.Information, "Received LSP/Initialize request.");
+        return base.OnLanguageServerInitializeAsync(server, request, cancellationToken);
+    }
+
+    protected override Task OnLanguageServerInitializedAsync(ILanguageServer server, InitializeParams request, InitializeResult response, CancellationToken cancellationToken)
+    {
+        LogIfEnabled(LogLevel.Information, "🤝 LSP initialization handshake completed");
+        return base.OnLanguageServerInitializedAsync(server, request, response, cancellationToken);
+    }
+
     protected override void OnLanguageServerStarted(ILanguageServer server)
     {
-        LogIfEnabled(LogLevel.Information, "Language Server app started.");
+        LogIfEnabled(LogLevel.Information, "🚀 Language Server app started");
+        orchestration.ParsingService.RunAsync(IServiceProvider, [""]);
         // TODO some ParsingClientService should be responsible for caching ASTs.
         //var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         ////var uri = new Uri(RDCoreUriNamespaces.RDCoreWorkspaceUri + "/dev-temp1/module1.bas");

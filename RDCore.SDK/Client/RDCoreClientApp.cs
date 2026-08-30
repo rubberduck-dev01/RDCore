@@ -14,8 +14,9 @@ using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Handlers;
 using RDCore.SDK.Server.Handlers.Lifecycle;
 using RDCore.SDK.Server.Services;
+using System.IO.Pipelines;
+using System.IO.Pipes;
 using System.Reflection;
-
 using OmniSharpLanguageClient = OmniSharp.Extensions.LanguageServer.Client.LanguageClient;
 namespace RDCore.SDK.Client;
 
@@ -38,13 +39,30 @@ public interface IRDCoreClientApp : IRDCoreApp
 /// <remarks>
 /// 🧩 Most RDCore apps are server-side, but if you were making an IDE or a CLI app, this would be your LSP app.
 /// </remarks>
-public abstract class RDCoreClientApp(
-    IOptions<SdkAppOptions> options,
-    IRDCoreServerProcess serverProcess,
-    IHealthCheckService<RDCoreClientApp> healthCheckService,
-    ILanguageServerProtocolTransportLayer transportLayer,
-    ILogger<RDCoreClientApp> logger) : IRDCoreClientApp
+public abstract class RDCoreClientApp : IRDCoreClientApp
 {
+    private readonly IOptions<SdkAppOptions> _options;
+    private readonly IRDCoreServerProcess _serverProcess;
+    private readonly IHealthCheckService<RDCoreClientApp> _healthCheckService;
+    private readonly ILanguageServerProtocolTransportLayer _transportLayer;
+    private readonly ILogger<RDCoreClientApp> _logger;
+
+    protected RDCoreClientApp(
+        IOptions<SdkAppOptions> options,
+        IRDCoreServerProcess serverProcess,
+        IHealthCheckService<RDCoreClientApp> healthCheckService,
+        ILanguageServerProtocolTransportLayer transportLayer,
+        ILogger<RDCoreClientApp> logger)
+    {
+        _options = options;
+        _serverProcess = serverProcess;
+        _healthCheckService = healthCheckService;
+        _transportLayer = transportLayer;
+        _logger = logger;
+
+        PipeName = $"RDCore.{PlatformComponent}.Pipe.{Random.Shared.NextInt64()}";
+    }
+
     /// <summary>
     /// The type of platform client.
     /// </summary>
@@ -58,6 +76,7 @@ public abstract class RDCoreClientApp(
     public ExtensionInfo? ExtensionInfo { get; init; }
 
     private CancellationTokenSource? ServerToken { get; set; }
+    private string PipeName { get; }
     private OmniSharpLanguageClient? Client { get; set; }
     //private IServiceProvider? ExternalServiceProvider { get; set; }
 
@@ -103,6 +122,8 @@ public abstract class RDCoreClientApp(
         };
     }
 
+    private NamedPipeClientStream? _namedPipe;
+
     private IPlatformCompositionService? _platform;
     private async Task StartLanguageClientAsync(IPlatformCompositionService platform)
     {
@@ -120,7 +141,11 @@ public abstract class RDCoreClientApp(
         };
 
         // start the process first:
-        await serverProcess.StartAsync(path, options.Value.Platform.Transport.PipeConfig.PipeName, ServerToken);
+        await _serverProcess.StartAsync(path, PipeName, ServerToken);
+
+        // configure client-side transport:
+        _namedPipe = _transportLayer.ConfigureClient(PipeName);
+        await _namedPipe.ConnectAsync();
 
         // by the time we're configured on this side, the server pipe should be ready:
         Client = await OmniSharpLanguageClient.From(ConfigureClient, ServerToken.Token);
@@ -138,7 +163,7 @@ public abstract class RDCoreClientApp(
     {
         ServerToken?.Dispose();
         Client?.Dispose();
-        transportLayer?.Dispose();
+        _namedPipe?.Dispose();
 
         Dispose(true);
         GC.SuppressFinalize(this);
@@ -146,14 +171,15 @@ public abstract class RDCoreClientApp(
 
     private void ConfigureClient(LanguageClientOptions options)
     {
-        transportLayer.ConfigureClient(options);
         options
+            .WithInput(PipeReader.Create(_namedPipe!))
+            .WithOutput(PipeWriter.Create(_namedPipe!))
             // basic client app information:
             .WithClientInfo(GetClientInfo())
             // wire-up lifecycle delegates:
             .OnStarted(OnLanguageClientStartedAsync)
-            .OnInitialize(OnLanguageClientInitializeAsync)
-            .OnInitialized(OnLanguageClientInitializedAsync);
+            .OnInitialize(HandleLanguageClientInitializeAsync)
+            .OnInitialized(HandleLanguageClientInitializedAsync);
 
         var services = options.Services;
         services.AddSingleton<ILanguageClientFacade>(provider => Client!);
@@ -161,7 +187,7 @@ public abstract class RDCoreClientApp(
         // everything else the app wants to do:
         ConfigureServices(services);
         ConfigureHandlers(new RDCoreLanguageClientHandlersConfigurationBuilder(options));
-        LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageClientConfigurationCompleted);
+        LogIfEnabled(LogLevel.Information, TraceMessages.LanguageClientConfigurationCompleted);
     }
 
     /// <summary>
@@ -192,7 +218,7 @@ public abstract class RDCoreClientApp(
     /// 🧩 The base implementation simply logs handler completion at <c>Trace</c> level.
     /// </remarks>
     protected async virtual Task OnLanguageClientStartedAsync(ILanguageClient client, CancellationToken token)
-        => LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageClientStarted_HandlerCompleted);
+        => LogIfEnabled(LogLevel.Information, TraceMessages.LanguageClientStarted_HandlerCompleted);
 
     /// <summary>
     /// Signals the completion of the <c>Initialize</c> request handler.
@@ -206,7 +232,7 @@ public abstract class RDCoreClientApp(
     /// the base implementation logs handler completion at <c>Trace</c> level.
     /// </remarks>
     protected async virtual Task OnLanguageClientInitializeAsync(ILanguageClient client, InitializeParams request, CancellationToken token)
-        => LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageClientInitialize_HandlerCompleted);
+        => LogIfEnabled(LogLevel.Information, TraceMessages.LanguageClientInitialize_HandlerCompleted);
 
     /// <summary>
     /// Gives your class or handler an opportunity to interact with the <see cref="InitializeParams" /> before it is sent to the server.
@@ -220,7 +246,7 @@ public abstract class RDCoreClientApp(
         {
             if (request.ProcessId.Value <= int.MaxValue)
             {
-                healthCheckService.Start(Convert.ToInt32(request.ProcessId.Value), () => HandleUnhealthyServer(_platform!));
+                _healthCheckService.Start(Convert.ToInt32(request.ProcessId.Value), () => HandleUnhealthyServer(_platform!));
             }
             else
             {
@@ -239,7 +265,7 @@ public abstract class RDCoreClientApp(
     /// 🧩 The base implementation logs handler completion at <c>Trace</c> level.
     /// </remarks>
     protected async virtual Task OnLanguageClientInitializedAsync(ILanguageClient client, InitializeParams request, InitializeResult response, CancellationToken cancellationToken)
-        => LogIfEnabled(LogLevel.Trace, TraceMessages.LanguageClientInitialized_HandlerCompleted);
+        => LogIfEnabled(LogLevel.Information, TraceMessages.LanguageClientInitialized_HandlerCompleted);
 
     /// <summary>
     /// Gives your class or handler an opportunity to interact with the <see cref="InitializeParams" /> and <see cref="InitializeResult" /> before it is processed by the client.
@@ -254,9 +280,9 @@ public abstract class RDCoreClientApp(
     /// <param name="message">The log <c>message</c>.</param>
     public void LogIfEnabled(LogLevel logLevel, string message)
     {
-        if (logger.IsEnabled(logLevel))
+        if (_logger.IsEnabled(logLevel))
         {
-            logger.Log(logLevel, "{message}", message);
+            _logger.Log(logLevel, "{message}", message);
         }
     }
 }

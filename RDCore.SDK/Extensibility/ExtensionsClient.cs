@@ -136,6 +136,10 @@ public class ExtensionsClient(
                     logger.LogWarning("{message}{verbose}", message, verbose);
                 }
             }
+            else if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning("No manifest was found for extension '{title}'.", title);
+            }
         }
     }
 
@@ -166,4 +170,3 @@ public class ExtensionsClient(
         }
     }
 }
-
