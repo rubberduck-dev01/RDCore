@@ -20,7 +20,7 @@ public sealed class ProjectFileTests
     public void Version_ServerAppVersionByDefault()
     {
         // arrange
-        var expected = RDCoreLanguageServerHost<RDCoreServerApp>.Info.Version!.ToString(3);
+        var expected = RDCorePlatformServerHost<RDCoreServerApp>.Info.Version!.ToString(3);
         var sut = new ProjectFile();
 
         // act

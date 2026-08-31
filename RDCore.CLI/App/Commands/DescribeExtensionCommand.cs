@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RDCore.CLI.App.Messages;
-using RDCore.LanguageServer.Extensibility;
 using RDCore.SDK.Extensibility;
 using RDCore.SDK.Server.Configuration;
 using System.IO.Abstractions;

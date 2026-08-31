@@ -125,7 +125,6 @@ foreach ($project in $Projects)
 {
     $source = Join-Path $StagingRoot $project.Name
     $target = Join-Path $PlatformRoot $project.Name
-    Write-Host "$source 👉 $target"
 
     New-Item $target -ItemType "directory"
     Copy-Item -Path "$source\*" -Destination "$target\" -Recurse

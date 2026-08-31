@@ -12,14 +12,13 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Title>RD-VBA CLI</Title>
     <Authors>9562-7303 Québec inc.</Authors>
-    <Copyright>Copyright © 2026 ${Authors}</Copyright>
+    <Copyright>Copyright © 2026 9562-7303 Québec inc.</Copyright>
     <Product>RDCore</Product>
     <PackageProjectUrl>https://rubberduckvba.ca</PackageProjectUrl>
     <RepositoryUrl>https://github.com/rubberduck-vba/rdcore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>0.1</AssemblyVersion>
     <FileVersion>0.1</FileVersion>
-    <BaseOutputPath>C:\dev\repos\rubberduck-dev01\RDCore\publish\RDCore.CLI</BaseOutputPath>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
 
@@ -29,10 +28,10 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\RDCore.SDK\RDCore.SDK.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.11" />
+    <PackageReference Include="System.IO.Abstractions" Version="22.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,6 +57,10 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RDCore.SDK\RDCore.SDK.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,16 +1,18 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 
 namespace RDCore.Diagnostics;
 
-internal class CoreDiagnosticsAppHost() : RDCoreLanguageServerHost<CoreDiagnosticsApp>()
+internal class CoreDiagnosticsAppHost() : RDCorePlatformServerHost<CoreDiagnosticsApp>()
 {
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -18,17 +20,15 @@ internal class CoreDiagnosticsAppHost() : RDCoreLanguageServerHost<CoreDiagnosti
 }
 
 
-internal class CoreDiagnosticsApp : RDCoreServerApp
+internal class CoreDiagnosticsApp(
+    IOptions<SdkAppOptions> options,
+    IServerStateProvider serverStateProvider,
+    IHealthCheckService<CoreDiagnosticsApp> healthCheckService,
+    ILanguageServerProtocolTransportLayer transportLayer,
+    ILogger<CoreDiagnosticsApp> logger)
+: RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
-    public CoreDiagnosticsApp(
-        //IOptions<SdkServerOptions> options, 
-        IServerStateProvider serverStateProvider, 
-        IHealthCheckService<CoreDiagnosticsApp> healthCheckService, 
-        ILanguageServerProtocolTransportLayer transportLayer, 
-        ILogger<CoreDiagnosticsApp> logger) 
-        : base(serverStateProvider, healthCheckService, transportLayer, logger)
-    {
-    }
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.Extension;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {
@@ -38,7 +38,7 @@ internal class CoreDiagnosticsApp : RDCoreServerApp
     {
     }
 
-    protected override void RegisterServerCapabilities(ILanguageServer server, CorePlatformClientCapabilities clientCapabilities)
+    protected override void RegisterServerCapabilities(ILanguageServer server, ClientCapabilities clientCapabilities)
     {
     }
 }

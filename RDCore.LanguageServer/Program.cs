@@ -7,7 +7,16 @@ public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        var host = new CoreLanguageServerHost();
-        return await host.RunAsync(args);
+        try
+        {
+            var host = new CoreLanguageServerHost();
+            return await host.RunAsync(args);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.ToString());
+            Console.ReadLine();
+            return -1;
+        }
     }
 }

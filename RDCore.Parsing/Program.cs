@@ -1,19 +1,27 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using RDCore.Parsing.Handlers;
 using RDCore.SDK.Client;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 using System.Runtime.CompilerServices;
 
+// for warnings about antlr-generated parser rule context types not requiring CLSCompliantAttribute because not present on assembly.
+[assembly: CLSCompliant(false)]
+
+// expose internals to RDCore.Tests and CastleWindsor proxies:
 [assembly: InternalsVisibleTo("RDCore.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+
+// list all the platform capabilities provided by this server here:
 [assembly: ProvidesCorePlatformClientCapability<ParseFullDocument>]
+
 
 namespace RDCore.Parsing;
 
@@ -26,7 +34,7 @@ public class Program
     }
 }
 
-public class RDCoreParserAppHost : RDCoreLanguageServerHost<RDCoreParserApp> 
+public class RDCoreParserAppHost : RDCorePlatformServerHost<RDCoreParserApp> 
 {
     protected override void ConfigureAdditionalExternalServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -34,31 +42,30 @@ public class RDCoreParserAppHost : RDCoreLanguageServerHost<RDCoreParserApp>
     }
 }
 
-public class RDCoreParserApp : RDCoreServerApp
+public class RDCoreParserApp(
+    IOptions<SdkAppOptions> options,
+    IServerStateProvider serverStateProvider,
+    IHealthCheckService<RDCoreParserApp> healthCheckService,
+    ILanguageServerProtocolTransportLayer transportLayer,
+    ILogger<RDCoreParserApp> logger)
+: RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
-    public RDCoreParserApp(
-        //IOptions<SdkServerOptions> options, 
-        IServerStateProvider serverStateProvider, 
-        IHealthCheckService<RDCoreParserApp> healthCheckService, 
-        ILanguageServerProtocolTransportLayer transportLayer, 
-        ILogger<RDCoreParserApp> logger) :
-        base(serverStateProvider, healthCheckService, transportLayer, logger)
-    {
-    }
+    public override CoreServerComponent PlatformComponent => CoreServerComponent.ParsingServer;
 
     protected override void ConfigureHandlers(IRDCoreLSPHandlerConfigurationBuilder builder)
     {
+        builder.WithHandler<ParseFullDocumentHandler>();
     }
 
     protected override void Dispose(bool disposing)
     {
     }
 
-    protected override void RegisterServerCapabilities(ILanguageServer server, CorePlatformClientCapabilities clientCapabilities)
+    protected override void RegisterServerCapabilities(ILanguageServer server, ClientCapabilities clientCapabilities)
     {
-        clientCapabilities.Parsing = new()
-        {
-            ParseFullDocument = new(IsSupported: true)
-        };
+        //clientCapabilities.Parsing = new()
+        //{
+        //    ParseFullDocument = new(IsSupported: true)
+        //};
     }
 }

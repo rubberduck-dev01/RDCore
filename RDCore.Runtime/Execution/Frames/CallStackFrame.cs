@@ -24,15 +24,15 @@ public record class CallStackFrame(SyntaxNodeId NodeId, StaticSymbol StaticSymbo
     /// <param name="value">A <see cref="VBTypedValue"/> to be allocated locally in this frame.</param>
     public void Push(VBTypedValue value)
     {
-        if (_localSymbols.Contains(value.ResolvedSymbol))
+        if (_localSymbols.Contains(value.ResolvedSymbol!))
         {
             // something went very wrong.
             throw new InvalidOperationException();
         }
-        _localSymbols.Push(value.ResolvedSymbol);
+        _localSymbols.Push(value.ResolvedSymbol!);
 
-        _localHeap[value.ResolvedSymbol] = value;
-        _localSymbolTable[value.ResolvedSymbol.Uri] = value.ResolvedSymbol;
+        _localHeap[value.ResolvedSymbol!] = value;
+        _localSymbolTable[value.ResolvedSymbol!.Uri] = value.ResolvedSymbol;
     }
 
     /// <summary>
