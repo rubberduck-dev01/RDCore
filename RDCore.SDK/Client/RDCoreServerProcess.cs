@@ -23,6 +23,7 @@ public interface IRDCoreServerProcess : IDisposable
     /// This method should be invoked during the <c>Shutdown</c> LSP <em>server lifecycle</em> handler.
     /// </remarks>
     void Shutdown();
+    int ProcessId { get; }
 }
 
 public enum CoreServerComponent
@@ -69,6 +70,8 @@ public class RDCoreServerProcess(
     private readonly CancellationTokenSource _tokenSource = new();
     private Process? _serverProcess = default;
     private Task? _waitForExit = default;
+
+    public int ProcessId => _serverProcess?.Id ?? 0;
 
     public void Dispose()
     {

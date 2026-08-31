@@ -76,7 +76,7 @@ public abstract class AppHost<TApp>() : IDisposable
 
         try
         {            
-            _hostTask = _host.StartAsync();
+            _hostTask = _host.StartAsync(ProcessTokenSource.Token);
             LogIfEnabled(LogLevel.Information, "Host started; starting application...");
 
             await _app.RunAsync(_host.Services, args);
@@ -107,6 +107,7 @@ public abstract class AppHost<TApp>() : IDisposable
     /// <exception cref="Exception">Any other exception type is unexpected and if it is fatal, the host application process should exit with a non-zero error code.</exception>
     public async Task<int> RunAsync(string[] args)
     {
+        Console.OutputEncoding = Encoding.Unicode;
         try
         {
             var builder = Host.CreateApplicationBuilder();
@@ -131,7 +132,6 @@ public abstract class AppHost<TApp>() : IDisposable
         }
         finally
         {
-            Console.OutputEncoding = Encoding.Unicode;
             Console.WriteLine("V I V A T  ♥  C U C U M I S ™\n©Copyright 2026 9562-7303 Québec inc.");
         }
 
@@ -164,7 +164,7 @@ public abstract class AppHost<TApp>() : IDisposable
         services.Configure<SdkAppOptions>(config);
 
         services
-            .AddTransient<TApp>()
+            .AddSingleton<TApp>()
             .AddTransient<IServerStateProvider, ServerStateProvider>()
             .AddTransient<IRDCoreServerProcess, RDCoreServerProcess>() // FIXME this one needs a provider or factory
             .AddTransient<IHealthCheckService<TApp>, HealthCheckService<TApp>>()

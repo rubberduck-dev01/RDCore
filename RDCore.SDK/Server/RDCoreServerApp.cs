@@ -44,6 +44,7 @@ public interface IRDCoreServerApp : IRDCoreApp
 /// 🧩 Since RDCore extensions are LSP servers, this is the base class for most RDCore applications.
 /// </remarks>
 public abstract class RDCoreServerApp(
+    IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IHealthCheckService<RDCoreServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
@@ -200,17 +201,10 @@ public abstract class RDCoreServerApp(
     {
         LogIfEnabled(LogLevel.Information, "Received LSP/Initialize request.");
         ServerStateProvider.OnInitialize();
-        if (request.ProcessId is not null)
+        
+        if (options.Value.Server.ClientProcessId != 0)
         {
-            if (request.ProcessId.Value <= int.MaxValue)
-            {
-                // Initialize request specifies a client process ID; start monitoring the client process health
-                healthCheckService.Start(Convert.ToInt32(request.ProcessId.Value), HandleUnhealthyClient);
-            }
-            else 
-            {
-                LogIfEnabled(LogLevel.Warning, TraceMessages.InitializeClientProcessIdOutOfRange);
-            }
+            healthCheckService.Start(options.Value.Server.ClientProcessId, HandleUnhealthyClient);
         }
         else
         {

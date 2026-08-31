@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -6,6 +7,7 @@ using RDCore.SDK.Client;
 using RDCore.SDK.Extensibility;
 using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
+using RDCore.SDK.Server.Configuration;
 using RDCore.SDK.Server.Services;
 using RDCore.SDK.Server.Services.States;
 
@@ -19,6 +21,7 @@ namespace RDCore.LanguageServer;
 /// <strong>orchestrating communications</strong> between the IDE editor and the applications and services of the RDCore platform.
 /// </remarks>
 internal sealed class CoreLanguageServerApp(
+    IOptions<SdkAppOptions> options,
     IServerStateProvider serverStateProvider,
     IPlatformCompositionService composition,
     IPlatformOrchestrationService orchestration,
@@ -26,7 +29,7 @@ internal sealed class CoreLanguageServerApp(
     IHealthCheckService<CoreLanguageServerApp> healthCheckService,
     ILanguageServerProtocolTransportLayer transportLayer,
     ILogger<CoreLanguageServerApp> logger)
-    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
+    : RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.LanguageServer;
 
@@ -134,16 +137,17 @@ internal sealed class CoreLanguageServerApp(
         return base.OnLanguageServerInitializeAsync(server, request, cancellationToken);
     }
 
-    protected override Task OnLanguageServerInitializedAsync(ILanguageServer server, InitializeParams request, InitializeResult response, CancellationToken cancellationToken)
+    protected async override Task OnLanguageServerInitializedAsync(ILanguageServer server, InitializeParams request, InitializeResult response, CancellationToken cancellationToken)
     {
         LogIfEnabled(LogLevel.Information, "🤝 LSP initialization handshake completed");
-        return base.OnLanguageServerInitializedAsync(server, request, response, cancellationToken);
+
+        await orchestration.ParsingService.RunAsync(server.Services, [$"-p {Environment.ProcessId} -w {request.RootUri} -t Trace -v"]);
+        await base.OnLanguageServerInitializedAsync(server, request, response, cancellationToken);
     }
 
     protected override void OnLanguageServerStarted(ILanguageServer server)
     {
         LogIfEnabled(LogLevel.Information, "🚀 Language Server app started");
-        orchestration.ParsingService.RunAsync(IServiceProvider, [""]);
         // TODO some ParsingClientService should be responsible for caching ASTs.
         //var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         ////var uri = new Uri(RDCoreUriNamespaces.RDCoreWorkspaceUri + "/dev-temp1/module1.bas");

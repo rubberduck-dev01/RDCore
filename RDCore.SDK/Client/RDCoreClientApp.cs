@@ -7,6 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Shared;
 using RDCore.SDK.Extensibility;
 using RDCore.SDK.Platform;
 using RDCore.SDK.Server;
@@ -118,7 +119,7 @@ public abstract class RDCoreClientApp : IRDCoreClientApp
         return new()
         {
             Name = assemblyName?.Name ?? "RDCore.CustomLanguageClientApp",
-            Version = (assemblyName?.Version ?? new Version()).ToString(3)
+            Version = (assemblyName?.Version ?? new Version()).ToString(3),
         };
     }
 
@@ -145,7 +146,7 @@ public abstract class RDCoreClientApp : IRDCoreClientApp
 
         // configure client-side transport:
         _namedPipe = _transportLayer.ConfigureClient(PipeName);
-        await _namedPipe.ConnectAsync();
+        await _namedPipe.ConnectAsync((int)TimeSpan.FromSeconds(30 /*_options.Value.Server.ConnectTimeoutSeconds*/).TotalMilliseconds);
 
         // by the time we're configured on this side, the server pipe should be ready:
         Client = await OmniSharpLanguageClient.From(ConfigureClient, ServerToken.Token);
@@ -169,6 +170,19 @@ public abstract class RDCoreClientApp : IRDCoreClientApp
         GC.SuppressFinalize(this);
     }
 
+    protected virtual ClientCapabilities GetClientCapabilities() => new();
+
+    protected virtual InitializeParams CreateInitializationParams() => new()
+    {
+        ClientInfo = GetClientInfo(),
+        Capabilities = GetClientCapabilities(),
+        RootUri = _options.Value.Workspace.WorkspaceUri,
+        ProcessId = Environment.ProcessId,
+        Locale = Thread.CurrentThread.CurrentUICulture.Name,
+        Trace = _options.Value.Server.TraceLevel == LogLevel.None ? InitializeTrace.Off
+            : _options.Value.Server.Verbose ? InitializeTrace.Verbose : InitializeTrace.Messages,
+    };
+
     private void ConfigureClient(LanguageClientOptions options)
     {
         options
@@ -176,6 +190,7 @@ public abstract class RDCoreClientApp : IRDCoreClientApp
             .WithOutput(PipeWriter.Create(_namedPipe!))
             // basic client app information:
             .WithClientInfo(GetClientInfo())
+            .WithClientCapabilities(GetClientCapabilities())
             // wire-up lifecycle delegates:
             .OnStarted(OnLanguageClientStartedAsync)
             .OnInitialize(HandleLanguageClientInitializeAsync)
@@ -242,17 +257,9 @@ public abstract class RDCoreClientApp : IRDCoreClientApp
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for cooperative cancellation.</param>
     protected async Task HandleLanguageClientInitializeAsync(ILanguageClient client, InitializeParams request, CancellationToken cancellationToken)
     {
-        if (request.ProcessId.HasValue)
+        if (_serverProcess.ProcessId != 0)
         {
-            if (request.ProcessId.Value <= int.MaxValue)
-            {
-                _healthCheckService.Start(Convert.ToInt32(request.ProcessId.Value), () => HandleUnhealthyServer(_platform!));
-            }
-            else
-            {
-                LogIfEnabled(LogLevel.Warning, TraceMessages.InitializeClientProcessIdOutOfRange);
-            }
-
+            _healthCheckService.Start(_serverProcess.ProcessId, () => HandleUnhealthyServer(_platform!));
         }
         await OnLanguageClientInitializeAsync(client, request, cancellationToken);
     }

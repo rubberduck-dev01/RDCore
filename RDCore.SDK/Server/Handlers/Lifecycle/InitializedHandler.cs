@@ -7,14 +7,14 @@ using RDCore.SDK.Server.Services.States;
 
 namespace RDCore.SDK.Server.Handlers.Lifecycle;
 
-public class ShutdownHandler(ILogger<IJsonRpcHandler> logger, IServerStateProvider server) : ShutdownHandlerBase
+public class InitializedHandler(ILogger<IJsonRpcHandler> logger, IServerStateProvider server) : LanguageProtocolInitializedHandlerBase
 {
-    public async override Task<Unit> Handle(ShutdownParams request, CancellationToken cancellationToken)
+    public async override Task<Unit> Handle(InitializedParams request, CancellationToken cancellationToken)
     {
-        logger.LogTrace("Received Shutdown notification.");
+        logger.LogTrace("Received Initialized notification.");
         cancellationToken.ThrowIfCancellationRequested();
 
-        server.OnShutdown();
+        server.OnInitialized();
 
         return await Task.FromResult(Unit.Value);
     }

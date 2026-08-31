@@ -43,11 +43,12 @@ public class RDCoreParserAppHost : RDCorePlatformServerHost<RDCoreParserApp>
 }
 
 public class RDCoreParserApp(
-        IServerStateProvider serverStateProvider,
-        IHealthCheckService<RDCoreParserApp> healthCheckService,
-        ILanguageServerProtocolTransportLayer transportLayer,
-        ILogger<RDCoreParserApp> logger)
-    : RDCoreServerApp(serverStateProvider, healthCheckService, transportLayer, logger)
+    IOptions<SdkAppOptions> options,
+    IServerStateProvider serverStateProvider,
+    IHealthCheckService<RDCoreParserApp> healthCheckService,
+    ILanguageServerProtocolTransportLayer transportLayer,
+    ILogger<RDCoreParserApp> logger)
+: RDCoreServerApp(options, serverStateProvider, healthCheckService, transportLayer, logger)
 {
     public override CoreServerComponent PlatformComponent => CoreServerComponent.ParsingServer;
 
